@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spidey Player 2.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body class="text-gray-100 min-h-screen flex items-start md:items-center justify-center p-4">
+    <!-- Animated Background -->
+    <div class="bg-animate">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <div class="relative w-full max-w-5xl flex flex-col md:flex-row gap-6 items-start justify-center z-10">
+
+        <!-- Main Player Card -->
+        <div
+            class="glass w-full max-w-md rounded-3xl p-8 relative overflow-hidden transition-all duration-300 hover:scale-[1.01]">
+            <!-- Visualizer Canvas Background inside the card (optional placement, or keep it global) -->
+            <!-- We'll keep global visualizer for now, but maybe a local one too? No, global is better for "Cyber" feel -->
+
+            <div class="flex flex-col items-center relative z-20">
+                <!-- Header -->
+                <div class="w-full flex justify-between items-center mb-8 text-gray-300">
+                    <button class="hover:text-white transition-colors"><i class="fas fa-chevron-down"></i></button>
+                    <div class="text-xs uppercase tracking-widest font-semibold text-blue-300">Now Playing</div>
+                    <button class="hover:text-white transition-colors" id="playlist-toggle-btn"><i
+                            class="fas fa-list"></i></button>
+                </div>
+
+                <!-- Album Art -->
+                <div class="relative w-64 h-64 mb-8 group">
+                    <div
+                        class="absolute inset-0 bg-blue-500 rounded-full blur-2xl opacity-20 group-hover:opacity-40 transition-opacity">
+                    </div>
+                    <img src="image/862eb376cc18fd124f045f6b31b0dc4b.jpg" alt="Album Art"
+                        class="w-full h-full object-cover rounded-full shadow-2xl border-4 border-white/5 pulse-art z-10 relative"
+                        id="album-art" />
+                </div>
+
+                <!-- Song Info -->
+                <div class="text-center mb-8 w-full">
+                    <h2 class="text-2xl font-bold mb-1 text-white tracking-wide truncate" id="song-title">
+                        Select a Track
+                    </h2>
+                    <p class="text-blue-400 text-sm font-medium tracking-wider" id="song-artist">Spidey Player</p>
+                </div>
+
+                <!-- Progress -->
+                <div class="w-full mb-8">
+                    <div class="w-full bg-gray-700/50 rounded-full h-1.5 mb-2 cursor-pointer relative group"
+                        id="progress-container">
+                        <div class="bg-gradient-to-r from-cyan-400 to-blue-500 h-1.5 rounded-full relative"
+                            style="width: 0%" id="progress-bar">
+                            <div
+                                class="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg scale-0 group-hover:scale-100 transition-transform">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between text-xs text-gray-400 font-mono">
+                        <span id="current-time">0:00</span>
+                        <span id="duration">0:00</span>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="flex items-center justify-between w-full mb-8 px-4">
+                    <button id="shuffle-btn" class="text-gray-400 hover:text-white transition-colors" title="Shuffle">
+                        <i class="fas fa-random"></i>
+                    </button>
+
+                    <button id="prev-btn"
+                        class="text-gray-300 hover:text-white text-2xl transition-transform hover:-translate-x-1">
+                        <i class="fas fa-step-backward"></i>
+                    </button>
+
+                    <button id="play-btn"
+                        class="bg-white text-black hover:scale-110 rounded-full w-16 h-16 flex items-center justify-center text-2xl shadow-[0_0_20px_rgba(255,255,255,0.4)] transition-all duration-300">
+                        <i class="fas fa-play ml-1"></i>
+                    </button>
+
+                    <button id="next-btn"
+                        class="text-gray-300 hover:text-white text-2xl transition-transform hover:translate-x-1">
+                        <i class="fas fa-step-forward"></i>
+                    </button>
+
+                    <button id="repeat-btn" class="text-gray-400 hover:text-white transition-colors" title="Repeat">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                </div>
+
+
+            </div>
+        </div>
+
+        <!-- Playlist Panel (Collapsible on mobile) -->
+        <div class="glass glass-panel w-full md:w-80 rounded-3xl p-6 h-[500px] flex flex-col hidden absolute z-50 top-20 right-0 md:-right-4 shadow-2xl backdrop-blur-xl border border-white/10"
+            id="playlist-panel">
+            <div class="flex flex-col gap-3 mb-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-lg tracking-wide">Playlist</h3>
+                    <label
+                        class="cursor-pointer bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-full text-xs font-medium transition-colors">
+                        <i class="fas fa-plus mr-1"></i> Import
+                        <input type="file" id="file-input" accept="audio/*" multiple class="hidden" />
+                    </label>
+                </div>
+                <div class="relative">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                    <input type="text" id="search-input" placeholder="Search songs..."
+                        class="w-full bg-white/5 border border-white/10 rounded-lg py-2 pl-8 pr-3 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-cyan-500/50 transition-colors" />
+                </div>
+            </div>
+
+            <ul id="playlist" class="space-y-2 overflow-y-auto flex-1 pr-2 custom-scrollbar">
+                <!-- Playlist items will go here -->
+                <div class="text-center text-gray-500 mt-10 text-sm">
+                    <i class="fas fa-music mb-3 text-2xl opacity-50"></i>
+                    <p>Drag & Drop songs here</p>
+                    <p class="text-xs mt-1">or click Import</p>
+                </div>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Visualizer Canvas -->
+    <canvas id="visualizer"></canvas>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,6 @@
+node_modules/
+songs/
+venv/
+TAYLOR-SWIFT/
+.DS_Store
+*.log

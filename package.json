@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "dependencies": {
+    "ogl": "^1.0.11"
+  }
+}
