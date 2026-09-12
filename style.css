@@ -411,6 +411,37 @@ body {
   border-left-color: var(--primary-color);
 }
 
+.track-main {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: #e5e7eb;
+  cursor: pointer;
+  text-align: left;
+  transition: color 0.15s ease;
+}
+
+.track-main:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.track-main:hover .track-num {
+  color: #fff;
+  background: rgba(0, 242, 234, 0.2);
+}
+
+.track-main:hover .track-title,
+.track-row.is-current .track-main .track-title {
+  color: #fff;
+}
+
 .track-num {
   display: flex;
   align-items: center;
@@ -425,11 +456,6 @@ body {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
-.track-row:hover .track-num {
-  color: #fff;
-  background: rgba(0, 242, 234, 0.2);
-}
-
 .track-body {
   flex: 1 1 auto;
   min-width: 0;
@@ -442,11 +468,6 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.track-row:hover .track-title,
-.track-row.is-current .track-title {
-  color: #fff;
 }
 
 .track-sub {

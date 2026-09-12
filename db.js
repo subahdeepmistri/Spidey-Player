@@ -96,14 +96,53 @@
       db.createObjectStore(COVER_STORE, { keyPath: 'key' });
     }
 
-    // v1 -> v2: read the legacy records *during* the upgrade transaction and
-    // drop the old store in the same transaction. Migration itself cannot run
-    // here (it is async and would let the transaction auto-commit), so the
-    // rows are stashed for migrateLegacy() to pick up once open() resolves.
+    // v1 -> v2: copy every legacy record into the new tracks store
+    // **inside this upgrade transaction** so the old store can be safely deleted.
+    // We create minimal v2 records (no async metadata parsing) to ensure
+    // crash-safety: if songs is deleted, every legacy file is already in tracks.
+    // An enrichment pass runs after open() to add metadata, covers, durations.
     if (oldVersion >= 1 && db.objectStoreNames.contains(LEGACY_STORE)) {
-      var request = tx.objectStore(LEGACY_STORE).getAll();
+      var legacyStore = tx.objectStore(LEGACY_STORE);
+      var tracksStore = tx.objectStore(TRACK_STORE);
+
+      var request = legacyStore.getAll();
       request.onsuccess = function () {
-        pendingLegacy = request.result || [];
+        var legacyRows = request.result || [];
+        var now = Date.now();
+
+        for (var i = 0; i < legacyRows.length; i++) {
+          var row = legacyRows[i];
+          // v1 stored the File directly (keyPath 'name'); be tolerant of shapes.
+          var file = row instanceof File || row instanceof Blob ? row : (row && row.file);
+          if (!file) continue;
+
+          var record = {
+            uid: uid(),
+            name: file.name,
+            blob: file,
+            size: file.size,
+            lastModified: file.lastModified || 0,
+            fingerprint: fingerprint(file),
+            addedAt: now + i, // preserve relative order
+            title: cleanFilename(file.name),
+            artist: '',
+            album: '',
+            track: '',
+            year: '',
+            duration: null,
+            coverKey: null,
+            searchKey: searchKey({
+              title: cleanFilename(file.name),
+              artist: '',
+              album: '',
+              name: file.name
+            })
+          };
+          tracksStore.put(record);
+        }
+
+        // Keep legacy rows for post-open enrichment pass
+        pendingLegacy = legacyRows;
         try { db.deleteObjectStore(LEGACY_STORE); } catch (e) { /* already gone */ }
       };
     }

@@ -124,33 +124,80 @@
   }
 
   var TOAST_ICONS = {
-    success: 'fa-circle-check',
-    error: 'fa-triangle-exclamation',
-    info: 'fa-circle-info',
-    warn: 'fa-circle-exclamation'
-  };
+      success: 'circle-check',
+      error: 'triangle-exclamation',
+      info: 'circle-info',
+      warn: 'circle-exclamation'
+    };
 
-  function toast(message, type, timeout) {
-    type = type || 'info';
-    var node = document.createElement('div');
-    node.className = 'toast toast-' + type;
+    /* Inline SVG icon helper — replaces Font Awesome dependency. */
+    function createIcon(name, size) {
+      var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      svg.setAttribute('width', size || '1em');
+      svg.setAttribute('height', size || '1em');
+      svg.setAttribute('viewBox', '0 0 24 24');
+      svg.setAttribute('fill', 'none');
+      svg.setAttribute('stroke', 'currentColor');
+      svg.setAttribute('stroke-width', '2');
+      svg.setAttribute('stroke-linecap', 'round');
+      svg.setAttribute('stroke-linejoin', 'round');
+      svg.setAttribute('aria-hidden', 'true');
 
-    var icon = document.createElement('i');
-    icon.className = 'fas ' + (TOAST_ICONS[type] || TOAST_ICONS.info);
-    icon.setAttribute('aria-hidden', 'true');
+      var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 
-    var span = document.createElement('span');
-    span.textContent = message;          // never innerHTML: message may be a filename
+      var paths = {
+        'list': 'M3 12h18M3 6h18M3 18h16',
+        'play': 'M5 3l14 9-14 9V3z',
+        'pause': 'M6 4h4v16H6V4zm8 0h4v16h-4V4z',
+        'volume-high': 'M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07',
+        'volume-xmark': 'M11 5L6 9H2v6h4l5 4V5z',
+        'volume-off': 'M11 5L6 9H2v6h4l5 4V5z',
+        'volume-low': 'M11 5L6 9H2v6h4l5 4V5z',
+        'random': 'M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2zM20 12v-2l-4-4v6l4-4v2',
+        'step-backward': 'M19 20H9l-7-7 7-7h10v14zM3 12h18',
+        'step-forward': 'M5 4v16l7-7-7-7V4h10v14zM21 12H3',
+        'redo': 'M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15',
+        'repeat-1': 'M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15',
+        'plus': 'M12 5v14M5 12h14',
+        'times': 'M18 6L6 18M6 6l12 12',
+        'search': 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z',
+        'xmark': 'M18 6L6 18M6 6l12 12',
+        'file-arrow-down': 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M12 12v4M10 14h4M16 14h-4',
+        'magnifying-glass': 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z',
+        'music': 'M9 18V5l12-2v13M9 9h12v2H9V9z',
+        'circle-check': 'M22 11.08V12a10 10 0 11-5.93-9.14M9 11l3 3L22 4',
+        'triangle-exclamation': 'M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01',
+        'circle-info': 'M12 22C6.48 22 2 17.52 2 12S6.48 2 12 2s10 4.48 10 10-4.48 10-10 10zM12 16v-4M12 8h.01',
+        'circle-exclamation': 'M12 22C6.48 22 2 17.52 2 12S6.48 2 12 2s10 4.48 10 10-4.48 10-10 10zM12 8v4M12 16h.01'
+      };
 
-    var close = document.createElement('button');
-    close.className = 'toast-close';
-    close.setAttribute('aria-label', 'Dismiss');
-    close.innerHTML = '<i class="fas fa-xmark" aria-hidden="true"></i>';
+      if (paths[name]) {
+        path.setAttribute('d', paths[name]);
+      }
+      svg.appendChild(path);
+      return svg;
+    }
 
-    node.appendChild(icon);
-    node.appendChild(span);
-    node.appendChild(close);
-    el.toasts.appendChild(node);
+    function toast(message, type, timeout) {
+        type = type || 'info';
+        var node = document.createElement('div');
+        node.className = 'toast toast-' + type;
+
+        var icon = createIcon(TOAST_ICONS[type] || TOAST_ICONS.info);
+        icon.setAttribute('aria-hidden', 'true');
+
+        var span = document.createElement('span');
+        span.textContent = message;          // never innerHTML: message may be a filename
+
+        var close = document.createElement('button');
+        close.className = 'toast-close';
+        close.setAttribute('aria-label', 'Dismiss');
+        close.appendChild(createIcon('xmark', '0.875em'));
+
+        node.appendChild(icon);
+        node.appendChild(span);
+        node.appendChild(close);
+        el.toasts.appendChild(node);
 
     var removed = false;
     function dismiss() {
@@ -820,61 +867,74 @@
   }
 
   function playlistRow(track, index) {
-    var li = document.createElement('li');
-    li.className = 'track-row group';
-    if (index === currentTrack) li.classList.add('is-current');
+      var li = document.createElement('li');
+      li.className = 'track-row group';
+      if (index === currentTrack) li.classList.add('is-current');
 
-    var num = document.createElement('span');
-    num.className = 'track-num';
-    num.textContent = index === currentTrack && isPlaying ? '' : String(index + 1);
-    if (index === currentTrack && isPlaying) {
-      num.appendChild(playingIndicator());
+      var num = document.createElement('span');
+      num.className = 'track-num';
+      num.textContent = index === currentTrack && isPlaying ? '' : String(index + 1);
+      if (index === currentTrack && isPlaying) {
+        num.appendChild(playingIndicator());
+      }
+
+      var body = document.createElement('div');
+      body.className = 'track-body';
+
+      var title = document.createElement('p');
+      title.className = 'track-title';
+      // textContent, not innerHTML: a filename is attacker-influenced input
+      // (a dropped file can be named `<img onerror=...>`).
+      title.textContent = track.title || track.name;
+      title.title = track.title || track.name;
+
+      var sub = document.createElement('p');
+      sub.className = 'track-sub';
+      sub.textContent = [track.artist, track.album].filter(Boolean).join(' • ') ||
+        window.SpideyDB.cleanFilename(track.name);
+
+      body.appendChild(title);
+      body.appendChild(sub);
+
+      var time = document.createElement('span');
+      time.className = 'track-time';
+      time.textContent = Number.isFinite(track.duration) && track.duration > 0
+        ? formatTime(track.duration) : '';
+
+      var mainBtn = document.createElement('button');
+      mainBtn.className = 'track-main';
+      mainBtn.type = 'button';
+      var trackName = track.title || track.name;
+      mainBtn.setAttribute('aria-label', (index === currentTrack ? 'Pause' : 'Play') + ' ' + trackName);
+      mainBtn.appendChild(num);
+      mainBtn.appendChild(body);
+      mainBtn.appendChild(time);
+      mainBtn.addEventListener('click', function () {
+        if (index === currentTrack) { togglePlay(); return; }
+        loadTrack(index, true);
+      });
+      mainBtn.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          mainBtn.click();
+        }
+      });
+
+      var remove = document.createElement('button');
+      remove.className = 'track-remove';
+      remove.type = 'button';
+      remove.setAttribute('aria-label', 'Remove ' + trackName + ' from library');
+      remove.innerHTML = '<i class="fas fa-xmark" aria-hidden="true"></i>';
+      remove.addEventListener('click', function (e) {
+        e.stopPropagation();
+        removeTrack(index);
+      });
+
+      li.appendChild(mainBtn);
+      li.appendChild(remove);
+
+      return li;
     }
-
-    var body = document.createElement('div');
-    body.className = 'track-body';
-
-    var title = document.createElement('p');
-    title.className = 'track-title';
-    // textContent, not innerHTML: a filename is attacker-influenced input
-    // (a dropped file can be named `<img onerror=...>`).
-    title.textContent = track.title || track.name;
-    title.title = track.title || track.name;
-
-    var sub = document.createElement('p');
-    sub.className = 'track-sub';
-    sub.textContent = [track.artist, track.album].filter(Boolean).join(' • ') ||
-      window.SpideyDB.cleanFilename(track.name);
-
-    body.appendChild(title);
-    body.appendChild(sub);
-
-    var time = document.createElement('span');
-    time.className = 'track-time';
-    time.textContent = Number.isFinite(track.duration) && track.duration > 0
-      ? formatTime(track.duration) : '';
-
-    var remove = document.createElement('button');
-    remove.className = 'track-remove';
-    remove.setAttribute('aria-label', 'Remove ' + (track.title || track.name) + ' from library');
-    remove.innerHTML = '<i class="fas fa-xmark" aria-hidden="true"></i>';
-    remove.addEventListener('click', function (e) {
-      e.stopPropagation();
-      removeTrack(index);
-    });
-
-    li.appendChild(num);
-    li.appendChild(body);
-    li.appendChild(time);
-    li.appendChild(remove);
-
-    li.addEventListener('click', function () {
-      if (index === currentTrack) { togglePlay(); return; }
-      loadTrack(index, true);
-    });
-
-    return li;
-  }
 
   function playingIndicator() {
     var box = document.createElement('span');
