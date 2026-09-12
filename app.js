@@ -1,505 +1,1302 @@
-const audio = new Audio();
-let playlist = [];
-let currentTrack = 0;
-let isPlaying = false;
-let isShuffle = false;
-let isRepeat = false; // false = none, true = all (can expand to 'one')
-let audioContext;
-let analyser;
-let source;
-let dataArray;
-let animationId;
+/*
+ * app.js — Spidey Player 2.0
+ *
+ * A cyber-glass web music player. The library lives in IndexedDB (see db.js);
+ * tag reading lives in id3.js.
+ *
+ * Architectural notes worth keeping in mind when editing:
+ *   - There is exactly ONE requestAnimationFrame render loop for the whole
+ *     app. It is started on demand and stopped once the bars have decayed.
+ *     Scheduling a loop from the audio 'play' event leaks a new loop per
+ *     track change, so never do that.
+ *   - Playback state is derived from the audio element's own events. Never
+ *     flip a boolean by hand and assume it matches the element.
+ *   - Object URLs are created in one place (objectUrls registry) and revoked
+ *     before being replaced.
+ *   - Every DOM write of user-controlled text goes through textContent.
+ */
+(function () {
+  'use strict';
 
-// DOM Elements
-const playBtn = document.getElementById("play-btn");
-const prevBtn = document.getElementById("prev-btn");
-const nextBtn = document.getElementById("next-btn");
-const shuffleBtn = document.getElementById("shuffle-btn");
-const repeatBtn = document.getElementById("repeat-btn");
-const progressBar = document.getElementById("progress-bar");
-const progressContainer = document.getElementById("progress-container");
-const currentTimeEl = document.getElementById("current-time");
-const durationEl = document.getElementById("duration");
-const songTitleEl = document.getElementById("song-title");
-const songArtistEl = document.getElementById("song-artist");
-const playlistEl = document.getElementById("playlist");
-const playlistPanel = document.getElementById("playlist-panel");
-const playlistToggleBtn = document.getElementById("playlist-toggle-btn");
-const albumArt = document.getElementById("album-art");
-const fileInput = document.getElementById("file-input");
-const searchInput = document.getElementById("search-input");
-const canvas = document.getElementById("visualizer");
-const ctx = canvas.getContext("2d");
+  /* ================================================================== *
+   * Constants
+   * ================================================================== */
 
-// Event Listeners
-playBtn.addEventListener("click", togglePlay);
-prevBtn.addEventListener("click", prevTrack);
-nextBtn.addEventListener("click", nextTrack);
-shuffleBtn.addEventListener("click", toggleShuffle);
-repeatBtn.addEventListener("click", toggleRepeat);
-progressContainer.addEventListener("click", setProgress);
-fileInput.addEventListener("change", handleFiles);
-searchInput.addEventListener("input", (e) => {
-  updatePlaylistUI(e.target.value.toLowerCase());
-});
-playlistToggleBtn.addEventListener("click", () => {
-  playlistPanel.classList.toggle("hidden");
-});
+  var REPEAT_OFF = 'off';
+  var REPEAT_ALL = 'all';
+  var REPEAT_ONE = 'one';
 
-audio.addEventListener("timeupdate", updateProgress);
-audio.addEventListener("ended", onTrackEnded);
-audio.addEventListener("loadedmetadata", updateSongInfo);
-audio.addEventListener("play", () => startVisualizer());
-audio.addEventListener("pause", () => cancelAnimationFrame(animationId));
+  var PREF_KEY = 'spidey.prefs.v1';
+  var SEEK_STEP = 5;              // seconds per arrow-key press
+  var MAX_COVER_CACHE = 1;        // only the visible cover is kept as an object URL
 
-// Drag & Drop
-document.body.addEventListener("dragover", (e) => {
-  e.preventDefault();
-  document.body.classList.add("drag-over");
-});
+  var AUDIO_EXT = /\.(mp3|flac|m4a|aac|wav|ogg|oga|opus|webm)$/i;
 
-document.body.addEventListener("dragleave", () => {
-  document.body.classList.remove("drag-over");
-});
+  /* ================================================================== *
+   * State
+   * ================================================================== */
 
-document.body.addEventListener("drop", (e) => {
-  e.preventDefault();
-  document.body.classList.remove("drag-over");
+  var audio = new Audio();
+  audio.preload = 'metadata';
 
-  const files = Array.from(e.dataTransfer.files).filter(file => file.type.startsWith('audio/'));
-  if (files.length > 0) {
-    handlePlaylistUpdate(files);
+  var tracks = [];          // library records from IndexedDB
+  var currentTrack = -1;    // index into tracks, -1 when nothing is loaded
+  var order = [];           // playback order (identity when shuffle is off)
+  var orderPos = -1;        // position of currentTrack within order
+
+  var isPlaying = false;
+  var isShuffle = false;
+  var repeatMode = REPEAT_OFF;
+
+  var trackUrl = null;      // object URL for the currently loaded audio
+  var dragDepth = 0;        // dragenter/dragleave counter
+  var scrubbing = false;
+  var rafId = null;
+  var idleFrames = 0;
+
+  /* ================================================================== *
+   * DOM
+   * ================================================================== */
+
+  var $ = function (id) { return document.getElementById(id); };
+
+  var el = {
+    play: $('play-btn'),
+    prev: $('prev-btn'),
+    next: $('next-btn'),
+    shuffle: $('shuffle-btn'),
+    repeat: $('repeat-btn'),
+    mute: $('mute-btn'),
+    volume: $('volume'),
+    progress: $('progress-container'),
+    progressBar: $('progress-bar'),
+    currentTime: $('current-time'),
+    duration: $('duration'),
+    title: $('song-title'),
+    artist: $('song-artist'),
+    album: $('song-album'),
+    playlist: $('playlist'),
+    panel: $('playlist-panel'),
+    panelToggle: $('playlist-toggle-btn'),
+    panelClose: $('panel-close-btn'),
+    art: $('album-art'),
+    fileInput: $('file-input'),
+    search: $('search-input'),
+    canvas: $('visualizer'),
+    toasts: $('toasts'),
+    srStatus: $('sr-status'),
+    dropOverlay: $('drop-overlay'),
+    trackCount: $('track-count'),
+    storageUsage: $('storage-usage'),
+    importStatus: $('import-status')
+  };
+
+  var ctx2d = el.canvas.getContext('2d');
+
+  /* ================================================================== *
+   * Small utilities
+   * ================================================================== */
+
+  function formatTime(seconds) {
+    if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
+    var total = Math.floor(seconds);
+    var h = Math.floor(total / 3600);
+    var m = Math.floor((total % 3600) / 60);
+    var s = total % 60;
+    var pad = function (n) { return n < 10 ? '0' + n : String(n); };
+    return h > 0 ? h + ':' + pad(m) + ':' + pad(s) : m + ':' + pad(s);
   }
-});
 
-// IndexedDB Setup
-const DB_NAME = 'MusicAppDB';
-const DB_VERSION = 1;
-const STORE_NAME = 'songs';
-let db;
+  function formatBytes(bytes) {
+    if (!Number.isFinite(bytes) || bytes <= 0) return '';
+    var units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    var i = 0;
+    var value = bytes;
+    while (value >= 1024 && i < units.length - 1) { value /= 1024; i++; }
+    return (value >= 10 || i === 0 ? Math.round(value) : value.toFixed(1)) + ' ' + units[i];
+  }
 
-function openDB() {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, DB_VERSION);
-    request.onupgradeneeded = (e) => {
-      db = e.target.result;
-      if (!db.objectStoreNames.contains(STORE_NAME)) {
-        db.createObjectStore(STORE_NAME, { keyPath: 'name' });
-      }
-    };
-    request.onsuccess = (e) => {
-      db = e.target.result;
-      resolve(db);
-    };
-    request.onerror = (e) => reject(e.target.error);
-  });
-}
+  /* Announce to screen readers without stealing focus. */
+  function announce(message) {
+    el.srStatus.textContent = '';
+    // A microtask gap makes repeat messages get re-announced.
+    setTimeout(function () { el.srStatus.textContent = message; }, 30);
+  }
 
-function saveSongToDB(file) {
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction([STORE_NAME], 'readwrite');
-    const store = transaction.objectStore(STORE_NAME);
-    const request = store.put(file);
-    request.onsuccess = () => resolve();
-    request.onerror = (e) => reject(e.target.error);
-  });
-}
+  var TOAST_ICONS = {
+    success: 'fa-circle-check',
+    error: 'fa-triangle-exclamation',
+    info: 'fa-circle-info',
+    warn: 'fa-circle-exclamation'
+  };
 
-function getAllSongsFromDB() {
-  return new Promise((resolve, reject) => {
-    const transaction = db.transaction([STORE_NAME], 'readonly');
-    const store = transaction.objectStore(STORE_NAME);
-    const request = store.getAll();
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = (e) => reject(e.target.error);
-  });
-}
+  function toast(message, type, timeout) {
+    type = type || 'info';
+    var node = document.createElement('div');
+    node.className = 'toast toast-' + type;
 
-// Fetch songs from IndexedDB
-async function fetchSongs() {
-  try {
-    if (!db) await openDB();
-    const songs = await getAllSongsFromDB();
+    var icon = document.createElement('i');
+    icon.className = 'fas ' + (TOAST_ICONS[type] || TOAST_ICONS.info);
+    icon.setAttribute('aria-hidden', 'true');
 
-    if (songs && songs.length > 0) {
-      // Preserve current track if playing
-      let currentSongName = null;
-      if (playlist.length > 0 && playlist[currentTrack]) {
-        currentSongName = playlist[currentTrack].name;
-      }
+    var span = document.createElement('span');
+    span.textContent = message;          // never innerHTML: message may be a filename
 
-      // Update playlist source of truth
-      playlist = songs;
+    var close = document.createElement('button');
+    close.className = 'toast-close';
+    close.setAttribute('aria-label', 'Dismiss');
+    close.innerHTML = '<i class="fas fa-xmark" aria-hidden="true"></i>';
 
-      // Restore current track index
-      if (currentSongName) {
-        const newIndex = playlist.findIndex(s => s.name === currentSongName);
-        if (newIndex !== -1) {
-          currentTrack = newIndex;
-        } else {
-          currentTrack = 0;
-        }
-      }
+    node.appendChild(icon);
+    node.appendChild(span);
+    node.appendChild(close);
+    el.toasts.appendChild(node);
 
-      updatePlaylistUI();
-
-      // Auto-load if this is the first load
-      if (!isPlaying && !currentSongName && playlist.length > 0) {
-        loadTrack(0, false);
-      }
+    var removed = false;
+    function dismiss() {
+      if (removed) return;
+      removed = true;
+      node.classList.add('toast-out');
+      node.addEventListener('transitionend', function () { node.remove(); }, { once: true });
+      setTimeout(function () { if (node.isConnected) node.remove(); }, 500);
     }
-  } catch (error) {
-    console.error('Error fetching songs from DB:', error);
-  }
-}
 
-// Functions
-function initAudioContext() {
-  if (!audioContext) {
-    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    analyser = audioContext.createAnalyser();
-    source = audioContext.createMediaElementSource(audio);
-    source.connect(analyser);
-    analyser.connect(audioContext.destination);
-
-    analyser.fftSize = 256;
-    const bufferLength = analyser.frequencyBinCount;
-    dataArray = new Uint8Array(bufferLength);
-
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
+    close.addEventListener('click', dismiss);
+    if (timeout !== 0) setTimeout(dismiss, timeout || (type === 'error' ? 8000 : 4000));
+    return dismiss;
   }
 
-  if (audioContext.state === 'suspended') {
-    audioContext.resume();
+  /* Persisted user preferences. */
+  function savePrefs() {
+    try {
+      localStorage.setItem(PREF_KEY, JSON.stringify({
+        volume: audio.volume,
+        muted: audio.muted,
+        shuffle: isShuffle,
+        repeat: repeatMode
+      }));
+    } catch (e) { /* private mode: preferences simply do not persist */ }
   }
-}
+  function loadPrefs() {
+    var prefs;
+    try {
+      prefs = JSON.parse(localStorage.getItem(PREF_KEY) || '{}') || {};
+    } catch (e) {
+      prefs = {};
+    }
+    if (typeof prefs.volume === 'number' && prefs.volume >= 0 && prefs.volume <= 1) {
+      audio.volume = prefs.volume;
+    }
+    audio.muted = !!prefs.muted;
+    isShuffle = !!prefs.shuffle;
+    if (prefs.repeat === REPEAT_ALL || prefs.repeat === REPEAT_ONE) repeatMode = prefs.repeat;
+  }
 
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
+  /* ================================================================== *
+   * Object URL registry — one place that creates, and always revokes
+   * ================================================================== */
 
-function startVisualizer() {
-  if (!analyser) return;
+  /*
+   * Swap the audio element onto a new blob URL.
+   *
+   * Order matters: the element must be detached from the previous source
+   * BEFORE that source is revoked. Revoking a URL the element is still
+   * fetching produces a spurious net::ERR_FILE_NOT_FOUND in the console and
+   * can truncate playback.
+   */
+  function setTrackUrl(blob) {
+    if (trackUrl) {
+      audio.removeAttribute('src');
+      audio.load();                      // aborts any in-flight load
+      URL.revokeObjectURL(trackUrl);
+      trackUrl = null;
+    }
+    if (!blob) return null;
+    trackUrl = URL.createObjectURL(blob);
+    return trackUrl;
+  }
+
+  /*
+   * Cover art object URLs.
+   *
+   * Covers are de-duplicated in IndexedDB by a content hash, so the number of
+   * distinct images is one per album — small and bounded. We therefore cache
+   * the object URL per cover key and reuse it instead of creating and revoking
+   * a URL on every track change.
+   *
+   * Revoking eagerly is what caused "Failed to load resource:
+   * net::ERR_FILE_NOT_FOUND" in the console: the <img> still had an in-flight
+   * request for the outgoing URL when it was revoked. Caching sidesteps the
+   * race entirely, and eviction only happens once the cache exceeds
+   * COVER_CACHE_MAX, long after the image has painted.
+   */
+  var COVER_CACHE_MAX = 24;
+  var coverCache = new Map();      // coverKey -> object URL (insertion order = LRU)
+
+  function coverUrlFor(key, blob) {
+    if (coverCache.has(key)) {
+      // Refresh recency.
+      var existing = coverCache.get(key);
+      coverCache.delete(key);
+      coverCache.set(key, existing);
+      return existing;
+    }
+    var url = URL.createObjectURL(blob);
+    coverCache.set(key, url);
+    while (coverCache.size > COVER_CACHE_MAX) {
+      var oldestKey = coverCache.keys().next().value;
+      URL.revokeObjectURL(coverCache.get(oldestKey));
+      coverCache.delete(oldestKey);
+    }
+    return url;
+  }
+
+  function applyCover(blob, key) {
+    if (!blob) {
+      el.art.src = DEFAULT_ART;
+      return null;
+    }
+    var url = coverUrlFor(key || 'inline', blob);
+    el.art.src = url;
+    return url;
+  }
+
+  var DEFAULT_ART = 'image/862eb376cc18fd124f045f6b31b0dc4b.jpg';
+
+  /* ================================================================== *
+   * Playback order (shuffle-aware, history-preserving)
+   * ================================================================== */
+
+  function buildOrder(keepCurrent) {
+    var indices = [];
+    for (var i = 0; i < tracks.length; i++) indices.push(i);
+
+    if (!isShuffle) {
+      order = indices;
+    } else {
+      // Fisher-Yates, then pin the current track to the front so toggling
+      // shuffle does not interrupt what is playing.
+      for (var j = indices.length - 1; j > 0; j--) {
+        var k = Math.floor(Math.random() * (j + 1));
+        var tmp = indices[j]; indices[j] = indices[k]; indices[k] = tmp;
+      }
+      if (keepCurrent && currentTrack >= 0) {
+        var at = indices.indexOf(currentTrack);
+        if (at > 0) { indices.splice(at, 1); indices.unshift(currentTrack); }
+      }
+      order = indices;
+    }
+    orderPos = currentTrack >= 0 ? order.indexOf(currentTrack) : -1;
+  }
+
+  function step(delta) {
+    if (!order.length) return -1;
+
+    if (orderPos < 0) return order[0];
+
+    var next = orderPos + delta;
+
+    if (next >= order.length) {
+      if (repeatMode === REPEAT_ALL) return order[0];
+      return -1;                       // end of queue
+    }
+    if (next < 0) {
+      if (repeatMode === REPEAT_ALL) return order[order.length - 1];
+      return order[0];                 // pressing back from the top restarts
+    }
+    return order[next];
+  }
+
+  /* ================================================================== *
+   * Audio context + visualizer
+   * ================================================================== */
+
+  var audioContext = null;
+  var analyser = null;
+  var sourceNode = null;
+  var freqData = null;
+
+  /* Creating the AudioContext re-routes the element's output through the
+     graph, so it must happen exactly once per element. */
+  function ensureAudioGraph() {
+    if (audioContext) {
+      if (audioContext.state === 'suspended') audioContext.resume().catch(function () {});
+      return true;
+    }
+    var Ctor = window.AudioContext || window.webkitAudioContext;
+    if (!Ctor) return false;
+
+    try {
+      audioContext = new Ctor();
+      analyser = audioContext.createAnalyser();
+      analyser.fftSize = 256;
+      analyser.smoothingTimeConstant = 0.8;
+
+      sourceNode = audioContext.createMediaElementSource(audio);
+      sourceNode.connect(analyser);
+      analyser.connect(audioContext.destination);
+
+      freqData = new Uint8Array(analyser.frequencyBinCount);
+      return true;
+    } catch (e) {
+      // Visualizer is a progressive enhancement; playback must still work.
+      audioContext = null;
+      analyser = null;
+      return false;
+    }
+  }
+
+  var viewW = 0;
+  var viewH = 0;
+
+  function resizeCanvas() {
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var w = el.canvas.clientWidth || window.innerWidth;
+    var h = el.canvas.clientHeight || window.innerHeight;
+
+    viewW = w;
+    viewH = h;
+    el.canvas.width = Math.round(w * dpr);
+    el.canvas.height = Math.round(h * dpr);
+    // Draw in CSS pixels; the transform handles the device scale.
+    ctx2d.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  function startLoop() {
+    if (rafId !== null) return;        // a loop is already running
+    idleFrames = 0;
+    rafId = requestAnimationFrame(renderFrame);
+  }
+
+  function stopLoop() {
+    if (rafId === null) return;
+    cancelAnimationFrame(rafId);
+    rafId = null;
+    ctx2d.clearRect(0, 0, viewW, viewH);
+    el.art.style.transform = '';
+  }
 
   function renderFrame() {
-    animationId = requestAnimationFrame(renderFrame);
+    rafId = requestAnimationFrame(renderFrame);
 
-    analyser.getByteFrequencyData(dataArray);
+    if (!analyser || !freqData) return;
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    analyser.getByteFrequencyData(freqData);
 
-    const barWidth = (canvas.width / dataArray.length) * 2.5;
-    let barHeight;
-    let x = 0;
+    var sum = 0;
+    for (var i = 0; i < freqData.length; i++) sum += freqData[i];
+    var average = sum / freqData.length;
 
-    // Cyber-Glass Visualizer Style
-    for (let i = 0; i < dataArray.length; i++) {
-      barHeight = dataArray[i] * 1.5;
+    ctx2d.clearRect(0, 0, viewW, viewH);
 
-      // Dynamic Gradient based on frequency
-      const gradient = ctx.createLinearGradient(0, canvas.height, 0, canvas.height - barHeight);
-      gradient.addColorStop(0, 'rgba(0, 242, 234, 0.1)'); // Cyan low
-      gradient.addColorStop(0.5, 'rgba(0, 242, 234, 0.5)'); // Cyan mid
-      gradient.addColorStop(1, 'rgba(255, 0, 85, 0.6)'); // Pink high
-
-      ctx.fillStyle = gradient;
-
-      // Draw rounded bars
-      ctx.beginPath();
-      ctx.roundRect(x, canvas.height - barHeight, barWidth, barHeight, 5);
-      ctx.fill();
-
-      // Reflection/Mirror effect
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
-      ctx.beginPath();
-      ctx.roundRect(x, canvas.height - barHeight - 10, barWidth, 5, 2);
-      ctx.fill();
-
-      x += barWidth + 1;
+    if (average < 0.5) {
+      // Silence: let the bars fall to nothing, then stop burning frames.
+      idleFrames++;
+      if (idleFrames > 45) { stopLoop(); return; }
+    } else {
+      idleFrames = 0;
     }
 
-    // Beat detection for Album Art Pulse
-    const average = dataArray.reduce((a, b) => a + b) / dataArray.length;
-    const scale = 1 + (average / 256) * 0.1;
-    albumArt.style.transform = `scale(${scale})`;
+    var bars = freqData.length;
+    var gap = 1;
+    // Bars are sized to exactly fill the canvas, so the strip never runs off
+    // the edge (the old formula produced a 2.5x-wide strip that was 62% hidden).
+    var barWidth = Math.max(1, viewW / bars - gap);
+    var maxBarHeight = viewH * 0.55;
+
+    for (var b = 0; b < bars; b++) {
+      var magnitude = freqData[b] / 255;
+      var barHeight = magnitude * maxBarHeight;
+      var x = b * (barWidth + gap);
+
+      var gradient = ctx2d.createLinearGradient(0, viewH, 0, viewH - barHeight);
+      gradient.addColorStop(0, 'rgba(0, 242, 234, 0.08)');
+      gradient.addColorStop(0.55, 'rgba(0, 242, 234, 0.45)');
+      gradient.addColorStop(1, 'rgba(255, 0, 85, 0.6)');
+
+      ctx2d.fillStyle = gradient;
+      var radius = Math.min(barWidth / 2, 4);
+      ctx2d.beginPath();
+      ctx2d.roundRect(x, viewH - barHeight, barWidth, barHeight, radius);
+      ctx2d.fill();
+    }
+
+    // Beat-reactive album art. The scale is applied to the img; the idle CSS
+    // pulse lives on the wrapper, so the two never fight.
+    var target = 1 + (average / 255) * 0.06;
+    el.art.style.transform = 'scale(' + target.toFixed(3) + ')';
   }
 
-  renderFrame();
-}
+  /* ================================================================== *
+   * Playback state
+   * ================================================================== */
 
-
-function togglePlay() {
-  if (playlist.length === 0) return;
-
-  // Initialize AudioContext on first user interaction
-  initAudioContext();
-
-  isPlaying = !isPlaying;
-  isPlaying ? audio.play() : audio.pause();
-  updatePlayBtnUI();
-}
-
-function updatePlayBtnUI() {
-  playBtn.innerHTML = isPlaying
-    ? '<i class="fas fa-pause ml-0"></i>' // Adjust icon centering
-    : '<i class="fas fa-play ml-1"></i>';
-}
-
-function loadTrack(trackIndex, autoPlay = true) {
-  if (playlist.length === 0) return;
-
-  currentTrack = trackIndex;
-  const track = playlist[trackIndex];
-
-  // Clean up old object URL if it was a blob
-  // if (audio.src.startsWith('blob:')) URL.revokeObjectURL(audio.src); 
-
-  if (track instanceof File || track instanceof Blob) {
-    // Revoke old URL to save memory? We need to keep a reference to currentObjectURL globally if we do this
-    // For now, rely on browser GC or small number of blobs
-    const objectURL = URL.createObjectURL(track);
-    audio.src = objectURL;
-  } else if (track.url) {
-    // Fallback if we still have server objects, though we shouldn't
-    audio.src = track.url;
-  } else {
-    // Should not happen with IDB flow which stores Files
-    console.error("Unknown track format:", track);
-    return;
+  function updatePlayButton() {
+    var icon = el.play.querySelector('i');
+    icon.className = isPlaying ? 'fas fa-pause' : 'fas fa-play ml-1';
+    el.play.setAttribute('aria-label', isPlaying ? 'Pause' : 'Play');
   }
 
-  // Ensure visualizer is ready
-  initAudioContext();
+  function updateMediaSession() {
+    if (!('mediaSession' in navigator)) return;
+    var track = tracks[currentTrack];
+    if (!track || !('MediaMetadata' in window)) return;
 
-  if (autoPlay) {
-    audio.play().catch(e => console.log("Playback prevented:", e));
+    var art = el.art.getAttribute('src') || DEFAULT_ART;
+    try {
+      navigator.mediaSession.metadata = new window.MediaMetadata({
+        title: track.title || track.name,
+        artist: track.artist || 'Spidey Player',
+        album: track.album || '',
+        artwork: [{ src: art, sizes: '512x512' }]
+      });
+    } catch (e) { /* non-fatal */ }
+  }
+
+  function updateNowPlayingUI() {
+    var track = tracks[currentTrack];
+    if (!track) {
+      el.title.textContent = 'Select a Track';
+      el.artist.textContent = 'Spidey Player';
+      el.album.textContent = '';
+      el.duration.textContent = '0:00';
+      el.currentTime.textContent = '0:00';
+      setProgressUI(0);
+      return;
+    }
+    el.title.textContent = track.title || track.name;
+    el.artist.textContent = track.artist || 'Spidey Player';
+    el.album.textContent = track.album || '';
+    el.title.title = track.title || track.name;
+    document.title = (track.title || track.name) + ' — Spidey Player';
+
+    var known = Number.isFinite(audio.duration) && audio.duration > 0
+      ? audio.duration
+      : (track.duration || NaN);
+    el.duration.textContent = formatTime(known);
+    updateProgressUI();
+  }
+
+  function setProgressUI(percent) {
+    var clamped = Math.max(0, Math.min(100, percent));
+    el.progressBar.style.width = clamped + '%';
+    el.progress.setAttribute('aria-valuenow', Math.round(clamped));
+  }
+
+  function updateProgressUI() {
+    var duration = audio.duration;
+    var current = audio.currentTime;
+
+    if (Number.isFinite(duration) && duration > 0) {
+      setProgressUI((current / duration) * 100);
+    } else {
+      setProgressUI(0);
+    }
+    el.currentTime.textContent = formatTime(current);
+    if (Number.isFinite(duration) && duration > 0) {
+      el.duration.textContent = formatTime(duration);
+    }
+    el.progress.setAttribute('aria-valuetext',
+      formatTime(current) + ' of ' + el.duration.textContent);
+  }
+
+  /* Load a track by its index in `tracks`. */
+  function loadTrack(index, autoPlay) {
+    if (index < 0 || index >= tracks.length) return;
+    var track = tracks[index];
+
+    currentTrack = index;
+    orderPos = order.indexOf(index);
+
+    var url = setTrackUrl(track.blob);
+    if (!url) {
+      toast('Could not read "' + (track.title || track.name) + '".', 'error');
+      return;
+    }
+
+    // Reset the visual progress immediately so a stale bar is never shown
+    // while the new file's metadata loads.
+    setProgressUI(0);
+    el.currentTime.textContent = '0:00';
+    el.duration.textContent = formatTime(track.duration);
+
+    audio.src = url;
+    audio.load();
+
+    updateNowPlayingUI();
+    highlightCurrent();
+    updateMediaSession();
+    loadCover(track);
+
+    if (autoPlay) {
+      play();
+    } else {
+      updatePlayButton();
+    }
+  }
+
+  function loadCover(track) {
+    if (!track || !track.coverKey) {
+      applyCover(null);
+      el.art.alt = '';
+      return;
+    }
+    var key = track.coverKey;
+    window.SpideyDB.getCover(key).then(function (blob) {
+      // Ignore a late response for a track the user already skipped past.
+      if (!tracks[currentTrack] || tracks[currentTrack].coverKey !== key) return;
+      applyCover(blob || null, key);
+      el.art.alt = blob ? 'Cover art for ' + (track.album || track.title || track.name) : '';
+      updateMediaSession();
+    }).catch(function () {
+      applyCover(null);
+    });
+  }
+
+  function play() {
+    if (!tracks.length) {
+      toast('Import some songs first.', 'info');
+      return;
+    }
+    if (currentTrack < 0) {
+      buildOrder(false);
+      loadTrack(order[0], true);
+      return;
+    }
+    ensureAudioGraph();
+    var promise = audio.play();
+    if (promise && typeof promise.catch === 'function') {
+      promise.catch(function (err) {
+        if (err && err.name === 'NotAllowedError') {
+          toast('Press play to start audio (the browser blocked autoplay).', 'warn');
+        } else if (err && err.name !== 'AbortError') {
+          toast('Playback failed: ' + err.message, 'error');
+        }
+      });
+    }
+  }
+
+  function pause() {
+    audio.pause();
+  }
+
+  function togglePlay() {
+    if (isPlaying) pause(); else play();
+  }
+
+  function nextTrack(userInitiated) {
+    if (!order.length) return;
+    var target = step(1);
+
+    if (target === -1) {
+      // End of the queue with repeat off: stop cleanly instead of looping
+      // the whole playlist forever.
+      pause();
+      audio.currentTime = 0;
+      if (userInitiated) toast('End of playlist.', 'info', 2500);
+      return;
+    }
+    loadTrack(target, true);
+  }
+
+  function prevTrack() {
+    if (!order.length) return;
+    // Restart the current song first, like every other player does.
+    if (audio.currentTime > 3) {
+      audio.currentTime = 0;
+      return;
+    }
+    var target = step(-1);
+    if (target === -1) return;
+    loadTrack(target, true);
+  }
+
+  /* ================================================================== *
+   * Progress bar: click, drag and keyboard
+   * ================================================================== */
+
+  function seekToFraction(fraction) {
+    var duration = audio.duration;
+    // Guard: assigning a non-finite currentTime throws a DOMException.
+    if (!Number.isFinite(duration) || duration <= 0) return;
+    if (!Number.isFinite(fraction)) return;
+    var target = Math.max(0, Math.min(1, fraction)) * duration;
+    try {
+      audio.currentTime = target;
+    } catch (e) {
+      /* seeking can fail on a stream that is not yet seekable */
+    }
+    updateProgressUI();
+  }
+
+  function fractionFromEvent(clientX) {
+    var rect = el.progress.getBoundingClientRect();
+    if (rect.width <= 0) return 0;
+    return (clientX - rect.left) / rect.width;
+  }
+
+  el.progress.addEventListener('pointerdown', function (e) {
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+    if (!Number.isFinite(audio.duration) || audio.duration <= 0) return;
+    scrubbing = true;
+    el.progress.setPointerCapture(e.pointerId);
+    seekToFraction(fractionFromEvent(e.clientX));
+  });
+
+  el.progress.addEventListener('pointermove', function (e) {
+    if (!scrubbing) return;
+    // Preview the position without committing a seek on every pixel.
+    var rect = el.progress.getBoundingClientRect();
+    setProgressUI(fractionFromEvent(e.clientX) * 100);
+    el.currentTime.textContent = formatTime(fractionFromEvent(e.clientX) * (audio.duration || 0));
+  });
+
+  function endScrub(e) {
+    if (!scrubbing) return;
+    scrubbing = false;
+    seekToFraction(fractionFromEvent(e.clientX));
+    try { el.progress.releasePointerCapture(e.pointerId); } catch (err) { /* already released */ }
+  }
+  el.progress.addEventListener('pointerup', endScrub);
+  el.progress.addEventListener('pointercancel', endScrub);
+
+  el.progress.addEventListener('keydown', function (e) {
+    var duration = audio.duration;
+    if (!Number.isFinite(duration) || duration <= 0) return;
+    var handled = true;
+
+    switch (e.key) {
+      case 'ArrowRight': case 'ArrowUp':
+        audio.currentTime = Math.min(duration, audio.currentTime + SEEK_STEP); break;
+      case 'ArrowLeft': case 'ArrowDown':
+        audio.currentTime = Math.max(0, audio.currentTime - SEEK_STEP); break;
+      case 'Home':
+        audio.currentTime = 0; break;
+      case 'End':
+        audio.currentTime = Math.max(0, duration - 0.25); break;
+      case 'PageUp':
+        audio.currentTime = Math.min(duration, audio.currentTime + 30); break;
+      case 'PageDown':
+        audio.currentTime = Math.max(0, audio.currentTime - 30); break;
+      default:
+        handled = false;
+    }
+    if (handled) {
+      e.preventDefault();
+      e.stopPropagation();
+      updateProgressUI();
+    }
+  });
+
+  /* ================================================================== *
+   * Volume
+   * ================================================================== */
+
+  function updateVolumeUI() {
+    var icon = el.mute.querySelector('i');
+    var level = audio.muted ? 0 : audio.volume;
+    var name = level === 0 ? 'fa-volume-xmark'
+      : level < 0.34 ? 'fa-volume-off'
+      : level < 0.67 ? 'fa-volume-low'
+      : 'fa-volume-high';
+    icon.className = 'fas ' + name;
+    el.mute.setAttribute('aria-label', audio.muted || level === 0 ? 'Unmute' : 'Mute');
+    el.mute.setAttribute('aria-pressed', String(audio.muted || level === 0));
+    if (!scrubbing) el.volume.value = String(audio.muted ? 0 : audio.volume);
+  }
+
+  el.volume.addEventListener('input', function () {
+    var value = parseFloat(el.volume.value);
+    audio.volume = Math.max(0, Math.min(1, value));
+    if (audio.volume > 0 && audio.muted) audio.muted = false;
+    updateVolumeUI();
+    savePrefs();
+  });
+
+  el.mute.addEventListener('click', function () {
+    audio.muted = !audio.muted;
+    // Un-muting a slider that sits at 0 would still be silent; restore level.
+    if (!audio.muted && audio.volume === 0) audio.volume = 0.6;
+    updateVolumeUI();
+    savePrefs();
+    announce(audio.muted ? 'Muted' : 'Unmuted');
+  });
+
+  /* ================================================================== *
+   * Shuffle / repeat
+   * ================================================================== */
+
+  function updateShuffleUI() {
+    el.shuffle.setAttribute('aria-pressed', String(isShuffle));
+    el.shuffle.classList.toggle('is-active', isShuffle);
+    el.shuffle.setAttribute('aria-label', isShuffle ? 'Shuffle on' : 'Shuffle off');
+  }
+
+  function updateRepeatUI() {
+    var icon = el.repeat.querySelector('i');
+    var label = repeatMode === REPEAT_OFF ? 'Repeat off'
+      : repeatMode === REPEAT_ALL ? 'Repeat all' : 'Repeat one';
+    icon.className = 'fas ' + (repeatMode === REPEAT_ONE ? 'fa-repeat-1' : 'fa-redo');
+    el.repeat.setAttribute('aria-pressed', String(repeatMode !== REPEAT_OFF));
+    el.repeat.classList.toggle('is-active', repeatMode !== REPEAT_OFF);
+    el.repeat.setAttribute('aria-label', label);
+    el.repeat.title = label;
+  }
+
+  function toggleShuffle() {
+    isShuffle = !isShuffle;
+    buildOrder(true);
+    updateShuffleUI();
+    savePrefs();
+    announce(isShuffle ? 'Shuffle on' : 'Shuffle off');
+  }
+
+  function cycleRepeat() {
+    repeatMode = repeatMode === REPEAT_OFF ? REPEAT_ALL
+      : repeatMode === REPEAT_ALL ? REPEAT_ONE
+      : REPEAT_OFF;
+    updateRepeatUI();
+    savePrefs();
+    announce(repeatMode === REPEAT_OFF ? 'Repeat off'
+      : repeatMode === REPEAT_ALL ? 'Repeat all' : 'Repeat one');
+  }
+
+  /* ================================================================== *
+   * Playlist rendering
+   * ================================================================== */
+
+  function renderPlaylist(filter) {
+    var query = (filter || '').trim().toLowerCase();
+    el.playlist.textContent = '';       // clears children safely
+
+    if (!tracks.length) {
+      el.playlist.appendChild(emptyState(
+        'fa-music', 'Drag & Drop songs here', 'or click Import'));
+      updateCounts(0, 0);
+      return;
+    }
+
+    var visible = 0;
+    var fragment = document.createDocumentFragment();
+
+    tracks.forEach(function (track, index) {
+      if (query) {
+        var haystack = [track.title, track.artist, track.album, track.name]
+          .filter(Boolean).join(' ').toLowerCase();
+        if (haystack.indexOf(query) === -1) return;
+      }
+      visible++;
+      fragment.appendChild(playlistRow(track, index));
+    });
+
+    if (visible === 0) {
+      el.playlist.appendChild(emptyState(
+        'fa-magnifying-glass', 'No songs match "' + (filter || '') + '"', 'Try a different search'));
+    }
+
+    el.playlist.appendChild(fragment);
+    updateCounts(visible, tracks.length);
+  }
+
+  function emptyState(icon, line1, line2) {
+    var wrap = document.createElement('li');
+    wrap.className = 'text-center text-gray-500 mt-10 text-sm list-none';
+
+    var i = document.createElement('i');
+    i.className = 'fas ' + icon + ' mb-3 text-2xl opacity-50';
+    i.setAttribute('aria-hidden', 'true');
+
+    var p1 = document.createElement('p');
+    p1.textContent = line1;
+
+    var p2 = document.createElement('p');
+    p2.className = 'text-xs mt-1';
+    p2.textContent = line2;
+
+    wrap.appendChild(i);
+    wrap.appendChild(p1);
+    wrap.appendChild(p2);
+    return wrap;
+  }
+
+  function playlistRow(track, index) {
+    var li = document.createElement('li');
+    li.className = 'track-row group';
+    if (index === currentTrack) li.classList.add('is-current');
+
+    var num = document.createElement('span');
+    num.className = 'track-num';
+    num.textContent = index === currentTrack && isPlaying ? '' : String(index + 1);
+    if (index === currentTrack && isPlaying) {
+      num.appendChild(playingIndicator());
+    }
+
+    var body = document.createElement('div');
+    body.className = 'track-body';
+
+    var title = document.createElement('p');
+    title.className = 'track-title';
+    // textContent, not innerHTML: a filename is attacker-influenced input
+    // (a dropped file can be named `<img onerror=...>`).
+    title.textContent = track.title || track.name;
+    title.title = track.title || track.name;
+
+    var sub = document.createElement('p');
+    sub.className = 'track-sub';
+    sub.textContent = [track.artist, track.album].filter(Boolean).join(' • ') ||
+      window.SpideyDB.cleanFilename(track.name);
+
+    body.appendChild(title);
+    body.appendChild(sub);
+
+    var time = document.createElement('span');
+    time.className = 'track-time';
+    time.textContent = Number.isFinite(track.duration) && track.duration > 0
+      ? formatTime(track.duration) : '';
+
+    var remove = document.createElement('button');
+    remove.className = 'track-remove';
+    remove.setAttribute('aria-label', 'Remove ' + (track.title || track.name) + ' from library');
+    remove.innerHTML = '<i class="fas fa-xmark" aria-hidden="true"></i>';
+    remove.addEventListener('click', function (e) {
+      e.stopPropagation();
+      removeTrack(index);
+    });
+
+    li.appendChild(num);
+    li.appendChild(body);
+    li.appendChild(time);
+    li.appendChild(remove);
+
+    li.addEventListener('click', function () {
+      if (index === currentTrack) { togglePlay(); return; }
+      loadTrack(index, true);
+    });
+
+    return li;
+  }
+
+  function playingIndicator() {
+    var box = document.createElement('span');
+    box.className = 'playing-indicator';
+    for (var i = 0; i < 3; i++) box.appendChild(document.createElement('span'));
+    return box;
+  }
+
+  function updateCounts(visible, total) {
+    if (total === 0) {
+      el.trackCount.textContent = '0 tracks';
+    } else if (visible === total) {
+      el.trackCount.textContent = total + (total === 1 ? ' track' : ' tracks');
+    } else {
+      el.trackCount.textContent = visible + ' of ' + total + ' tracks';
+    }
+  }
+
+  function highlightCurrent() {
+    // A full re-render is the simplest correct approach: the row's number,
+    // indicator and title styling all depend on currentTrack AND isPlaying.
+    // The library is small enough that this stays well under a frame.
+    renderPlaylist(el.search.value);
+  }
+
+  /* ================================================================== *
+   * Library mutations
+   * ================================================================== */
+
+  function removeTrack(index) {
+    var track = tracks[index];
+    if (!track) return;
+
+    window.SpideyDB.deleteTrack(track.uid).then(function () {
+      var wasCurrent = index === currentTrack;
+      tracks.splice(index, 1);
+
+      if (wasCurrent) {
+        pause();
+        setTrackUrl(null);
+        audio.removeAttribute('src');
+        currentTrack = tracks.length ? Math.min(index, tracks.length - 1) : -1;
+        if (currentTrack >= 0) loadTrack(currentTrack, false);
+        else updateNowPlayingUI();
+      } else if (index < currentTrack) {
+        currentTrack--;
+      }
+
+      buildOrder(true);
+      renderPlaylist(el.search.value);
+      refreshStorage();
+      toast('Removed "' + (track.title || track.name) + '".', 'info', 3000);
+    }).catch(function (err) {
+      toast('Could not remove the track: ' + err.message, 'error');
+    });
+  }
+
+  /* ================================================================== *
+   * Import
+   * ================================================================== */
+
+  function isAudio(file) {
+    if (file.type && file.type.indexOf('audio/') === 0) return true;
+    // Some browsers report an empty type for .flac / .opus
+    return AUDIO_EXT.test(file.name || '');
+  }
+
+  function importFiles(fileList) {
+    var files = Array.prototype.slice.call(fileList || []);
+    if (!files.length) return;
+
+    var audioFiles = files.filter(isAudio);
+    var rejected = files.length - audioFiles.length;
+
+    if (!audioFiles.length) {
+      toast('No audio files found. Supported: mp3, flac, m4a, wav, ogg, opus.', 'warn');
+      return;
+    }
+    if (rejected > 0) {
+      toast('Skipped ' + rejected + ' non-audio ' + (rejected === 1 ? 'file' : 'files') + '.', 'warn');
+    }
+
+    var total = audioFiles.length;
+    var progressToast = toast('Importing 0/' + total + '…', 'info', 0);
+
+    window.SpideyDB.addTracks(audioFiles, function (done, count, name) {
+      if (name) {
+        el.importStatus.textContent = 'Reading ' + (done + 1) + '/' + count + ': ' + name;
+      } else {
+        el.importStatus.textContent = '';
+      }
+    }).then(function (result) {
+      progressToast();
+      el.importStatus.textContent = '';
+
+      return reloadLibrary().then(function () {
+        var added = result.added.length;
+        var skipped = result.skipped;
+
+        if (added) {
+          toast('Added ' + added + ' ' + (added === 1 ? 'song' : 'songs') + '.', 'success');
+        }
+
+        if (skipped.length) {
+          var byReason = skipped.reduce(function (acc, s) {
+            acc[s.reason] = (acc[s.reason] || 0) + 1;
+            return acc;
+          }, {});
+
+          if (byReason.duplicate) {
+            toast(byReason.duplicate + ' already in your library (same file).', 'info', 5000);
+          }
+          if (byReason.quota) {
+            toast('Browser storage is full — the rest could not be saved.', 'error', 0);
+          }
+          if (byReason.unreadable) {
+            toast(byReason.unreadable + ' could not be read.', 'error');
+          }
+          if (byReason.write) {
+            toast(byReason.write + ' failed to save.', 'error');
+          }
+        }
+
+        if (!added && !skipped.length) toast('Nothing to import.', 'info');
+        refreshStorage();
+      });
+    }).catch(function (err) {
+      progressToast();
+      el.importStatus.textContent = '';
+      toast('Import failed: ' + err.message, 'error', 0);
+    });
+  }
+
+  function reloadLibrary() {
+    return window.SpideyDB.getAllTracks().then(function (rows) {
+      var playingUid = currentTrack >= 0 && tracks[currentTrack] ? tracks[currentTrack].uid : null;
+
+      tracks = (rows || []).sort(function (a, b) {
+        // Preserve import order; fall back to title for legacy rows.
+        return (a.addedAt || 0) - (b.addedAt || 0);
+      });
+
+      if (playingUid) {
+        var at = tracks.findIndex(function (t) { return t.uid === playingUid; });
+        currentTrack = at;
+      } else if (currentTrack >= tracks.length) {
+        currentTrack = tracks.length - 1;
+      }
+
+      buildOrder(true);
+      renderPlaylist(el.search.value);
+
+      if (currentTrack < 0 && tracks.length) {
+        // First import: queue up the opening track without forcing playback.
+        loadTrack(0, false);
+      }
+      return tracks;
+    });
+  }
+
+  function refreshStorage() {
+    window.SpideyDB.storageInfo().then(function (info) {
+      if (!info.supported) { el.storageUsage.textContent = ''; return; }
+      var parts = [];
+      if (info.usage) parts.push(formatBytes(info.usage) + ' used');
+      if (info.quota) parts.push(formatBytes(info.quota) + ' available');
+      el.storageUsage.textContent = parts.join(' · ');
+    }).catch(function () { /* informational only */ });
+  }
+
+  /* ================================================================== *
+   * Panel
+   * ================================================================== */
+
+  function setPanelOpen(open) {
+    el.panel.classList.toggle('is-open', open);
+    el.panelToggle.setAttribute('aria-expanded', String(open));
+    el.panelToggle.setAttribute('aria-label', open ? 'Hide playlist' : 'Show playlist');
+    if (open) el.search.focus();
+  }
+
+  function togglePanel() {
+    setPanelOpen(!el.panel.classList.contains('is-open'));
+  }
+
+  /* ================================================================== *
+   * Events
+   * ================================================================== */
+
+  el.play.addEventListener('click', togglePlay);
+  el.prev.addEventListener('click', prevTrack);
+  el.next.addEventListener('click', function () { nextTrack(true); });
+  el.shuffle.addEventListener('click', toggleShuffle);
+  el.repeat.addEventListener('click', cycleRepeat);
+  el.panelToggle.addEventListener('click', togglePanel);
+  el.panelClose.addEventListener('click', function () {
+    setPanelOpen(false);
+    el.panelToggle.focus();
+  });
+
+  el.fileInput.addEventListener('change', function (e) {
+    importFiles(e.target.files);
+    e.target.value = '';              // allow re-importing the same file later
+  });
+
+  el.search.addEventListener('input', function (e) {
+    renderPlaylist(e.target.value);
+  });
+
+  /* Audio element events are the single source of truth for play state. */
+  audio.addEventListener('play', function () {
     isPlaying = true;
-    updatePlayBtnUI();
-  }
-
-  updateSongInfo();
-  highlightCurrentTrack();
-}
-
-function updateSongInfo() {
-  const file = playlist[currentTrack];
-  if (!file) return;
-
-  let displayName = file.name.replace(/\.[^/.]+$/, "");
-  displayName = displayName.replace(/^(\d+[\s.-]+)+/, "").trim();
-  songTitleEl.textContent = displayName;
-  songArtistEl.textContent = "Spidey Player"; // Or extract metadata if possible
-  durationEl.textContent = formatTime(audio.duration);
-}
-
-function updateProgress() {
-  const { currentTime, duration } = audio;
-  if (isNaN(duration)) return;
-  const progressPercent = (currentTime / duration) * 100;
-  progressBar.style.width = `${progressPercent}%`;
-  currentTimeEl.textContent = formatTime(currentTime);
-}
-
-function setProgress(e) {
-  const width = this.clientWidth;
-  const clickX = e.offsetX;
-  const duration = audio.duration;
-
-  audio.currentTime = (clickX / width) * duration;
-}
-
-
-
-function prevTrack() {
-  if (playlist.length === 0) return;
-
-  if (audio.currentTime > 5) {
-    audio.currentTime = 0;
-    return;
-  }
-
-  let newIndex;
-  if (isShuffle) {
-    newIndex = Math.floor(Math.random() * playlist.length);
-  } else {
-    newIndex = (currentTrack - 1 + playlist.length) % playlist.length;
-  }
-  loadTrack(newIndex);
-}
-
-function nextTrack() {
-  if (playlist.length === 0) return;
-
-  let newIndex;
-  if (isShuffle) {
-    newIndex = Math.floor(Math.random() * playlist.length);
-    // Avoid repeating same song in shuffle if possible, but for simple shuffle random is fine
-  } else {
-    newIndex = (currentTrack + 1) % playlist.length;
-  }
-  loadTrack(newIndex);
-}
-
-function onTrackEnded() {
-  if (isRepeat) {
-    audio.currentTime = 0;
-    audio.play();
-  } else {
-    nextTrack();
-  }
-}
-
-function toggleShuffle() {
-  isShuffle = !isShuffle;
-  shuffleBtn.classList.toggle("text-white");
-  shuffleBtn.classList.toggle("text-cyan-400"); // Active color
-  shuffleBtn.title = isShuffle ? "Shuffle On" : "Shuffle Off";
-}
-
-function toggleRepeat() {
-  isRepeat = !isRepeat;
-  repeatBtn.classList.toggle("text-white");
-  repeatBtn.classList.toggle("text-cyan-400");
-  repeatBtn.title = isRepeat ? "Repeat One" : "Repeat Off";
-  // Could implement Repeat All vs One logic here
-}
-
-function handleFiles(e) {
-  const files = Array.from(e.target.files);
-  handlePlaylistUpdate(files);
-}
-
-async function handlePlaylistUpdate(files) {
-  if (files.length === 0) return;
-
-  // Filter out duplicates
-  const newFiles = [];
-  const duplicates = [];
-
-  // Need database open to check? Playlist is already loaded in memory so we can check against that.
-  files.forEach(file => {
-    const exists = playlist.some(p => p.name === file.name);
-    if (exists) {
-      duplicates.push(file.name);
-    } else {
-      newFiles.push(file);
-    }
+    updatePlayButton();
+    ensureAudioGraph();
+    startLoop();
+    highlightCurrent();
   });
 
-  if (duplicates.length > 0) {
-    if (newFiles.length === 0) {
-      alert(`All selected songs are already in the playlist:\n${duplicates.join('\n')}`);
+  audio.addEventListener('pause', function () {
+    isPlaying = false;
+    updatePlayButton();
+    highlightCurrent();
+    // The loop keeps running until the bars decay, then stops itself.
+  });
+
+  audio.addEventListener('ended', function () {
+    if (repeatMode === REPEAT_ONE) {
+      audio.currentTime = 0;
+      play();
       return;
-    } else {
-      alert(`Skipping ${duplicates.length} duplicate songs:\n${duplicates.slice(0, 5).join('\n')}${duplicates.length > 5 ? '...' : ''}`);
     }
-  }
+    nextTrack(false);
+  });
 
-  if (newFiles.length === 0) return;
+  audio.addEventListener('loadedmetadata', function () {
+    // Cache the real duration on the record so the list shows it next time.
+    var track = tracks[currentTrack];
+    if (track && Number.isFinite(audio.duration) && audio.duration > 0) {
+      track.duration = audio.duration;
+    }
+    updateNowPlayingUI();
+  });
 
-  // Save each file to IndexedDB
-  try {
-    if (!db) await openDB();
+  audio.addEventListener('timeupdate', updateProgressUI);
 
-    const savePromises = newFiles.map(file => saveSongToDB(file));
-    await Promise.all(savePromises);
+  audio.addEventListener('error', function () {
+    var track = tracks[currentTrack];
+    var name = track ? (track.title || track.name) : 'the track';
+    // An error on an empty src fires during teardown; ignore that.
+    if (!audio.getAttribute('src')) return;
+    toast('Could not play "' + name + '". The file may be corrupt or unsupported.', 'error');
+    isPlaying = false;
+    updatePlayButton();
+  });
 
-    console.log(`Saved ${newFiles.length} songs to IndexedDB`);
-    alert(`Successfully saved ${newFiles.length} songs!`);
+  audio.addEventListener('volumechange', updateVolumeUI);
 
-    // Refresh playlist from DB
-    await fetchSongs();
-  } catch (error) {
-    console.error('Error saving to DB:', error);
-    alert('Error saving songs.');
-  }
-}
-
-function updatePlaylistUI(filter = "") {
-  playlistEl.innerHTML = "";
-  if (playlist.length === 0) {
-    playlistEl.innerHTML = `
-        <div class="text-center text-gray-500 mt-10 text-sm">
-            <i class="fas fa-music mb-3 text-2xl opacity-50"></i>
-            <p>Drag & Drop songs here</p>
-            <p class="text-xs mt-1">or click Import</p>
-        </div>`;
-    return;
-  }
-
-  playlist.forEach((file, index) => {
-    // Clean up song name: Remove extension
-    let displayName = file.name.replace(/\.[^/.]+$/, "");
-
-    // Aggressively remove leading numbers and separators
-    // Matches: "01 ", "01 - ", "01. ", "01. - ", "1 ", etc.
-    // Also handles cases where there might be multiple (though unlikely with regex replace unless global)
-    // We use a pattern that looks for starting digits + optional separators
-    displayName = displayName.replace(/^(\d+[\s.-]+)+/, "").trim();
-
-    if (filter && !displayName.toLowerCase().includes(filter)) {
+  /* --- Keyboard: global shortcuts must never fire while typing --- */
+  document.addEventListener('keydown', function (e) {
+    // A key pressed inside a text field belongs to that field.
+    var target = e.target;
+    var tag = target && target.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' ||
+        (target && target.isContentEditable)) {
+      if (e.key === 'Escape' && target === el.search) {
+        el.search.value = '';
+        renderPlaylist('');
+        target.blur();
+      }
       return;
     }
 
-    const li = document.createElement("li");
-    li.className = "group flex items-center justify-between p-3 rounded-xl cursor-pointer hover:bg-white/10 transition-colors";
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
 
-    // Highlight logic
-    if (index === currentTrack) {
-      li.classList.add("bg-white/10", "border-l-4", "border-cyan-400");
-      li.classList.remove("hover:bg-white/10");
-    } else {
-      li.classList.add("hover:bg-white/10");
+    switch (e.code) {
+      case 'Space':
+        e.preventDefault();
+        togglePlay();
+        break;
+      case 'ArrowRight':
+        if (Number.isFinite(audio.duration)) {
+          e.preventDefault();
+          audio.currentTime = Math.min(audio.duration, audio.currentTime + SEEK_STEP);
+          updateProgressUI();
+        }
+        break;
+      case 'ArrowLeft':
+        if (Number.isFinite(audio.duration)) {
+          e.preventDefault();
+          audio.currentTime = Math.max(0, audio.currentTime - SEEK_STEP);
+          updateProgressUI();
+        }
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        audio.volume = Math.min(1, audio.volume + 0.05);
+        if (audio.muted) audio.muted = false;
+        updateVolumeUI();
+        savePrefs();
+        break;
+      case 'ArrowDown':
+        e.preventDefault();
+        audio.volume = Math.max(0, audio.volume - 0.05);
+        updateVolumeUI();
+        savePrefs();
+        break;
+      case 'KeyM':
+        audio.muted = !audio.muted;
+        updateVolumeUI();
+        savePrefs();
+        announce(audio.muted ? 'Muted' : 'Unmuted');
+        break;
+      case 'KeyN':
+        nextTrack(true);
+        break;
+      case 'KeyP':
+        prevTrack();
+        break;
+      case 'KeyL':
+        togglePanel();
+        break;
+      case 'Slash':
+        if (el.panel.classList.contains('is-open')) {
+          e.preventDefault();
+          el.search.focus();
+        }
+        break;
+      case 'Escape':
+        if (el.panel.classList.contains('is-open')) {
+          setPanelOpen(false);
+          el.panelToggle.focus();
+        }
+        break;
+      default:
+        break;
     }
-
-    li.innerHTML = `
-        <div class="flex items-center w-full overflow-hidden">
-            <div class="w-8 h-8 rounded-lg bg-gray-700 flex items-center justify-center mr-3 text-xs text-gray-400 group-hover:text-white group-hover:bg-cyan-500/20 font-mono">
-                ${index + 1}
-            </div>
-            <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-gray-200 truncate group-hover:text-white">${displayName}</p>
-            </div>
-            ${index === currentTrack ? '<div class="playing-indicator flex h-3 ml-2"><span></span><span></span><span></span></div>' : ''}
-        </div>
-    `;
-
-    // Important: Passed the ORIGINAL index
-    li.addEventListener("click", () => loadTrack(index));
-    playlistEl.appendChild(li);
   });
-}
 
-function highlightCurrentTrack() {
-  // Re-run the update to refresh highlights (re-applying filters if needed needs internal state)
-  // For simplicity, let's just re-render with the current search value
-  const currentSearch = searchInput ? searchInput.value.toLowerCase() : "";
-  updatePlaylistUI(currentSearch);
-}
+  /* --- Drag & drop: a depth counter avoids the flicker you get from
+         dragleave firing every time the pointer crosses a child element. --- */
+  function hasFiles(e) {
+    var dt = e.dataTransfer;
+    if (!dt) return false;
+    if (dt.types) {
+      for (var i = 0; i < dt.types.length; i++) if (dt.types[i] === 'Files') return true;
+    }
+    return false;
+  }
 
-function formatTime(seconds) {
-  if (isNaN(seconds)) return "0:00";
-
-  const minutes = Math.floor(seconds / 60);
-  const secs = Math.floor(seconds % 60);
-  return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
-}
-
-// Keyboard Controls
-document.addEventListener('keydown', (e) => {
-  if (e.code === 'Space') {
+  window.addEventListener('dragenter', function (e) {
+    if (!hasFiles(e)) return;
     e.preventDefault();
-    togglePlay();
-  } else if (e.code === 'ArrowRight') {
-    audio.currentTime = Math.min(audio.currentTime + 5, audio.duration);
-  } else if (e.code === 'ArrowLeft') {
-    audio.currentTime = Math.max(audio.currentTime - 5, 0);
-  }
-});
+    dragDepth++;
+    if (dragDepth === 1) document.body.classList.add('is-dragging');
+  });
 
-// Initialize
-// Initialize
-fetchSongs();
-updatePlaylistUI();
+  window.addEventListener('dragover', function (e) {
+    if (!hasFiles(e)) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+  });
+
+  window.addEventListener('dragleave', function (e) {
+    if (!hasFiles(e)) return;
+    dragDepth = Math.max(0, dragDepth - 1);
+    if (dragDepth === 0) document.body.classList.remove('is-dragging');
+  });
+
+  window.addEventListener('drop', function (e) {
+    if (!hasFiles(e)) return;
+    e.preventDefault();
+    dragDepth = 0;
+    document.body.classList.remove('is-dragging');
+    if (e.dataTransfer && e.dataTransfer.files) importFiles(e.dataTransfer.files);
+  });
+
+  /* A drag that leaves the window never fires dragleave on the document. */
+  window.addEventListener('blur', function () {
+    dragDepth = 0;
+    document.body.classList.remove('is-dragging');
+  });
+
+  /* --- Resize --- */
+  var resizeTimer = null;
+  window.addEventListener('resize', function () {
+    if (resizeTimer) return;
+    resizeTimer = requestAnimationFrame(function () {
+      resizeTimer = null;
+      resizeCanvas();
+    });
+  });
+
+  window.addEventListener('beforeunload', function () {
+    setTrackUrl(null);
+    coverCache.forEach(function (url) { URL.revokeObjectURL(url); });
+    coverCache.clear();
+  });
+
+  /* ================================================================== *
+   * Boot
+   * ================================================================== */
+
+  function init() {
+    loadPrefs();
+    updateVolumeUI();
+    updateShuffleUI();
+    updateRepeatUI();
+    updatePlayButton();
+    resizeCanvas();
+
+    window.SpideyDB.open()
+      .then(function () {
+        return reloadLibrary();
+      })
+      .then(function () {
+        return window.SpideyDB.requestPersistence();
+      })
+      .then(refreshStorage)
+      .catch(function (err) {
+        toast('Could not open the local library: ' + err.message, 'error', 0);
+      });
+  }
+
+  init();
+})();

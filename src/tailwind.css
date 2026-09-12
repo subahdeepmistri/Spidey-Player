@@ -1,0 +1,14 @@
+/* Tailwind entry point.
+   Compiled to dist/tailwind.css by `npm run build:css`.
+   The CDN runtime build is intentionally not used in index.html: it cannot be
+   cached, ships the whole framework, and prints a production warning. */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Utilities that Tailwind cannot express from the markup alone. */
+@layer utilities {
+  .glass-panel {
+    background: rgba(14, 16, 26, 0.92);
+  }
+}

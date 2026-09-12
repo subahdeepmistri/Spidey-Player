@@ -1,6 +1,26 @@
+# Dependencies
 node_modules/
+
+# Local media (large; not part of the app)
 songs/
-venv/
 TAYLOR-SWIFT/
+
+# Python tooling for the dataset downloader
+venv/
+__pycache__/
+*.pyc
+
+# macOS
 .DS_Store
+
+# Logs
 *.log
+npm-debug.log*
+
+# NOTE: dist/tailwind.css is intentionally COMMITTED.
+# It is the compiled stylesheet the page loads, and this is a static site with no
+# build step on deploy (GitHub Pages / Netlify drop). Rebuild it with
+# `npm run build:css` after changing index.html or src/tailwind.css.
+
+# Test artefacts
+test-output/

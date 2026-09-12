@@ -1,62 +1,121 @@
 # 🕷️ Spidey Player 2.0
 
-A premium, cyber-glass themed music player for the web. Built with raw JavaScript, optimized for performance, and designed with a stunning visual aesthetic.
+A cyber-glass web music player. Local-first: your library lives in the browser's
+IndexedDB, tags are read from the files themselves, and the frontend ships with
+**zero runtime dependencies**.
 
-![Spidey Player Demo](image/862eb376cc18fd124f045f6b31b0dc4b.jpg)
+![Spidey Player](image/862eb376cc18fd124f045f6b31b0dc4b.jpg)
 
-## 🔥 Features
+## Features
 
-### 🎧 Core Experience
-- **Cyber-Glass Aesthetics**: Frosted glass UI (Glassmorphism) with dynamic background animations.
-- **Audio Visualizer**: Real-time frequency bars that react to the beat using the Web Audio API.
-- **Pulsing Album Art**: Album cover reacts to bass frequencies.
+**Library**
+- **Reads real tags** — title, artist, album, track number and embedded cover art
+  from ID3v2.2/2.3/2.4, ID3v1 and FLAC (Vorbis comments + `PICTURE` blocks). No
+  dependencies; only the tag region of a file is read.
+- **Persistent** — songs are stored in IndexedDB and survive refreshes and restarts.
+  The player asks the browser to make the data persistent so it is not evicted.
+- **Safe duplicate handling** — re-importing the same file is detected by
+  name + size + timestamp. Two *different* songs that happen to share a filename are
+  both kept (the old version silently overwrote one).
+- **Per-track management** — remove a single song; orphaned cover art is pruned.
+- **Drag & drop** with a full-screen drop overlay, or the Import button.
 
-### 💾 Smart Library
-- **Persistent Storage**: Songs are saved directly in your **Browser Database** (IndexedDB). Your library survives refreshes and restarts!
-- **Drag & Drop**: Simply drag your folder or audio files onto the screen to import them.
-- **Auto-Cleanup**: Automatically detects and removes duplicate songs to keep your library clean.
-- **Smart Titles**: Automatically strips messy prefixes (e.g., "01 - ", "MySong.mp3") for a clean look.
+**Playback**
+- Shuffle (a real Fisher-Yates order, with history — back goes back).
+- Repeat off / all / one, persisted between sessions.
+- Volume slider + mute, persisted between sessions.
+- Scrub the progress bar by click or drag; keyboard-seekable.
 
-### 🎮 Controls
-- **Keyboard Shortcuts**:
-    - `Space`: Play / Pause
-    - `Left Arrow`: Rewind 5s
-    - `Right Arrow`: Forward 5s
-- **Playlist Management**:
-    - Search bar to instantly filter songs.
-    - Toggleable popup playlist.
-    - Shuffle & Repeat modes.
+**Visuals**
+- Real-time frequency-bar visualizer (Web Audio API), sized to the viewport.
+- Album art that reacts to the beat, with an idle pulse.
+- The render loop stops itself when the music is silent — an idle player costs
+  nothing.
 
-## 🛠️ Tech Stack
-- **Frontend**: HTML5, Vanilla JavaScript (ES6+)
-- **Styling**: Tailwind CSS (CDN) + Custom CSS Animations
-- **Audio**: Web Audio API + HTML5 Audio
-- **Storage**: IndexedDB (Client-side database)
+**Accessibility**
+- Every control has an accessible name; toggles expose `aria-pressed`.
+- The progress bar is a real `role="slider"` with `aria-valuetext`.
+- Status changes are announced through a polite live region.
+- Visible focus rings, a skip link, and `prefers-reduced-motion` support.
 
-## 🚀 How to Use
+## Keyboard shortcuts
 
-### Run Locally
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/subahdeepmistri/Spidey-Player.git
-   ```
-2. Open `index.html` in your browser.
-3. **OR** run with a local server (recommended for Drag & Drop persistence testing):
-   ```bash
-   npx serve .
-   ```
+| Key | Action |
+|---|---|
+| `Space` | Play / pause |
+| `←` / `→` | Seek ∓5s |
+| `↑` / `↓` | Volume |
+| `M` | Mute |
+| `N` / `P` | Next / previous track |
+| `L` | Toggle the playlist panel |
+| `/` | Focus search |
+| `Esc` | Close the panel / clear search |
 
-### Add Music
-1. Open the player.
-2. Drag and drop your `.mp3`, `.flac`, or `.wav` files anywhere on the screen.
-3. Confirm the upload.
-4. Enjoy!
+Shortcuts never fire while you are typing in a text field.
 
-## 🌐 Deployment
-This project is **Static-Site Ready**. You can deploy it for free on:
-- **GitHub Pages**: Go to Settings > Pages > Source: `main`.
-- **Netlify**: Drag the project folder to Netlify Drop.
+## Getting started
 
-## 👨‍💻 Developer
+```bash
+npm install
+npm run build:css     # compile Tailwind -> dist/tailwind.css
+npm start             # serve on http://localhost:3000
+```
+
+Then drag audio files onto the page, or use **Import**.
+
+> `dist/tailwind.css` is generated. Re-run `npm run build:css` after editing
+> `index.html` or `src/tailwind.css`, or run `npm run watch:css` while developing.
+
+## Testing
+
+```bash
+npm test              # 9 unit tests for the tag reader (parses the real library)
+npm run verify        # 26 end-to-end assertions in a real headless Chromium
+```
+
+`npm run verify` needs a Playwright Chromium:
+
+```bash
+npx playwright install chromium
+# or point at an existing binary:
+CHROME_PATH="/Applications/Chromium.app/Contents/MacOS/Chromium" npm run verify
+```
+
+## Tech stack
+
+| Layer | Choice |
+|---|---|
+| UI | Vanilla JavaScript (ES5-safe syntax, no framework) |
+| Styling | Tailwind CSS (compiled locally) + custom CSS |
+| Audio | Web Audio API + HTML5 `<audio>` |
+| Storage | IndexedDB (v2, with automatic migration from v1) |
+| Metadata | Hand-written ID3v1 / ID3v2 / FLAC parser |
+
+No runtime dependencies. `tailwindcss` and `playwright-core` are dev-only.
+
+## Project layout
+
+```
+index.html            markup + ARIA wiring
+app.js                player state, UI, keyboard, drag & drop, visualizer
+db.js                 IndexedDB v2 + v1 migration
+id3.js                ID3v1 / ID3v2 / FLAC tag reader
+style.css             glass / component layer
+src/tailwind.css      Tailwind entry point
+dist/tailwind.css     compiled (generated)
+test/                 unit + browser tests
+AUDIT.md              full audit: every defect found, its evidence and its fix
+```
+
+## Notes on stored data
+
+Your library lives in this browser's IndexedDB for this origin. It is not synced
+anywhere. Clearing site data removes it. The `songs/` and `TAYLOR-SWIFT/`
+directories in this repo are gitignored sample data and are not required to run
+the player.
+
+## Credits
+
 Developed by **Subhadeep Mistri**.
-*A passion project exploring advanced DOM manipulation and Web Audio API.*
+
+See [AUDIT.md](AUDIT.md) for the full engineering audit behind this version.
