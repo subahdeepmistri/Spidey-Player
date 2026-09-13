@@ -67,8 +67,10 @@
     } catch (e) {
       return '';
     }
-    // strip terminators and collapse whitespace
-    return text.replace(/\u0000+$/, '').replace(/^\u0000+/, '').trim();
+    // ID3v2.4 allows multiple values separated by NUL; take the first, and
+    // strip trailing/leading terminators and whitespace.
+    var first = text.split('\u0000')[0];
+    return first.replace(/^\u0000+/, '').trim();
   }
 
   /* Undo ID3v2 unsynchronisation (0xFF 0x00 -> 0xFF). */
@@ -114,8 +116,10 @@
     var at = 1;
     var mime;
 
-    if (data.length > 4 && latin1(data, at, 3) === 'JPG' || latin1(data, at, 3) === 'PNG') {
-      // ID3v2.2 PIC: 3-character image format
+    // ID3v2.2 PIC frames store a 3-character image format ("JPG"/"PNG")
+    // instead of a null-terminated MIME string. Parenthesised: && binds
+    // tighter than ||, so the old spelling matched PIC headers by accident.
+    if (data.length > 4 && (latin1(data, at, 3) === 'JPG' || latin1(data, at, 3) === 'PNG')) {
       var fmt = latin1(data, at, 3).toUpperCase();
       mime = fmt === 'PNG' ? 'image/png' : 'image/jpeg';
       at += 3;
@@ -126,9 +130,11 @@
     }
 
     at += 1; // picture type byte
+    if (at >= data.length) return null;
     var desc = readTerminated(data, at, wide);
     at = desc[1];
 
+    if (at >= data.length) return null;
     var bytes = data.subarray(at);
     if (!bytes.length || bytes.length > MAX_COVER_BYTES) return null;
     return { mime: mime || 'image/jpeg', bytes: bytes };
@@ -252,10 +258,15 @@
       } else if (type === 6) {              // PICTURE
         var q = start;
         q += 4;                             // picture type
+        if (q + 4 > end) break;
         var mimeLen = be32(bytes, q); q += 4;
+        if (q + mimeLen > end) break;
         var mime = latin1(bytes, q, mimeLen); q += mimeLen;
+        if (q + 4 > end) break;
         var descLen = be32(bytes, q); q += 4 + descLen;
+        if (q + 16 > end) break;
         q += 16;                            // width, height, depth, colours
+        if (q + 4 > end) break;
         var dataLen = be32(bytes, q); q += 4;
         if (dataLen > 0 && dataLen <= MAX_COVER_BYTES && q + dataLen <= bytes.length && !out.cover) {
           out.cover = { mime: mime || 'image/jpeg', bytes: bytes.subarray(q, q + dataLen) };

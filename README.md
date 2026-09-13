@@ -15,9 +15,11 @@ IndexedDB, tags are read from the files themselves, and the frontend ships with
 - **Persistent** — songs are stored in IndexedDB and survive refreshes and restarts.
   The player asks the browser to make the data persistent so it is not evicted.
 - **Safe duplicate handling** — re-importing the same file is detected by
-  name + size + timestamp. Two *different* songs that happen to share a filename are
-  both kept (the old version silently overwrote one).
-- **Per-track management** — remove a single song; orphaned cover art is pruned.
+  name + size + timestamp *and* a SHA-256 content hash, so a renamed or
+  re-downloaded copy of a song you already have is also recognised. Two
+  *different* songs that happen to share a filename are both kept (the old
+  version silently overwrote one).
+- **Per-track management** — remove a single song (with Undo); orphaned cover art is pruned.
 - **Drag & drop** with a full-screen drop overlay, or the Import button.
 
 **Playback**

@@ -371,6 +371,12 @@ body {
     /* On desktop the panel is a sibling, so it is always visible. */
     display: flex;
   }
+
+  /* Hide playlist toggle and close button on desktop — they are mobile-only drawer controls */
+  #playlist-toggle-btn,
+  #panel-close-btn {
+    display: none !important;
+  }
 }
 
 @media (max-width: 767.98px) {
@@ -417,8 +423,14 @@ body {
       transform: translateY(0);
     }
   }
+}
 
-  .track-row {
+/* ---------------------------------------------------------------- *
+  Playlist rows (all viewports — the mobile query above only styles
+  the drawer behaviour, never the row internals)
+  ---------------------------------------------------------------- */
+
+.track-row {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -613,15 +625,6 @@ body {
   animation: toast-in 0.22s ease-out;
 }
 
-.toast > i {
-  margin-top: 0.1rem;
-  flex: 0 0 auto;
-}
-
-.toast-success > i { color: #34d399; }
-.toast-error > i { color: #f87171; }
-.toast-warn > i { color: #fbbf24; }
-.toast-info > i { color: var(--primary-color); }
 
 .toast-close {
   margin-left: auto;
@@ -637,6 +640,31 @@ body {
 .toast-close:hover {
   color: #fff;
 }
+
+.toast-action {
+  flex: 0 0 auto;
+  margin-left: 0.5rem;
+  padding: 0.2rem 0.6rem;
+  border: 1px solid rgba(0, 242, 234, 0.45);
+  border-radius: 9999px;
+  background: rgba(0, 242, 234, 0.12);
+  color: var(--primary-color);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.toast-action:hover {
+  background: rgba(0, 242, 234, 0.22);
+  border-color: var(--primary-color);
+}
+
+/* Icon colour by toast type — the icon is an inline <svg>, so target it. */
+.toast-success > svg { color: #34d399; }
+.toast-error > svg { color: #f87171; }
+.toast-warn > svg { color: #fbbf24; }
+.toast-info > svg { color: var(--primary-color); }
 
 .toast-out {
   opacity: 0;
@@ -684,10 +712,6 @@ body.is-dragging .drop-overlay {
   border: 2px dashed rgba(0, 242, 234, 0.5);
   color: var(--primary-color);
   font-size: 1.05rem;
-}
-
-.drop-overlay-inner i {
-  font-size: 2.5rem;
 }
 
 /* ---------------------------------------------------------------- *

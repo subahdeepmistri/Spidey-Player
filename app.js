@@ -115,6 +115,14 @@
     return (value >= 10 || i === 0 ? Math.round(value) : value.toFixed(1)) + ' ' + units[i];
   }
 
+  /* "Very Long Song Name ….mp3" — keep both ends visible. */
+  function truncateMiddle(text, max) {
+    if (typeof text !== 'string') return '';
+    if (text.length <= max) return text;
+    var keep = Math.max(1, Math.floor((max - 1) / 2));
+    return text.slice(0, keep) + '…' + text.slice(text.length - keep);
+  }
+
   /* Announce to screen readers without stealing focus. */
   function announce(message) {
     el.srStatus.textContent = '';
@@ -149,20 +157,16 @@
         'play': 'M5 3l14 9-14 9V3z',
         'pause': 'M6 4h4v16H6V4zm8 0h4v16h-4V4z',
         'volume-high': 'M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07',
-        'volume-xmark': 'M11 5L6 9H2v6h4l5 4V5z',
-        'volume-off': 'M11 5L6 9H2v6h4l5 4V5z',
-        'volume-low': 'M11 5L6 9H2v6h4l5 4V5z',
-        'random': 'M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2zM20 12v-2l-4-4v6l4-4v2',
-        'step-backward': 'M19 20H9l-7-7 7-7h10v14zM3 12h18',
-        'step-forward': 'M5 4v16l7-7-7-7V4h10v14zM21 12H3',
+        'volume-xmark': 'M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6',
+        'volume-low': 'M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 0 1 0 7.07',
+        'random': 'M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5',
+        'step-backward': 'M19 20H9V4h10v16zM9 12l-7 7V5l7 7z',
+        'step-forward': 'M5 4h10v16H5V4zm10 8l7-7v14l-7-7z',
         'redo': 'M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15',
-        'repeat-1': 'M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15',
         'plus': 'M12 5v14M5 12h14',
-        'times': 'M18 6L6 18M6 6l12 12',
         'search': 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z',
         'xmark': 'M18 6L6 18M6 6l12 12',
-        'file-arrow-down': 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M12 12v4M10 14h4M16 14h-4',
-        'magnifying-glass': 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z',
+        'file-arrow-down': 'M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M12 12v4M10 14h4',
         'music': 'M9 18V5l12-2v13M9 9h12v2H9V9z',
         'circle-check': 'M22 11.08V12a10 10 0 11-5.93-9.14M9 11l3 3L22 4',
         'triangle-exclamation': 'M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0zM12 9v4M12 17h.01',
@@ -177,8 +181,9 @@
       return svg;
     }
 
-    function toast(message, type, timeout) {
+    function toast(message, type, timeout, opts) {
         type = type || 'info';
+        opts = opts || {};
         var node = document.createElement('div');
         node.className = 'toast toast-' + type;
 
@@ -195,6 +200,20 @@
 
         node.appendChild(icon);
         node.appendChild(span);
+
+        // Optional inline action (e.g. "Undo" on a delete toast).
+        if (typeof opts.action === 'function') {
+          var actionBtn = document.createElement('button');
+          actionBtn.className = 'toast-action';
+          actionBtn.type = 'button';
+          actionBtn.textContent = opts.actionLabel || 'Undo';
+          actionBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            opts.action();
+          });
+          node.appendChild(actionBtn);
+        }
+
         node.appendChild(close);
         el.toasts.appendChild(node);
 
@@ -207,9 +226,16 @@
       setTimeout(function () { if (node.isConnected) node.remove(); }, 500);
     }
 
+    /* Controller returned to callers: dismiss() hides the toast, update()
+       rewrites its text in place (used for live import progress). */
+    function update(opts) {
+      if (removed || !opts || typeof opts.text !== 'string') return;
+      span.textContent = opts.text;
+    }
+
     close.addEventListener('click', dismiss);
     if (timeout !== 0) setTimeout(dismiss, timeout || (type === 'error' ? 8000 : 4000));
-    return dismiss;
+    return { dismiss: dismiss, update: update };
   }
 
   /* Persisted user preferences. */
@@ -291,6 +317,15 @@
     coverCache.set(key, url);
     while (coverCache.size > COVER_CACHE_MAX) {
       var oldestKey = coverCache.keys().next().value;
+      // Never evict the cover that is on screen: re-insert it at the end
+      // (most-recent) and evict the next-oldest instead.
+      if (oldestKey === currentCoverKey) {
+        var keep = coverCache.get(oldestKey);
+        coverCache.delete(oldestKey);
+        coverCache.set(oldestKey, keep);
+        oldestKey = coverCache.keys().next().value;
+        if (oldestKey === currentCoverKey) break;  // only this cover left
+      }
       URL.revokeObjectURL(coverCache.get(oldestKey));
       coverCache.delete(oldestKey);
     }
@@ -299,11 +334,8 @@
 
   function applyCover(blob, key) {
     if (!blob) {
-      // Revoke any pending cover URL before switching to the default
-      if (currentCoverKey && coverCache.has(currentCoverKey)) {
-        URL.revokeObjectURL(coverCache.get(currentCoverKey));
-        coverCache.delete(currentCoverKey);
-      }
+      // Switch to the default image. The cached URL stays cached: other tracks
+      // with the same cover (deduped by hash) may need it again shortly.
       currentCoverKey = null;
       el.art.src = DEFAULT_ART;
       return null;
@@ -402,6 +434,8 @@
 
   var viewW = 0;
   var viewH = 0;
+  var barGradient = null;         // rebuilt only on resize, not per frame
+  var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   function resizeCanvas() {
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -414,10 +448,15 @@
     el.canvas.height = Math.round(h * dpr);
     // Draw in CSS pixels; the transform handles the device scale.
     ctx2d.setTransform(dpr, 0, 0, dpr, 0, 0);
+    barGradient = null;           // size changed: rebuild the shared gradient
   }
 
   function startLoop() {
     if (rafId !== null) return;        // a loop is already running
+    // Without an analyser there is nothing to animate; the loop would run
+    // forever producing silence (average < 0.5 stops it only after 45
+    // wasted frames — but on repeated play it re-arms every time).
+    if (!analyser || !freqData) return;
     idleFrames = 0;
     rafId = requestAnimationFrame(renderFrame);
   }
@@ -429,6 +468,15 @@
     ctx2d.clearRect(0, 0, viewW, viewH);
     el.art.style.transform = '';
   }
+
+  /* Pause the render loop while the tab is hidden; resume on return. */
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) {
+      stopLoop();
+    } else if (isPlaying) {
+      startLoop();
+    }
+  });
 
   function renderFrame() {
     rafId = requestAnimationFrame(renderFrame);
@@ -458,17 +506,20 @@
     var barWidth = Math.max(1, viewW / bars - gap);
     var maxBarHeight = viewH * 0.55;
 
+    // One shared gradient for the whole strip, created at most once per resize.
+    if (!barGradient) {
+      barGradient = ctx2d.createLinearGradient(0, viewH, 0, viewH - maxBarHeight);
+      barGradient.addColorStop(0, 'rgba(0, 242, 234, 0.08)');
+      barGradient.addColorStop(0.55, 'rgba(0, 242, 234, 0.45)');
+      barGradient.addColorStop(1, 'rgba(255, 0, 85, 0.6)');
+    }
+    ctx2d.fillStyle = barGradient;
+
     for (var b = 0; b < bars; b++) {
       var magnitude = freqData[b] / 255;
       var barHeight = magnitude * maxBarHeight;
       var x = b * (barWidth + gap);
 
-      var gradient = ctx2d.createLinearGradient(0, viewH, 0, viewH - barHeight);
-      gradient.addColorStop(0, 'rgba(0, 242, 234, 0.08)');
-      gradient.addColorStop(0.55, 'rgba(0, 242, 234, 0.45)');
-      gradient.addColorStop(1, 'rgba(255, 0, 85, 0.6)');
-
-      ctx2d.fillStyle = gradient;
       var radius = Math.min(barWidth / 2, 4);
       ctx2d.beginPath();
       ctx2d.roundRect(x, viewH - barHeight, barWidth, barHeight, radius);
@@ -476,9 +527,12 @@
     }
 
     // Beat-reactive album art. The scale is applied to the img; the idle CSS
-    // pulse lives on the wrapper, so the two never fight.
-    var target = 1 + (average / 255) * 0.06;
-    el.art.style.transform = 'scale(' + target.toFixed(3) + ')';
+    // pulse lives on the wrapper, so the two never fight. Users who ask for
+    // reduced motion get a static album instead.
+    if (!reducedMotion.matches) {
+      var target = 1 + (average / 255) * 0.06;
+      el.art.style.transform = 'scale(' + target.toFixed(3) + ')';
+    }
   }
 
   /* ================================================================== *
@@ -499,7 +553,12 @@
   function updateMediaSession() {
     if (!('mediaSession' in navigator)) return;
     var track = tracks[currentTrack];
-    if (!track || !('MediaMetadata' in window)) return;
+
+    if (!track || !('MediaMetadata' in window)) {
+      // No track loaded: clear any OS-level media controls.
+      try { navigator.mediaSession.metadata = null; } catch (e) { /* non-fatal */ }
+      return;
+    }
 
     var art = el.art.getAttribute('src') || DEFAULT_ART;
     try {
@@ -510,6 +569,28 @@
         artwork: [{ src: art, sizes: '512x512' }]
       });
     } catch (e) { /* non-fatal */ }
+  }
+
+  /* Wire OS media keys (lock screen / keyboard) to the player, once. */
+  function setupMediaSessionActions() {
+    if (!('mediaSession' in navigator) || !navigator.mediaSession.setActionHandler) return;
+    var actions = {
+      play: play,
+      pause: pause,
+      previoustrack: prevTrack,
+      nexttrack: function () { nextTrack(true); },
+      seekbackward: function () { audio.currentTime = Math.max(0, audio.currentTime - SEEK_STEP); },
+      seekforward: function () {
+        if (Number.isFinite(audio.duration)) {
+          audio.currentTime = Math.min(audio.duration, audio.currentTime + SEEK_STEP);
+        }
+      }
+    };
+    Object.keys(actions).forEach(function (name) {
+      try {
+        navigator.mediaSession.setActionHandler(name, actions[name]);
+      } catch (e) { /* unsupported action on this platform */ }
+    });
   }
 
   function updateNowPlayingUI() {
@@ -539,7 +620,18 @@
   function setProgressUI(percent) {
     var clamped = Math.max(0, Math.min(100, percent));
     el.progressBar.style.width = clamped + '%';
-    el.progress.setAttribute('aria-valuenow', Math.round(clamped));
+    // aria-valuenow is owned by setSliderAria (seconds), not this percent.
+  }
+
+  /* Write the slider's ARIA state in seconds (min/max/now), with a readable
+     valuetext. Percent-based values mixed two unit systems before. */
+  function setSliderAria(current, duration) {
+    var known = Number.isFinite(duration) && duration > 0;
+    el.progress.setAttribute('aria-valuemin', '0');
+    el.progress.setAttribute('aria-valuemax', known ? String(Math.round(duration)) : '0');
+    el.progress.setAttribute('aria-valuenow', known ? String(Math.round(current)) : '0');
+    el.progress.setAttribute('aria-valuetext',
+      known ? formatTime(current) + ' of ' + formatTime(duration) : 'Not loaded');
   }
 
   function updateProgressUI() {
@@ -555,8 +647,7 @@
     if (Number.isFinite(duration) && duration > 0) {
       el.duration.textContent = formatTime(duration);
     }
-    el.progress.setAttribute('aria-valuetext',
-      formatTime(current) + ' of ' + el.duration.textContent);
+    setSliderAria(current, duration);
   }
 
   /* Load a track by its index in `tracks`. */
@@ -663,6 +754,7 @@
     // Restart the current song first, like every other player does.
     if (audio.currentTime > 3) {
       audio.currentTime = 0;
+      updateProgressUI();
       return;
     }
     var target = step(-1);
@@ -752,13 +844,14 @@
    * ================================================================== */
 
   function updateVolumeUI() {
+      // `level` must exist even if the icon swap fails (e.g. SVG missing).
+      var level = audio.muted ? 0 : audio.volume;
       var icon = el.mute.querySelector('svg');
       if (icon) {
         var path = icon.querySelector('path');
-        var level = audio.muted ? 0 : audio.volume;
-        var d = level === 0 ? 'M11 5L6 9H2v6h4l5 4V5z'
+        var d = level === 0 ? 'M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6'
           : level < 0.34 ? 'M11 5L6 9H2v6h4l5 4V5z'
-          : level < 0.67 ? 'M11 5L6 9H2v6h4l5 4V5z'
+          : level < 0.67 ? 'M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 0 1 0 7.07'
           : 'M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07';
         if (path) path.setAttribute('d', d);
       }
@@ -857,7 +950,21 @@
 
     if (visible === 0) {
       el.playlist.appendChild(emptyState(
-              'search', 'No songs match "' + (filter || '') + '"', 'Try a different search'));
+              'search', 'No songs match "' + (filter || '') + '"', ''));
+      // A recovery action beats advice text: one click clears the filter.
+      var clearLi = document.createElement('li');
+      clearLi.className = 'text-center mt-3 list-none';
+      var clearBtn = document.createElement('button');
+      clearBtn.className = 'btn-chip';
+      clearBtn.type = 'button';
+      clearBtn.textContent = 'Clear search';
+      clearBtn.addEventListener('click', function () {
+        el.search.value = '';
+        renderPlaylist('');
+        el.search.focus();
+      });
+      clearLi.appendChild(clearBtn);
+      el.playlist.appendChild(clearLi);
     }
 
     el.playlist.appendChild(fragment);
@@ -921,23 +1028,18 @@
         ? formatTime(track.duration) : '';
 
       var mainBtn = document.createElement('button');
-      mainBtn.className = 'track-main';
-      mainBtn.type = 'button';
-      var trackName = track.title || track.name;
-      mainBtn.setAttribute('aria-label', (index === currentTrack ? 'Pause' : 'Play') + ' ' + trackName);
-      mainBtn.appendChild(num);
-      mainBtn.appendChild(body);
-      mainBtn.appendChild(time);
-      mainBtn.addEventListener('click', function () {
-        if (index === currentTrack) { togglePlay(); return; }
-        loadTrack(index, true);
-      });
-      mainBtn.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          mainBtn.click();
-        }
-      });
+            mainBtn.className = 'track-main';
+            mainBtn.type = 'button';
+            var trackName = track.title || track.name;
+            var action = (index === currentTrack && isPlaying) ? 'Pause' : 'Play';
+            mainBtn.setAttribute('aria-label', action + ' ' + trackName);
+            mainBtn.appendChild(num);
+            mainBtn.appendChild(body);
+            mainBtn.appendChild(time);
+            mainBtn.addEventListener('click', function () {
+              if (index === currentTrack) { togglePlay(); return; }
+              loadTrack(index, true);
+            });
 
       var remove = document.createElement('button');
             remove.className = 'track-remove';
@@ -1005,11 +1107,25 @@
         buildOrder(true);
         renderPlaylist(el.search.value);
         refreshStorage();
-        // Prune orphaned covers after successful deletion
+        // Prune orphaned covers after successful deletion (undo re-adds the key).
         window.SpideyDB.pruneCovers().catch(function (err) {
           console.warn('Failed to prune covers:', err);
         });
-        toast('Removed "' + (track.title || track.name) + '".', 'info', 3000);
+        announce('Removed ' + (track.title || track.name));
+        // Undoable delete: the record is put back exactly as it was.
+        toast('Removed "' + truncateMiddle(track.title || track.name, 32) + '".',
+          'info', 8000, {
+            actionLabel: 'Undo',
+            action: function () {
+              window.SpideyDB.restoreTrack(track).then(function () {
+                return reloadLibrary();
+              }).then(function () {
+                toast('Track restored.', 'success');
+              }).catch(function (err) {
+                toast('Could not restore: ' + err.message, 'error');
+              });
+            }
+          });
       }).catch(function (err) {
         toast('Could not remove the track: ' + err.message, 'error');
       });
@@ -1033,24 +1149,27 @@
     var rejected = files.length - audioFiles.length;
 
     if (!audioFiles.length) {
-      toast('No audio files found. Supported: mp3, flac, m4a, wav, ogg, opus.', 'warn');
+      toast('None of those files are audio. Supported: MP3, FLAC, M4A, WAV, OGG, Opus.', 'warn');
       return;
     }
     if (rejected > 0) {
-      toast('Skipped ' + rejected + ' non-audio ' + (rejected === 1 ? 'file' : 'files') + '.', 'warn');
+      toast('Skipped ' + rejected + ' non-audio ' + (rejected === 1 ? 'file' : 'files') +
+        '. Supported: MP3, FLAC, M4A, WAV, OGG, Opus.', 'warn');
     }
 
     var total = audioFiles.length;
     var progressToast = toast('Importing 0/' + total + '…', 'info', 0);
 
     window.SpideyDB.addTracks(audioFiles, function (done, count, name) {
+      // Update the live progress toast in place instead of spawning new ones.
+      progressToast.update({ text: 'Importing ' + done + '/' + count + '…' });
       if (name) {
-        el.importStatus.textContent = 'Reading ' + (done + 1) + '/' + count + ': ' + name;
+        el.importStatus.textContent = 'Reading ' + (done + 1) + '/' + count + ': ' + truncateMiddle(name, 42);
       } else {
         el.importStatus.textContent = '';
       }
     }).then(function (result) {
-      progressToast();
+      progressToast.dismiss();
       el.importStatus.textContent = '';
 
       return reloadLibrary().then(function () {
@@ -1085,7 +1204,7 @@
         refreshStorage();
       });
     }).catch(function (err) {
-      progressToast();
+      progressToast.dismiss();
       el.importStatus.textContent = '';
       toast('Import failed: ' + err.message, 'error', 0);
     });
@@ -1122,8 +1241,12 @@
     window.SpideyDB.storageInfo().then(function (info) {
       if (!info.supported) { el.storageUsage.textContent = ''; return; }
       var parts = [];
-      if (info.usage) parts.push(formatBytes(info.usage) + ' used');
-      if (info.quota) parts.push(formatBytes(info.quota) + ' available');
+      if (info.usage && info.quota) {
+        parts.push(formatBytes(info.usage) + ' of ' + formatBytes(info.quota));
+      } else if (info.usage) {
+        parts.push(formatBytes(info.usage) + ' used');
+      }
+      if (info.persisted) parts.push('persistent');
       el.storageUsage.textContent = parts.join(' · ');
     }).catch(function () { /* informational only */ });
   }
@@ -1132,17 +1255,35 @@
    * Panel
    * ================================================================== */
 
-  function setPanelOpen(open) {
-      el.panel.classList.toggle('is-open', open);
-      if (el.panelBackdrop) el.panelBackdrop.classList.toggle('is-open', open);
-      el.panelToggle.setAttribute('aria-expanded', String(open));
-      el.panelToggle.setAttribute('aria-label', open ? 'Hide playlist' : 'Show playlist');
-      if (open) el.search.focus();
-    }
+  var lastFocusedBeforeDrawer = null;
 
-  function togglePanel() {
-    setPanelOpen(!el.panel.classList.contains('is-open'));
-  }
+    function setPanelOpen(open) {
+        if (open) {
+          // Remember the element that opened the drawer
+          lastFocusedBeforeDrawer = document.activeElement;
+          el.panel.classList.add('is-open');
+          if (el.panelBackdrop) el.panelBackdrop.classList.add('is-open');
+          el.panelToggle.setAttribute('aria-expanded', 'true');
+          el.panelToggle.setAttribute('aria-label', 'Hide playlist');
+          // Focus the search field after a brief moment for the animation
+          setTimeout(function () { el.search.focus(); }, 50);
+        } else {
+          el.panel.classList.remove('is-open');
+          if (el.panelBackdrop) el.panelBackdrop.classList.remove('is-open');
+          el.panelToggle.setAttribute('aria-expanded', 'false');
+          el.panelToggle.setAttribute('aria-label', 'Show playlist');
+          // Restore focus to the opener
+          if (lastFocusedBeforeDrawer && typeof lastFocusedBeforeDrawer.focus === 'function') {
+            lastFocusedBeforeDrawer.focus();
+          } else {
+            el.panelToggle.focus();
+          }
+        }
+      }
+
+    function togglePanel() {
+      setPanelOpen(!el.panel.classList.contains('is-open'));
+    }
 
   /* ================================================================== *
    * Events
@@ -1384,7 +1525,7 @@
     wrap.appendChild(spinner);
     wrap.appendChild(p);
     el.playlist.appendChild(wrap);
-    el.importStatus.textContent = 'Connecting to local storage…';
+    el.importStatus.textContent = 'Opening your local library…';
   }
 
   function showRecoverableError(message) {
@@ -1397,7 +1538,9 @@
     p1.textContent = 'Could not load your library';
     p1.className = 'text-base font-medium text-gray-300 mt-2';
     var p2 = document.createElement('p');
-    p2.textContent = message;
+    // Be honest about what this means: the library is NOT gone, it just
+    // cannot be opened right now (a blocked upgrade, a locked profile, etc).
+    p2.textContent = message + ' Your songs are not lost — closing other tabs of this player and retrying usually fixes this.';
     p2.className = 'text-xs mt-1';
     var btn = document.createElement('button');
     btn.className = 'btn-chip mt-4';
@@ -1427,6 +1570,7 @@
     updateRepeatUI();
     updatePlayButton();
     resizeCanvas();
+    setupMediaSessionActions();
 
     // Replace icon placeholders with inline SVGs
     document.querySelectorAll('.icon-placeholder').forEach(function (node) {
@@ -1440,13 +1584,37 @@
     showLoading();
 
     window.SpideyDB.open()
-      .then(function () { return reloadLibrary(); })
+      .then(function (db) {
+        // open() attaches the legacy-migration outcome (if any ran) to its promise.
+        var migration = window.SpideyDB.open().migration;
+        if (migration && migration.skipped && migration.skipped.length > 0) {
+          toast(
+            'Library migration: ' + migration.migrated + ' song' + (migration.migrated !== 1 ? 's' : '') +
+              ' migrated, ' + migration.skipped.length + ' could not be recovered.',
+            'warn', 5000);
+        }
+        return db;
+      })
+      .then(reloadLibrary)
       .then(function () { return window.SpideyDB.requestPersistence(); })
+      .then(function (persisted) {
+        // An honest, one-time signal: the browser declined to guarantee storage.
+        if (!persisted) {
+          toast('Your library is stored locally and may be evicted by the browser under storage pressure.', 'info', 6000);
+        }
+        return persisted;
+      })
       .then(refreshStorage)
       .catch(function (err) {
         showRecoverableError(err.message || 'The local library could not be opened.');
       });
   }
+
+  // Multi-tab safety: another tab upgraded the database under us.
+  window.onSpideyDBVersionChange = function () {
+    toast('Another tab updated the player database. This page will reload.', 'warn', 0);
+    setTimeout(function () { window.location.reload(); }, 2500);
+  };
 
   init();
 })();

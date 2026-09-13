@@ -41,6 +41,8 @@
   }
 
   /* Cheap deterministic hash — used to de-duplicate cover art. */
+  /* Cheap deterministic hash — legacy key format for covers created before
+     SHA-256 keys. Kept only so existing coverKey values stay meaningful. */
   function hashBytes(bytes) {
     var h = 0x811c9dc5;
     var limit = Math.min(bytes.length, 4096);
@@ -48,12 +50,26 @@
       h ^= bytes[i];
       h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
     }
-    return h.toString(36) + '-' + bytes.length.toString(36);
+    return 'v1-' + h.toString(36) + '-' + bytes.length.toString(36);
   }
 
-  function searchKey(track) {
-    return [track.title, track.artist, track.album, track.name]
-      .filter(Boolean).join(' ').toLowerCase();
+  /* Content-based identity using SHA-256. Returns null when the Web Crypto
+     API is unavailable (non-secure origins) — callers must treat that as
+     "no content dedup", never as an error. */
+  async function contentHash(file) {
+    try {
+      if (!global.crypto || !global.crypto.subtle) return null;
+      var buf = await file.arrayBuffer();
+      var digest = await global.crypto.subtle.digest('SHA-256', buf);
+      var bytes = new Uint8Array(digest);
+      var hex = '';
+      for (var i = 0; i < bytes.length; i++) {
+        hex += ('00' + bytes[i].toString(16)).slice(-2);
+      }
+      return hex;
+    } catch (e) {
+      return null;
+    }
   }
 
   function promisify(request) {
@@ -100,7 +116,8 @@
     // **inside this upgrade transaction** so the old store can be safely deleted.
     // We create minimal v2 records (no async metadata parsing) to ensure
     // crash-safety: if songs is deleted, every legacy file is already in tracks.
-    // An enrichment pass runs after open() to add metadata, covers, durations.
+    // An enrichment pass runs after open() to add metadata, covers, durations,
+    // and the content hash (which needs async Web Crypto and cannot run here).
     if (oldVersion >= 1 && db.objectStoreNames.contains(LEGACY_STORE)) {
       var legacyStore = tx.objectStore(LEGACY_STORE);
       var tracksStore = tx.objectStore(TRACK_STORE);
@@ -123,6 +140,7 @@
             size: file.size,
             lastModified: file.lastModified || 0,
             fingerprint: fingerprint(file),
+            contentHash: '',  // populated by the post-open enrichment pass
             addedAt: now + i, // preserve relative order
             title: cleanFilename(file.name),
             artist: '',
@@ -131,13 +149,7 @@
             year: '',
             duration: null,
             coverKey: null,
-            searchKey: searchKey({
-              title: cleanFilename(file.name),
-              artist: '',
-              album: '',
-              name: file.name
-            }),
-            _migrated: true  // marker: this record was created during upgrade
+            _migrated: true  // marker: enrichment will fill in metadata + hash
           };
           tracksStore.put(record);
         }
@@ -165,24 +177,90 @@
     });
   }
 
+  /* Listen for versionchange to handle multi-tab upgrades gracefully. */
+  function setupVersionChangeHandler(db) {
+    db.onversionchange = function () {
+      db.close();
+      dbPromise = null;
+      // Notify through whichever global hook the host page registered.
+      if (typeof global.onSpideyDBVersionChange === 'function') {
+        global.onSpideyDBVersionChange();
+      }
+    };
+  }
+
   /* Copy v1 records into the v2 track store, parsing metadata as we go.
-   Mutates existing v2 records in place — does not create new UIDs. */
+     Mutates existing v2 records in place — does not create new UIDs.
+     Runs AFTER open() has resolved, so it must use `db` directly rather than
+     going through withStores()/open() (that would await the very promise
+     that is running this code and deadlock). */
   async function migrateLegacy(db, legacyRows, onProgress) {
     if (!legacyRows.length) return { total: 0, migrated: 0, skipped: [] };
 
     var result = { total: legacyRows.length, migrated: 0, skipped: [] };
 
     // Read all current v2 records to find the ones created by upgrade
-    var v2Records = await withStores([TRACK_STORE], 'readonly', function (s) {
-      return readAll(s[TRACK_STORE]);
+    var v2Records = await new Promise(function (resolve, reject) {
+      var t = db.transaction([TRACK_STORE], 'readonly');
+      var req = t.objectStore(TRACK_STORE).getAll();
+      req.onsuccess = function () { resolve(req.result || []); };
+      req.onerror = function () { reject(req.error); };
     });
 
     // Build a fingerprint -> uid map for v2 records that were migrated
+    var migratedRecordMap = Object.create(null);
     v2Records.forEach(function (record) {
       if (record._migrated && record.fingerprint) {
         migratedRecordMap[record.fingerprint] = record.uid;
       }
     });
+
+    // Patch one record in a self-contained readwrite transaction.
+    function putPatched(uid, patch) {
+      return new Promise(function (resolve, reject) {
+        var t = db.transaction([TRACK_STORE], 'readwrite');
+        var store = t.objectStore(TRACK_STORE);
+        var getReq = store.get(uid);
+        getReq.onsuccess = function () {
+          var existing = getReq.result;
+          if (!existing) { resolve(false); return; }
+          Object.keys(patch).forEach(function (k) { existing[k] = patch[k]; });
+          store.put(existing);
+          resolve(true);
+        };
+        getReq.onerror = function () { reject(getReq.error); };
+        t.onerror = function () { reject(t.error); };
+      });
+    }
+
+    function putCover(record) {
+      return new Promise(function (resolve, reject) {
+        var t = db.transaction([COVER_STORE], 'readwrite');
+        t.objectStore(COVER_STORE).put({
+          key: record.coverKey,
+          mime: record.cover.type,
+          blob: record.cover
+        });
+        t.oncomplete = function () { resolve(); };
+        t.onerror = function () { reject(t.error); };
+      });
+    }
+
+    function putNewRecord(record) {
+      return new Promise(function (resolve, reject) {
+        var t = db.transaction([TRACK_STORE, COVER_STORE], 'readwrite');
+        if (record.cover) {
+          t.objectStore(COVER_STORE).put({
+            key: record.coverKey,
+            mime: record.cover.type,
+            blob: record.cover
+          });
+        }
+        t.objectStore(TRACK_STORE).put(record);
+        t.oncomplete = function () { resolve(); };
+        t.onerror = function () { reject(t.error); };
+      });
+    }
 
     for (var i = 0; i < legacyRows.length; i++) {
       var row = legacyRows[i];
@@ -194,14 +272,13 @@
 
       var fp = fingerprint(file);
 
-      // Find the corresponding v2 record created during upgrade
-      var existingUid = migratedRecordMap[fp];
-
       try {
+        var enriched = await buildRecord(file);
+
+        var existingUid = migratedRecordMap[fp];
         if (existingUid) {
           // Update the existing v2 record in place — no new UID
-          var enriched = await buildRecord(file);
-          await updateTrack(existingUid, {
+          await putPatched(existingUid, {
             title: enriched.title,
             artist: enriched.artist,
             album: enriched.album,
@@ -209,25 +286,20 @@
             year: enriched.year,
             duration: enriched.duration,
             coverKey: enriched.coverKey,
-            searchKey: enriched.searchKey
+            contentHash: enriched.contentHash
           });
-
-          // Store cover if present
-          if (enriched.coverKey && enriched.cover) {
-            await withStores([COVER_STORE], 'readwrite', function (s) {
-              s[COVER_STORE].put({ key: enriched.coverKey, mime: enriched.cover.type, blob: enriched.cover });
-            }).catch(function () { /* cover store may not exist in all cases */ });
-          }
+          // _migrated served its purpose; drop it so the map stays clean.
+          await putPatched(existingUid, { _migrated: undefined });
         } else {
-          // Fallback: create new record if upgrade didn't create one
-          var record = await buildRecord(file);
-          await withStores([TRACK_STORE, COVER_STORE], 'readwrite', function (s) {
-            if (record.cover) {
-              s[COVER_STORE].put({ key: record.coverKey, mime: record.cover.type, blob: record.cover });
-            }
-            s[TRACK_STORE].put(record);
-          });
+          // Fallback: no matching upgrade-created record (e.g. crash between
+          // the two phases) — create one now, preserving this UID.
+          await putNewRecord(enriched);
         }
+
+        if (enriched.coverKey && enriched.cover) {
+          try { await putCover(enriched); } catch (e) { /* cover dedup is best-effort */ }
+        }
+
         result.migrated++;
       } catch (e) {
         result.skipped.push({ name: file.name, reason: 'enrichment-failed' });
@@ -251,6 +323,9 @@
       try { duration = await global.SpideyID3.readDuration(file); } catch (e) { duration = NaN; }
     }
 
+    // Compute content hash for reliable duplicate detection
+    var cHash = await contentHash(file);
+
     var record = {
       uid: uid(),
       name: file.name,
@@ -258,6 +333,7 @@
       size: file.size,
       lastModified: file.lastModified || 0,
       fingerprint: fingerprint(file),
+      contentHash: cHash,
       addedAt: Date.now(),
       title: meta.title || cleanFilename(file.name),
       artist: meta.artist || '',
@@ -274,7 +350,6 @@
       record.cover = new Blob([meta.cover.bytes], { type: meta.cover.mime || 'image/jpeg' });
     }
 
-    record.searchKey = searchKey(record);
     return record;
   }
 
@@ -295,17 +370,20 @@
     if (dbPromise) return dbPromise;
     dbPromise = (async function () {
       var db = await openRaw();          // v1 -> v2 upgrade happens here
+      setupVersionChangeHandler(db);
       if (pendingLegacy.length) {
         var rows = pendingLegacy;
         pendingLegacy = [];
-        var result = await migrateLegacy(db, rows);
-        // If migration had failures, notify via toast but don't block
-        if (result.skipped.length > 0) {
-          toast(
-            `Library migration: ${result.migrated} song${result.migrated !== 1 ? 's' : ''} migrated, ${result.skipped.length} could not be recovered.`,
-            'warn',
-            5000
-          );
+        try {
+          var result = await migrateLegacy(db, rows);
+          // Expose the migration outcome on the promise for the boot path.
+          dbPromise.migration = result;
+        } catch (e) {
+          // Enrichment is best-effort: the data itself was already copied
+          // inside the upgrade transaction. Report, do not fail the open.
+          dbPromise.migration = { total: rows.length, migrated: 0, skipped: rows.map(function (r) {
+            return { name: (r && r.name) || 'unknown', reason: 'enrichment-failed' };
+          }) };
         }
       }
       return db;
@@ -355,8 +433,8 @@
   async function addTracks(files, onProgress) {
     var db = await open();
 
-    // Existing fingerprints, so a re-import is detected without a scan per file
-    var existing = await new Promise(function (resolve, reject) {
+    // Existing fingerprints AND content hashes, so a re-import is detected reliably
+    var existingFp = await new Promise(function (resolve, reject) {
       var tx = db.transaction([TRACK_STORE], 'readonly');
       var seen = new Set();
       var cursor = tx.objectStore(TRACK_STORE).index('fingerprint').openKeyCursor();
@@ -367,16 +445,34 @@
       cursor.onerror = function () { reject(cursor.error); };
     });
 
+    var existingHash = await new Promise(function (resolve, reject) {
+      var tx = db.transaction([TRACK_STORE], 'readonly');
+      var seen = new Set();
+      var cursor = tx.objectStore(TRACK_STORE).openCursor();
+      cursor.onsuccess = function (e) {
+        var c = e.target.result;
+        if (c) {
+          if (c.value.contentHash) seen.add(c.value.contentHash);
+          c.continue();
+        } else resolve(seen);
+      };
+      cursor.onerror = function () { reject(cursor.error); };
+    });
+
     var added = [];
     var skipped = [];
-    var seenThisRun = new Set();
+    var seenThisRunFp = new Set();
+    var seenThisRunHash = new Set();
 
     for (var i = 0; i < files.length; i++) {
       var file = files[i];
       if (onProgress) onProgress(i, files.length, file.name);
 
       var fp = fingerprint(file);
-      if (existing.has(fp) || seenThisRun.has(fp)) {
+      var cHash = await contentHash(file);   // null when Web Crypto is unavailable
+
+      if (existingFp.has(fp) || seenThisRunFp.has(fp) ||
+          (cHash && (existingHash.has(cHash) || seenThisRunHash.has(cHash)))) {
         skipped.push({ name: file.name, reason: 'duplicate' });
         continue;
       }
@@ -403,7 +499,8 @@
         continue;
       }
 
-      seenThisRun.add(fp);
+      seenThisRunFp.add(fp);
+      if (cHash) seenThisRunHash.add(cHash);
       added.push(record);
     }
 
@@ -430,6 +527,21 @@
     });
   }
 
+  /* Undo support: put a deleted record back exactly as it was — same uid,
+     blob and addedAt — so the library's shape is unchanged after an undo. */
+  function restoreTrack(record) {
+    return withStores([TRACK_STORE, COVER_STORE], 'readwrite', function (s) {
+      var putTrack = s[TRACK_STORE].put(record);
+      return promisify(putTrack).then(function () {
+        // If the record referenced a cover, the prune may have removed it.
+        // The cover blob travels on the record (record.cover), so re-put it.
+        if (record.coverKey && record.cover) {
+          s[COVER_STORE].put({ key: record.coverKey, mime: record.cover.type, blob: record.cover });
+        }
+      });
+    });
+  }
+
   function updateTrack(trackUid, patch) {
     return withStores([TRACK_STORE], 'readwrite', function (s) {
       return promisify(s[TRACK_STORE].get(trackUid)).then(function (record) {
@@ -440,16 +552,9 @@
     });
   }
 
-  function clearAll() {
-    return withStores([TRACK_STORE, COVER_STORE], 'readwrite', function (s) {
-      s[TRACK_STORE].clear();
-      s[COVER_STORE].clear();
-    });
-  }
-
   /* Orphaned covers (album art left behind by deleted songs) are wasted space. */
   function pruneCovers() {
-    return withStores([TRACK_STORE, COVER_STORE], 'readwrite', function (s, tx) {
+    return withStores([TRACK_STORE, COVER_STORE], 'readwrite', function (s) {
       return readAll(s[TRACK_STORE]).then(function (tracks) {
         var used = new Set();
         tracks.forEach(function (t) { if (t.coverKey) used.add(t.coverKey); });
@@ -491,12 +596,11 @@
     getAllTracks: getAllTracks,
     getCover: getCover,
     deleteTrack: deleteTrack,
+    restoreTrack: restoreTrack,
     updateTrack: updateTrack,
-    clearAll: clearAll,
     pruneCovers: pruneCovers,
     storageInfo: storageInfo,
     requestPersistence: requestPersistence,
-    cleanFilename: cleanFilename,
-    fingerprint: fingerprint
+    cleanFilename: cleanFilename
   };
 })(window);
