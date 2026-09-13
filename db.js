@@ -136,7 +136,8 @@
               artist: '',
               album: '',
               name: file.name
-            })
+            }),
+            _migrated: true  // marker: this record was created during upgrade
           };
           tracksStore.put(record);
         }
@@ -164,32 +165,72 @@
     });
   }
 
-  /* Copy v1 records into the v2 track store, parsing metadata as we go. */
+  /* Copy v1 records into the v2 track store, parsing metadata as we go.
+   Mutates existing v2 records in place — does not create new UIDs. */
   async function migrateLegacy(db, legacyRows, onProgress) {
-    if (!legacyRows.length) return 0;
+    if (!legacyRows.length) return { total: 0, migrated: 0, skipped: [] };
 
-    var migrated = 0;
+    var result = { total: legacyRows.length, migrated: 0, skipped: [] };
+
+    // Legacy rows were stored as [file, ...] in v1, or may include already-migrated
+    // records with a uid+file shape. Build a map from legacy identity to v2 uid.
+    var legacyToUid = {};
+
+    // First pass: identify each legacy row and find/create its v2 uid.
     for (var i = 0; i < legacyRows.length; i++) {
       var row = legacyRows[i];
-      // v1 stored the File directly (keyPath 'name'); be tolerant of shapes.
       var file = row instanceof File || row instanceof Blob ? row : (row && row.file);
-      if (!file) continue;
-
-      var record = await buildRecord(file);
-      try {
-        var tx = db.transaction([TRACK_STORE, COVER_STORE], 'readwrite');
-        if (record.cover) {
-          tx.objectStore(COVER_STORE).put({ key: record.coverKey, mime: record.cover.type, blob: record.cover });
-        }
-        tx.objectStore(TRACK_STORE).put(record);
-        await txDone(tx);
-        migrated++;
-      } catch (e) {
-        // A single bad record must not abort the whole migration.
+      if (!file) {
+        result.skipped.push({ name: row && row.name ? row.name : 'unknown', reason: 'missing-file' });
+        continue;
       }
-      if (onProgress) onProgress(migrated, legacyRows.length);
+      // Derive the v2 uid that was created during upgrade (using fingerprint as bridge)
+      var fp = fingerprint(file);
+      legacyToUid[fp] = { row: row, file: file, fp: fp };
     }
-    return migrated;
+
+    // Second pass: enrich each track in place
+    for (var key in legacyToUid) {
+      if (!legacyToUid.hasOwnProperty(key)) continue;
+      var entry = legacyToUid[key];
+      var file = entry.file;
+
+      try {
+        var enriched = await buildRecord(file);
+        // Update the existing v2 record (created during upgrade) in place
+        await withStores([TRACK_STORE, COVER_STORE], 'readwrite', function (s) {
+          return promisify(s[TRACK_STORE].get(enriched.uid)).then(function (existing) {
+            if (!existing) {
+              // Fallback: put the new record (shouldn't happen if upgrade worked)
+              if (enriched.cover) {
+                s[COVER_STORE].put({ key: enriched.coverKey, mime: enriched.cover.type, blob: enriched.cover });
+              }
+              s[TRACK_STORE].put(enriched);
+              return;
+            }
+            // Update in place — preserve the existing UID
+            existing.title = enriched.title;
+            existing.artist = enriched.artist;
+            existing.album = enriched.album;
+            existing.track = enriched.track;
+            existing.year = enriched.year;
+            existing.duration = enriched.duration;
+            if (enriched.coverKey) existing.coverKey = enriched.coverKey;
+            existing.searchKey = enriched.searchKey;
+            if (enriched.cover) {
+              s[COVER_STORE].put({ key: enriched.coverKey, mime: enriched.cover.type, blob: enriched.cover });
+            }
+            s[TRACK_STORE].put(existing);
+          });
+        });
+        result.migrated++;
+      } catch (e) {
+        result.skipped.push({ name: file.name, reason: 'enrichment-failed' });
+      }
+      if (onProgress) onProgress(result.migrated, result.total, file.name);
+    }
+
+    return result;
   }
 
   /* ------------------------------------------------------------------ *
@@ -252,7 +293,15 @@
       if (pendingLegacy.length) {
         var rows = pendingLegacy;
         pendingLegacy = [];
-        await migrateLegacy(db, rows);
+        var result = await migrateLegacy(db, rows);
+        // If migration had failures, notify via toast but don't block
+        if (result.skipped.length > 0) {
+          toast(
+            `Library migration: ${result.migrated} song${result.migrated !== 1 ? 's' : ''} migrated, ${result.skipped.length} could not be recovered.`,
+            'warn',
+            5000
+          );
+        }
       }
       return db;
     })().catch(function (err) {

@@ -25,3 +25,6 @@ npm-debug.log*
 # Test artefacts
 test-output/
 .vercel
+
+# Temp fixture build artefacts
+test/fixtures/audio/temp/

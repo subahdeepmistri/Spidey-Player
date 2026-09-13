@@ -13,7 +13,7 @@ const path = require('node:path');
 const os = require('node:os');
 
 const ROOT = path.join(__dirname, '..');
-const SONG_DIR = path.join(ROOT, 'songs');
+const FIXTURE_DIR = path.join(ROOT, 'test', 'fixtures', 'audio');
 const PORT = Number(process.env.PORT || 8788);
 
 const MIME = {
@@ -127,11 +127,11 @@ function check(name, pass, detail) {
     consoleErrors.join(' | ') || 'clean');
 
   /* --- 4. import real files --- */
-  const songs = fs.existsSync(SONG_DIR)
-    ? fs.readdirSync(SONG_DIR).filter(f => /\.mp3$/i.test(f)).slice(0, 3).map(f => path.join(SONG_DIR, f))
+  const songs = fs.existsSync(FIXTURE_DIR)
+    ? fs.readdirSync(FIXTURE_DIR).filter(f => /\.(mp3|flac|m4a|wav|ogg)$/i.test(f)).slice(0, 3).map(f => path.join(FIXTURE_DIR, f))
     : [];
   if (!songs.length) {
-    console.error('\nNo songs/ directory — cannot run the full verification.');
+    console.error('\nNo test/fixtures/audio/ directory — cannot run the full verification.');
     await browser.close(); server.close(); process.exit(2);
   }
 

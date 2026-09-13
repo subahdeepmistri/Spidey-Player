@@ -829,7 +829,7 @@
 
     if (!tracks.length) {
       el.playlist.appendChild(emptyState(
-        'fa-music', 'Drag & Drop songs here', 'or click Import'));
+              'music', 'Drag & Drop songs here', 'or click Import'));
       updateCounts(0, 0);
       return;
     }
@@ -849,33 +849,33 @@
 
     if (visible === 0) {
       el.playlist.appendChild(emptyState(
-        'fa-magnifying-glass', 'No songs match "' + (filter || '') + '"', 'Try a different search'));
+              'search', 'No songs match "' + (filter || '') + '"', 'Try a different search'));
     }
 
     el.playlist.appendChild(fragment);
     updateCounts(visible, tracks.length);
   }
 
-  function emptyState(icon, line1, line2) {
-    var wrap = document.createElement('li');
-    wrap.className = 'text-center text-gray-500 mt-10 text-sm list-none';
+  function emptyState(iconName, line1, line2) {
+      var wrap = document.createElement('li');
+      wrap.className = 'text-center text-gray-500 mt-10 text-sm list-none';
 
-    var i = document.createElement('i');
-    i.className = 'fas ' + icon + ' mb-3 text-2xl opacity-50';
-    i.setAttribute('aria-hidden', 'true');
+      var svg = createIcon(iconName || 'music', '2rem');
+      svg.setAttribute('aria-hidden', 'true');
+      svg.style.opacity = '0.5';
 
-    var p1 = document.createElement('p');
-    p1.textContent = line1;
+      var p1 = document.createElement('p');
+      p1.textContent = line1;
 
-    var p2 = document.createElement('p');
-    p2.className = 'text-xs mt-1';
-    p2.textContent = line2;
+      var p2 = document.createElement('p');
+      p2.className = 'text-xs mt-1';
+      p2.textContent = line2;
 
-    wrap.appendChild(i);
-    wrap.appendChild(p1);
-    wrap.appendChild(p2);
-    return wrap;
-  }
+      wrap.appendChild(svg);
+      wrap.appendChild(p1);
+      wrap.appendChild(p2);
+      return wrap;
+    }
 
   function playlistRow(track, index) {
       var li = document.createElement('li');
