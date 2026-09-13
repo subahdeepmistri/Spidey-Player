@@ -376,6 +376,16 @@
     });
   }
 
+  function updateTrack(trackUid, patch) {
+    return withStores([TRACK_STORE], 'readwrite', function (s) {
+      return promisify(s[TRACK_STORE].get(trackUid)).then(function (record) {
+        if (!record) return;
+        Object.assign(record, patch);
+        s[TRACK_STORE].put(record);
+      });
+    });
+  }
+
   function clearAll() {
     return withStores([TRACK_STORE, COVER_STORE], 'readwrite', function (s) {
       s[TRACK_STORE].clear();
@@ -427,6 +437,7 @@
     getAllTracks: getAllTracks,
     getCover: getCover,
     deleteTrack: deleteTrack,
+    updateTrack: updateTrack,
     clearAll: clearAll,
     pruneCovers: pruneCovers,
     storageInfo: storageInfo,

@@ -28,8 +28,6 @@
 
   var PREF_KEY = 'spidey.prefs.v1';
   var SEEK_STEP = 5;              // seconds per arrow-key press
-  var MAX_COVER_CACHE = 1;        // only the visible cover is kept as an object URL
-
   var AUDIO_EXT = /\.(mp3|flac|m4a|aac|wav|ogg|oga|opus|webm)$/i;
 
   /* ================================================================== *
@@ -75,16 +73,17 @@
     title: $('song-title'),
     artist: $('song-artist'),
     album: $('song-album'),
-    playlist: $('playlist'),
-    panel: $('playlist-panel'),
-    panelToggle: $('playlist-toggle-btn'),
-    panelClose: $('panel-close-btn'),
-    art: $('album-art'),
-    fileInput: $('file-input'),
-    search: $('search-input'),
-    canvas: $('visualizer'),
-    toasts: $('toasts'),
-    srStatus: $('sr-status'),
+        playlist: $('playlist'),
+        panel: $('playlist-panel'),
+        panelToggle: $('playlist-toggle-btn'),
+        panelClose: $('panel-close-btn'),
+        panelBackdrop: $('panel-backdrop'),
+        art: $('album-art'),
+        fileInput: $('file-input'),
+        search: $('search-input'),
+        canvas: $('visualizer'),
+        toasts: $('toasts'),
+        srStatus: $('sr-status'),
     dropOverlay: $('drop-overlay'),
     trackCount: $('track-count'),
     storageUsage: $('storage-usage'),
@@ -479,10 +478,15 @@
    * ================================================================== */
 
   function updatePlayButton() {
-    var icon = el.play.querySelector('i');
-    icon.className = isPlaying ? 'fas fa-pause' : 'fas fa-play ml-1';
-    el.play.setAttribute('aria-label', isPlaying ? 'Pause' : 'Play');
-  }
+      var icon = el.play.querySelector('svg');
+      if (icon) {
+        var path = icon.querySelector('path');
+        if (path) {
+          path.setAttribute('d', isPlaying ? 'M6 4h4v16H6V4zm8 0h4v16h-4V4z' : 'M5 3l14 9-14 9V3z');
+        }
+      }
+      el.play.setAttribute('aria-label', isPlaying ? 'Pause' : 'Play');
+    }
 
   function updateMediaSession() {
     if (!('mediaSession' in navigator)) return;
@@ -740,17 +744,20 @@
    * ================================================================== */
 
   function updateVolumeUI() {
-    var icon = el.mute.querySelector('i');
-    var level = audio.muted ? 0 : audio.volume;
-    var name = level === 0 ? 'fa-volume-xmark'
-      : level < 0.34 ? 'fa-volume-off'
-      : level < 0.67 ? 'fa-volume-low'
-      : 'fa-volume-high';
-    icon.className = 'fas ' + name;
-    el.mute.setAttribute('aria-label', audio.muted || level === 0 ? 'Unmute' : 'Mute');
-    el.mute.setAttribute('aria-pressed', String(audio.muted || level === 0));
-    if (!scrubbing) el.volume.value = String(audio.muted ? 0 : audio.volume);
-  }
+      var icon = el.mute.querySelector('svg');
+      if (icon) {
+        var path = icon.querySelector('path');
+        var level = audio.muted ? 0 : audio.volume;
+        var d = level === 0 ? 'M11 5L6 9H2v6h4l5 4V5z'
+          : level < 0.34 ? 'M11 5L6 9H2v6h4l5 4V5z'
+          : level < 0.67 ? 'M11 5L6 9H2v6h4l5 4V5z'
+          : 'M11 5L6 9H2v6h4l5 4V5zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07';
+        if (path) path.setAttribute('d', d);
+      }
+      el.mute.setAttribute('aria-label', audio.muted || level === 0 ? 'Unmute' : 'Mute');
+      el.mute.setAttribute('aria-pressed', String(audio.muted || level === 0));
+      if (!scrubbing) el.volume.value = String(audio.muted ? 0 : audio.volume);
+    }
 
   el.volume.addEventListener('input', function () {
     var value = parseFloat(el.volume.value);
@@ -780,15 +787,19 @@
   }
 
   function updateRepeatUI() {
-    var icon = el.repeat.querySelector('i');
-    var label = repeatMode === REPEAT_OFF ? 'Repeat off'
-      : repeatMode === REPEAT_ALL ? 'Repeat all' : 'Repeat one';
-    icon.className = 'fas ' + (repeatMode === REPEAT_ONE ? 'fa-repeat-1' : 'fa-redo');
-    el.repeat.setAttribute('aria-pressed', String(repeatMode !== REPEAT_OFF));
-    el.repeat.classList.toggle('is-active', repeatMode !== REPEAT_OFF);
-    el.repeat.setAttribute('aria-label', label);
-    el.repeat.title = label;
-  }
+      var icon = el.repeat.querySelector('svg');
+      if (icon) {
+        var path = icon.querySelector('path');
+        var d = repeatMode === REPEAT_ONE ? 'M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15' : 'M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15';
+        if (path) path.setAttribute('d', d);
+      }
+      var label = repeatMode === REPEAT_OFF ? 'Repeat off'
+        : repeatMode === REPEAT_ALL ? 'Repeat all' : 'Repeat one';
+      el.repeat.setAttribute('aria-pressed', String(repeatMode !== REPEAT_OFF));
+      el.repeat.classList.toggle('is-active', repeatMode !== REPEAT_OFF);
+      el.repeat.setAttribute('aria-label', label);
+      el.repeat.title = label;
+    }
 
   function toggleShuffle() {
     isShuffle = !isShuffle;
@@ -921,14 +932,14 @@
       });
 
       var remove = document.createElement('button');
-      remove.className = 'track-remove';
-      remove.type = 'button';
-      remove.setAttribute('aria-label', 'Remove ' + trackName + ' from library');
-      remove.innerHTML = '<i class="fas fa-xmark" aria-hidden="true"></i>';
-      remove.addEventListener('click', function (e) {
-        e.stopPropagation();
-        removeTrack(index);
-      });
+            remove.className = 'track-remove';
+            remove.type = 'button';
+            remove.setAttribute('aria-label', 'Remove ' + trackName + ' from library');
+            remove.appendChild(createIcon('xmark'));
+            remove.addEventListener('click', function (e) {
+              e.stopPropagation();
+              removeTrack(index);
+            });
 
       li.appendChild(mainBtn);
       li.appendChild(remove);
@@ -965,32 +976,36 @@
    * ================================================================== */
 
   function removeTrack(index) {
-    var track = tracks[index];
-    if (!track) return;
+      var track = tracks[index];
+      if (!track) return;
 
-    window.SpideyDB.deleteTrack(track.uid).then(function () {
-      var wasCurrent = index === currentTrack;
-      tracks.splice(index, 1);
+      window.SpideyDB.deleteTrack(track.uid).then(function () {
+        var wasCurrent = index === currentTrack;
+        tracks.splice(index, 1);
 
-      if (wasCurrent) {
-        pause();
-        setTrackUrl(null);
-        audio.removeAttribute('src');
-        currentTrack = tracks.length ? Math.min(index, tracks.length - 1) : -1;
-        if (currentTrack >= 0) loadTrack(currentTrack, false);
-        else updateNowPlayingUI();
-      } else if (index < currentTrack) {
-        currentTrack--;
-      }
+        if (wasCurrent) {
+          pause();
+          setTrackUrl(null);
+          audio.removeAttribute('src');
+          currentTrack = tracks.length ? Math.min(index, tracks.length - 1) : -1;
+          if (currentTrack >= 0) loadTrack(currentTrack, false);
+          else updateNowPlayingUI();
+        } else if (index < currentTrack) {
+          currentTrack--;
+        }
 
-      buildOrder(true);
-      renderPlaylist(el.search.value);
-      refreshStorage();
-      toast('Removed "' + (track.title || track.name) + '".', 'info', 3000);
-    }).catch(function (err) {
-      toast('Could not remove the track: ' + err.message, 'error');
-    });
-  }
+        buildOrder(true);
+        renderPlaylist(el.search.value);
+        refreshStorage();
+        // Prune orphaned covers after successful deletion
+        window.SpideyDB.pruneCovers().catch(function (err) {
+          console.warn('Failed to prune covers:', err);
+        });
+        toast('Removed "' + (track.title || track.name) + '".', 'info', 3000);
+      }).catch(function (err) {
+        toast('Could not remove the track: ' + err.message, 'error');
+      });
+    }
 
   /* ================================================================== *
    * Import
@@ -1110,11 +1125,12 @@
    * ================================================================== */
 
   function setPanelOpen(open) {
-    el.panel.classList.toggle('is-open', open);
-    el.panelToggle.setAttribute('aria-expanded', String(open));
-    el.panelToggle.setAttribute('aria-label', open ? 'Hide playlist' : 'Show playlist');
-    if (open) el.search.focus();
-  }
+      el.panel.classList.toggle('is-open', open);
+      if (el.panelBackdrop) el.panelBackdrop.classList.toggle('is-open', open);
+      el.panelToggle.setAttribute('aria-expanded', String(open));
+      el.panelToggle.setAttribute('aria-label', open ? 'Hide playlist' : 'Show playlist');
+      if (open) el.search.focus();
+    }
 
   function togglePanel() {
     setPanelOpen(!el.panel.classList.contains('is-open'));
@@ -1131,11 +1147,19 @@
   el.repeat.addEventListener('click', cycleRepeat);
   el.panelToggle.addEventListener('click', togglePanel);
   el.panelClose.addEventListener('click', function () {
-    setPanelOpen(false);
-    el.panelToggle.focus();
-  });
+      setPanelOpen(false);
+      el.panelToggle.focus();
+    });
 
-  el.fileInput.addEventListener('change', function (e) {
+    // Close panel when clicking backdrop on mobile
+    if (el.panelBackdrop) {
+      el.panelBackdrop.addEventListener('click', function () {
+        setPanelOpen(false);
+        el.panelToggle.focus();
+      });
+    }
+
+    el.fileInput.addEventListener('change', function (e) {
     importFiles(e.target.files);
     e.target.value = '';              // allow re-importing the same file later
   });
@@ -1170,13 +1194,17 @@
   });
 
   audio.addEventListener('loadedmetadata', function () {
-    // Cache the real duration on the record so the list shows it next time.
-    var track = tracks[currentTrack];
-    if (track && Number.isFinite(audio.duration) && audio.duration > 0) {
-      track.duration = audio.duration;
-    }
-    updateNowPlayingUI();
-  });
+      // Cache the real duration on the record so the list shows it next time.
+      var track = tracks[currentTrack];
+      if (track && Number.isFinite(audio.duration) && audio.duration > 0) {
+        track.duration = audio.duration;
+        // Persist the discovered duration to IndexedDB so it survives reloads
+        window.SpideyDB.updateTrack(track.uid, { duration: audio.duration }).catch(function (err) {
+          console.warn('Failed to persist duration:', err);
+        });
+      }
+      updateNowPlayingUI();
+    });
 
   audio.addEventListener('timeupdate', updateProgressUI);
 
@@ -1338,14 +1366,24 @@
    * ================================================================== */
 
   function init() {
-    loadPrefs();
-    updateVolumeUI();
-    updateShuffleUI();
-    updateRepeatUI();
-    updatePlayButton();
-    resizeCanvas();
+      loadPrefs();
+      updateVolumeUI();
+      updateShuffleUI();
+      updateRepeatUI();
+      updatePlayButton();
+      resizeCanvas();
 
-    window.SpideyDB.open()
+      // Replace icon placeholders with inline SVGs
+      document.querySelectorAll('.icon-placeholder').forEach(function (el) {
+        var name = el.getAttribute('data-icon');
+        if (name && typeof createIcon === 'function') {
+          var size = el.style.width || el.getAttribute('width');
+          var svg = createIcon(name, size);
+          el.replaceWith(svg);
+        }
+      });
+
+      window.SpideyDB.open()
       .then(function () {
         return reloadLibrary();
       })

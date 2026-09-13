@@ -5,25 +5,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#05060a" />
-    <meta name="description"
-        content="Spidey Player — a cyber-glass web music player. Import local audio, keep your library in the browser, and watch the beat." />
-    <title>Spidey Player 2.0</title>
+        <meta name="description"
+            content="Spidey Player — a cyber-glass web music player. Import local audio, keep your library in the browser, and watch the beat." />
+        <title>Spidey Player 2.0</title>
 
-    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" />
+        <link rel="icon" href="favicon.svg" type="image/svg+xml" />
 
-    <!-- Tailwind is compiled to a static file by `npm run build:css`.
-         The CDN runtime build is deliberately not used: it cannot be cached
-         for production and logs a warning on every page load. -->
-    <link rel="stylesheet" href="dist/tailwind.css" />
-    <link rel="stylesheet" href="style.css" />
-</head>
+        <!-- Tailwind is compiled to a static file by `npm run build:css`.
+             The CDN runtime build is deliberately not used: it cannot be cached
+             for production and logs a warning on every page load. -->
+        <link rel="stylesheet" href="dist/tailwind.css" />
+        <link rel="stylesheet" href="style.css" />
+    </head>
 
 <body class="text-gray-100 min-h-screen flex items-start md:items-center justify-center p-4">
-    <a class="skip-link" href="#playlist-panel">Skip to playlist</a>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
 
     <!-- Animated Background -->
     <div class="bg-animate" aria-hidden="true">
@@ -37,17 +33,18 @@
     <div class="relative w-full max-w-5xl flex flex-col md:flex-row gap-6 items-start justify-center z-10">
 
         <!-- Main Player Card -->
-        <main class="glass w-full max-w-md rounded-3xl p-6 sm:p-8 relative transition-all duration-300 hover:scale-[1.01]">
+        <main class="glass w-full max-w-md rounded-3xl p-6 sm:p-8 relative transition-all duration-300 hover:scale-[1.01]" id="main-content">
             <div class="flex flex-col items-center relative z-20">
-                <!-- Header -->
-                <div class="w-full flex justify-between items-center mb-6 text-gray-300">
+                            <h1 class="sr-only">Spidey Player</h1>
+                            <!-- Header -->
+                            <div class="w-full flex justify-between items-center mb-6 text-gray-300">
                     <div class="w-9" aria-hidden="true"></div>
-                    <div class="text-xs uppercase tracking-widest font-semibold text-blue-300">Now Playing</div>
-                    <button id="playlist-toggle-btn" class="icon-btn" aria-label="Show playlist"
-                        aria-expanded="false" aria-controls="playlist-panel">
-                        <i class="fas fa-list" aria-hidden="true"></i>
-                    </button>
-                </div>
+                                        <div class="text-xs uppercase tracking-widest font-semibold text-blue-300">Now Playing</div>
+                                        <button id="playlist-toggle-btn" class="icon-btn" aria-label="Show playlist"
+                                            aria-expanded="false" aria-controls="playlist-panel">
+                                            <span class="icon-placeholder" data-icon="list"></span>
+                                        </button>
+                                    </div>
 
                 <!-- Album Art -->
                 <div class="relative w-56 h-56 sm:w-64 sm:h-64 mb-6 group shrink-0">
@@ -88,36 +85,36 @@
                 </div>
 
                 <!-- Volume -->
-                <div class="flex items-center gap-3 w-full mb-5 px-1">
-                    <button id="mute-btn" class="icon-btn" aria-label="Mute" aria-pressed="false">
-                        <i class="fas fa-volume-high" aria-hidden="true"></i>
-                    </button>
-                    <input id="volume" class="volume-slider" type="range" min="0" max="1" step="0.01" value="1"
-                        aria-label="Volume" />
-                </div>
+                                <div class="flex items-center gap-3 w-full mb-5 px-1">
+                                    <button id="mute-btn" class="icon-btn" aria-label="Mute" aria-pressed="false">
+                                        <span class="icon-placeholder" data-icon="volume-high"></span>
+                                    </button>
+                                    <input id="volume" class="volume-slider" type="range" min="0" max="1" step="0.01" value="1"
+                                        aria-label="Volume" />
+                                </div>
 
-                <!-- Controls -->
-                <div class="flex items-center justify-between w-full px-2">
-                    <button id="shuffle-btn" class="icon-btn" aria-label="Shuffle" aria-pressed="false">
-                        <i class="fas fa-random" aria-hidden="true"></i>
-                    </button>
+                                <!-- Controls -->
+                                <div class="flex items-center justify-between w-full px-2">
+                                    <button id="shuffle-btn" class="icon-btn" aria-label="Shuffle" aria-pressed="false">
+                                        <span class="icon-placeholder" data-icon="random"></span>
+                                    </button>
 
-                    <button id="prev-btn" class="transport-btn" aria-label="Previous track">
-                        <i class="fas fa-step-backward" aria-hidden="true"></i>
-                    </button>
+                                    <button id="prev-btn" class="transport-btn" aria-label="Previous track">
+                                        <span class="icon-placeholder" data-icon="step-backward"></span>
+                                    </button>
 
-                    <button id="play-btn" class="play-btn" aria-label="Play">
-                        <i class="fas fa-play ml-1" aria-hidden="true"></i>
-                    </button>
+                                    <button id="play-btn" class="play-btn" aria-label="Play">
+                                        <span class="icon-placeholder" data-icon="play"></span>
+                                    </button>
 
-                    <button id="next-btn" class="transport-btn" aria-label="Next track">
-                        <i class="fas fa-step-forward" aria-hidden="true"></i>
-                    </button>
+                                    <button id="next-btn" class="transport-btn" aria-label="Next track">
+                                        <span class="icon-placeholder" data-icon="step-forward"></span>
+                                    </button>
 
-                    <button id="repeat-btn" class="icon-btn" aria-label="Repeat off" aria-pressed="false">
-                        <i class="fas fa-redo" aria-hidden="true"></i>
-                    </button>
-                </div>
+                                    <button id="repeat-btn" class="icon-btn" aria-label="Repeat off" aria-pressed="false">
+                                        <span class="icon-placeholder" data-icon="redo"></span>
+                                    </button>
+                                </div>
             </div>
         </main>
 
@@ -127,24 +124,23 @@
                 <div class="flex justify-between items-center gap-2">
                     <h3 class="font-bold text-lg tracking-wide">Playlist</h3>
                     <div class="flex items-center gap-2">
-                        <label class="btn-chip cursor-pointer" for="file-input">
-                            <i class="fas fa-plus mr-1" aria-hidden="true"></i> Import
-                            <input type="file" id="file-input" accept="audio/*,.mp3,.flac,.m4a,.wav,.ogg,.opus"
-                                multiple class="sr-only" />
-                        </label>
-                        <button id="panel-close-btn" class="icon-btn" aria-label="Close playlist">
-                            <i class="fas fa-times" aria-hidden="true"></i>
-                        </button>
-                    </div>
+                                            <label class="btn-chip cursor-pointer" for="file-input">
+                                                <span class="icon-placeholder" data-icon="plus" style="width: 1em; height: 1em; display: inline-flex; margin-right: 0.25rem;"></span> Import
+                                                <input type="file" id="file-input" accept="audio/*,.mp3,.flac,.m4a,.wav,.ogg,.opus"
+                                                    multiple class="sr-only" />
+                                            </label>
+                                            <button id="panel-close-btn" class="icon-btn" aria-label="Close playlist">
+                                                <span class="icon-placeholder" data-icon="xmark"></span>
+                                            </button>
+                                        </div>
                 </div>
 
                 <div class="relative">
-                    <label class="sr-only" for="search-input">Search songs</label>
-                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"
-                        aria-hidden="true"></i>
-                    <input type="text" id="search-input" placeholder="Search songs..."
-                        class="w-full bg-white/5 border border-white/10 rounded-lg py-2 pl-8 pr-3 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-cyan-500/50 transition-colors" />
-                </div>
+                                    <label class="sr-only" for="search-input">Search songs</label>
+                                    <span class="icon-placeholder absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs" data-icon="search" style="width: 0.75rem; height: 0.75rem;"></span>
+                                    <input type="text" id="search-input" placeholder="Search songs..."
+                                        class="w-full bg-white/5 border border-white/10 rounded-lg py-2 pl-8 pr-3 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-cyan-500/50 transition-colors" />
+                                </div>
 
                 <div class="flex items-center justify-between text-[11px] text-gray-400 font-mono">
                     <span id="track-count">0 tracks</span>
@@ -162,19 +158,22 @@
     <div id="toasts" class="toast-host" role="status" aria-live="polite" aria-atomic="false"></div>
 
     <!-- Screen-reader announcement channel -->
-    <p id="sr-status" class="sr-only" aria-live="polite"></p>
+        <p id="sr-status" class="sr-only" aria-live="polite"></p>
 
-    <!-- Drop overlay -->
-    <div id="drop-overlay" class="drop-overlay" aria-hidden="true">
-        <div class="drop-overlay-inner">
-            <i class="fas fa-file-arrow-down" aria-hidden="true"></i>
-            <p>Drop audio files to add them</p>
+        <!-- Mobile playlist backdrop -->
+        <div id="panel-backdrop" class="panel-backdrop" aria-hidden="true"></div>
+
+        <!-- Drop overlay -->
+        <div id="drop-overlay" class="drop-overlay" aria-hidden="true">
+            <div class="drop-overlay-inner">
+                <span class="icon-placeholder" data-icon="file-arrow-down" style="width: 2.5rem; height: 2.5rem;"></span>
+                <p>Drop audio files to add them</p>
+            </div>
         </div>
-    </div>
 
-    <script src="id3.js"></script>
-    <script src="db.js"></script>
-    <script src="app.js"></script>
-</body>
+        <script src="id3.js"></script>
+        <script src="db.js"></script>
+        <script src="app.js"></script>
+    </body>
 
-</html>
+    </html>
