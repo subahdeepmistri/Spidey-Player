@@ -260,16 +260,20 @@
         q += 4;                             // picture type
         if (q + 4 > end) break;
         var mimeLen = be32(bytes, q); q += 4;
-        if (q + mimeLen > end) break;
+        if (mimeLen > MAX_MIME_BYTES || q + mimeLen > end) break;
         var mime = latin1(bytes, q, mimeLen); q += mimeLen;
+        // Only accept raster image MIME types — reject SVG, video, etc.
+        if (!/^image\/(jpeg|png|gif|webp)$/.test(mime)) continue;
         if (q + 4 > end) break;
-        var descLen = be32(bytes, q); q += 4 + descLen;
+        var descLen = be32(bytes, q); q += 4;
+        if (descLen > MAX_DESC_BYTES || q + descLen > end) break;
+        q += descLen;
         if (q + 16 > end) break;
         q += 16;                            // width, height, depth, colours
         if (q + 4 > end) break;
         var dataLen = be32(bytes, q); q += 4;
         if (dataLen > 0 && dataLen <= MAX_COVER_BYTES && q + dataLen <= bytes.length && !out.cover) {
-          out.cover = { mime: mime || 'image/jpeg', bytes: bytes.subarray(q, q + dataLen) };
+          out.cover = { mime: mime, bytes: bytes.subarray(q, q + dataLen) };
         }
       }
 

@@ -33,7 +33,7 @@
     <div class="relative w-full max-w-5xl flex flex-col md:flex-row gap-6 items-start justify-center z-10">
 
         <!-- Main Player Card -->
-        <main class="glass w-full max-w-md rounded-3xl p-6 sm:p-8 relative transition-all duration-300 hover:scale-[1.01]" id="main-content">
+        <main class="glass w-full max-w-md rounded-3xl p-6 sm:p-8 relative transition-all duration-300 hover:scale-[1.01]" id="main-content" tabindex="-1">
             <div class="flex flex-col items-center relative z-20">
                             <h1 class="sr-only">Spidey Player</h1>
                             <!-- Header -->
@@ -118,17 +118,16 @@
             </div>
         </main>
 
-        <!-- Playlist Panel -->
-        <section id="playlist-panel" class="glass glass-panel panel" aria-label="Playlist">
+        <h2 id="playlist-heading">Playlist</h2>
+        <section id="playlist-panel" class="glass glass-panel panel" aria-labelledby="playlist-heading">
             <div class="flex flex-col gap-3 mb-4">
                 <div class="flex justify-between items-center gap-2">
-                    <h3 class="font-bold text-lg tracking-wide">Playlist</h3>
                     <div class="flex items-center gap-2">
-                                            <label class="btn-chip cursor-pointer" for="file-input">
+                                            <button type="button" id="import-btn" class="btn-chip">
                                                 <span class="icon-placeholder" data-icon="plus" style="width: 1em; height: 1em; display: inline-flex; margin-right: 0.25rem;"></span> Import
-                                                <input type="file" id="file-input" accept="audio/*,.mp3,.flac,.m4a,.wav,.ogg,.opus"
-                                                    multiple class="sr-only" />
-                                            </label>
+                                            </button>
+                                            <input type="file" id="file-input" accept="audio/*,.mp3,.flac,.m4a,.wav,.ogg,.opus"
+                                                multiple class="sr-only" />
                                             <button id="panel-close-btn" class="icon-btn" aria-label="Close playlist">
                                                 <span class="icon-placeholder" data-icon="xmark"></span>
                                             </button>

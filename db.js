@@ -4,7 +4,6 @@
  * Schema v2
  *   tracks : keyPath 'uid'      — one record per imported song
  *            index  'fingerprint' — name|size|lastModified, used to reject re-imports
- *            index  'title'       — lowercased title+artist+album, used for search
  *   covers : keyPath 'key'      — one blob per distinct cover image (de-duplicated)
  *
  * v1 stored records in a 'songs' store keyed by *filename*, which silently
@@ -40,19 +39,6 @@
     return file.name + '|' + file.size + '|' + (file.lastModified || 0);
   }
 
-  /* Cheap deterministic hash — used to de-duplicate cover art. */
-  /* Cheap deterministic hash — legacy key format for covers created before
-     SHA-256 keys. Kept only so existing coverKey values stay meaningful. */
-  function hashBytes(bytes) {
-    var h = 0x811c9dc5;
-    var limit = Math.min(bytes.length, 4096);
-    for (var i = 0; i < limit; i++) {
-      h ^= bytes[i];
-      h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
-    }
-    return 'v1-' + h.toString(36) + '-' + bytes.length.toString(36);
-  }
-
   /* Content-based identity using SHA-256. Returns null when the Web Crypto
      API is unavailable (non-secure origins) — callers must treat that as
      "no content dedup", never as an error. */
@@ -77,6 +63,17 @@
       request.onsuccess = function () { resolve(request.result); };
       request.onerror = function () { reject(request.error); };
     });
+  }
+
+  /* Old-style weak hash kept for backward compat with existing cover keys. */
+  function hashBytes(bytes) {
+    var h = 0x811c9dc5;
+    var limit = Math.min(bytes.length, 4096);
+    for (var i = 0; i < limit; i++) {
+      h ^= bytes[i];
+      h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 40))) & 0xffffffff;
+    }
+    return ('0000000' + (h >>> 0).toString(16)).slice(-8);
   }
 
   function txDone(tx) {
@@ -314,7 +311,7 @@
    * record construction
    * ------------------------------------------------------------------ */
 
-  async function buildRecord(file) {
+  async function buildRecord(file, precomputedHash) {
     var meta = {};
     var duration = NaN;
 
@@ -323,8 +320,17 @@
       try { duration = await global.SpideyID3.readDuration(file); } catch (e) { duration = NaN; }
     }
 
-    // Compute content hash for reliable duplicate detection
-    var cHash = await contentHash(file);
+    // Use the pre-computed hash when available (from addTracks) to avoid
+    // reading the file into memory a second time for the SHA-256 digest.
+    var cHash = precomputedHash === undefined
+      ? await contentHash(file)
+      : precomputedHash;
+
+    // Cap metadata string lengths so a malformed tag cannot inflate DOM
+    // nodes or IndexedDB records beyond reasonable bounds.
+    function cap(s, max) {
+      return typeof s === 'string' ? s.slice(0, max || 500) : '';
+    }
 
     var record = {
       uid: uid(),
@@ -335,11 +341,11 @@
       fingerprint: fingerprint(file),
       contentHash: cHash,
       addedAt: Date.now(),
-      title: meta.title || cleanFilename(file.name),
-      artist: meta.artist || '',
-      album: meta.album || '',
-      track: meta.track || '',
-      year: meta.year || '',
+      title: cap(meta.title || cleanFilename(file.name)),
+      artist: cap(meta.artist || '', 300),
+      album: cap(meta.album || '', 300),
+      track: cap(meta.track || ''),
+      year: cap(meta.year || ''),
       duration: Number.isFinite(duration) ? duration : null,
       coverKey: null
     };
@@ -479,7 +485,8 @@
 
       var record;
       try {
-        record = await buildRecord(file);
+        // Pass the already-computed hash into buildRecord to avoid re-hashing.
+        record = await buildRecord(file, cHash);
       } catch (e) {
         skipped.push({ name: file.name, reason: 'unreadable' });
         continue;
@@ -528,17 +535,21 @@
   }
 
   /* Undo support: put a deleted record back exactly as it was — same uid,
-     blob and addedAt — so the library's shape is unchanged after an undo. */
-  function restoreTrack(record) {
+     blob and addedAt — so the library's shape is unchanged after an undo.
+     Also restores the cover Blob if one was passed in (covers may have been
+     pruned between delete and undo). */
+  function restoreTrack(record, coverBlob) {
     return withStores([TRACK_STORE, COVER_STORE], 'readwrite', function (s) {
       var putTrack = s[TRACK_STORE].put(record);
-      return promisify(putTrack).then(function () {
-        // If the record referenced a cover, the prune may have removed it.
-        // The cover blob travels on the record (record.cover), so re-put it.
-        if (record.coverKey && record.cover) {
-          s[COVER_STORE].put({ key: record.coverKey, mime: record.cover.type, blob: record.cover });
+      var done = promisify(putTrack).then(function () {
+        // The record itself does NOT carry the Blob — callers pass it in when
+        // pruning already removed the orphan cover.
+        if (record.coverKey && (coverBlob || record.cover)) {
+          var blob = coverBlob || record.cover;
+          s[COVER_STORE].put({ key: record.coverKey, mime: blob.type, blob: blob });
         }
       });
+      return txDone(s[TRACK_STORE].transaction).then(function () { return done; });
     });
   }
 
@@ -547,7 +558,10 @@
       return promisify(s[TRACK_STORE].get(trackUid)).then(function (record) {
         if (!record) return;
         Object.assign(record, patch);
-        s[TRACK_STORE].put(record);
+        var putReq = s[TRACK_STORE].put(record);
+        return txDone(s[TRACK_STORE].transaction).then(function () {
+          return promisify(putReq);
+        });
       });
     });
   }

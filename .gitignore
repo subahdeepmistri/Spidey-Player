@@ -28,3 +28,4 @@ test-output/
 
 # Temp fixture build artefacts
 test/fixtures/audio/temp/
+test-results/

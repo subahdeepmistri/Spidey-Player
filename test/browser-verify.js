@@ -135,8 +135,17 @@ function check(name, pass, detail) {
     await browser.close(); server.close(); process.exit(2);
   }
 
+  // Capture any console errors during import
+  consoleErrors.length = 0;
+  page.on('console', msg => {
+    if (msg.type() === 'error' || msg.type() === 'warning') {
+      consoleErrors.push(`${msg.type()}: ${msg.text()}`);
+    }
+  });
+
   await page.setInputFiles('#file-input', songs);
-  await page.waitForTimeout(6000);
+  // Longer timeout: IDB writes + ID3 metadata parsing + cover decoding are all async.
+  await page.waitForTimeout(15000);
 
   // Wait for cover art to load (async getCover() call)
   await page.evaluate(async () => {

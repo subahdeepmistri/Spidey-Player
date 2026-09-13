@@ -80,6 +80,7 @@
         panelBackdrop: $('panel-backdrop'),
         art: $('album-art'),
         fileInput: $('file-input'),
+        importBtn: $('import-btn'),
         search: $('search-input'),
         canvas: $('visualizer'),
         toasts: $('toasts'),
@@ -238,7 +239,9 @@
     return { dismiss: dismiss, update: update };
   }
 
-  /* Persisted user preferences. */
+  /* Persisted user preferences. Track whether localStorage writes ever fail so
+     we can warn once rather than spamming every session. */
+  var prefsPersistFailed = false;
   function savePrefs() {
     try {
       localStorage.setItem(PREF_KEY, JSON.stringify({
@@ -247,7 +250,14 @@
         shuffle: isShuffle,
         repeat: repeatMode
       }));
-    } catch (e) { /* private mode: preferences simply do not persist */ }
+      prefsPersistFailed = false;
+    } catch (e) {
+      // First failure surfaces a polite notice; subsequent failures are silent.
+      if (!prefsPersistFailed) {
+        prefsPersistFailed = true;
+        toast('Preferences could not be saved locally.', 'warn', 5000);
+      }
+    }
   }
   function loadPrefs() {
     var prefs;
@@ -579,10 +589,11 @@
       pause: pause,
       previoustrack: prevTrack,
       nexttrack: function () { nextTrack(true); },
-      seekbackward: function () { audio.currentTime = Math.max(0, audio.currentTime - SEEK_STEP); },
+      seekbackward: function () { audio.currentTime = Math.max(0, audio.currentTime - SEEK_STEP); updateProgressUI(); },
       seekforward: function () {
         if (Number.isFinite(audio.duration)) {
           audio.currentTime = Math.min(audio.duration, audio.currentTime + SEEK_STEP);
+          updateProgressUI();
         }
       }
     };
@@ -602,6 +613,7 @@
       el.duration.textContent = '0:00';
       el.currentTime.textContent = '0:00';
       setProgressUI(0);
+      document.title = 'Spidey Player 2.0';
       return;
     }
     el.title.textContent = track.title || track.name;
@@ -637,17 +649,16 @@
   function updateProgressUI() {
     var duration = audio.duration;
     var current = audio.currentTime;
-
-    if (Number.isFinite(duration) && duration > 0) {
-      setProgressUI((current / duration) * 100);
-    } else {
-      setProgressUI(0);
-    }
+    var known = Number.isFinite(duration) && duration > 0;
+    setProgressUI(known ? (current / duration) * 100 : 0);
+    setSliderAria(current, duration);
     el.currentTime.textContent = formatTime(current);
-    if (Number.isFinite(duration) && duration > 0) {
+    if (known) {
       el.duration.textContent = formatTime(duration);
     }
-    setSliderAria(current, duration);
+    // Disable the slider while no track is loaded or the track has no duration.
+    el.progress.setAttribute('aria-disabled', String(!known));
+    el.progress.title = known ? '' : 'No track loaded';
   }
 
   /* Load a track by its index in `tracks`. */
@@ -808,8 +819,16 @@
     seekToFraction(fractionFromEvent(e.clientX));
     try { el.progress.releasePointerCapture(e.pointerId); } catch (err) { /* already released */ }
   }
+  function cancelScrub(e) {
+    if (!scrubbing) return;
+    scrubbing = false;
+    // Restore the last committed playback position by refreshing the UI from
+    // the audio element's current time rather than committing the preview.
+    updateProgressUI();
+    try { el.progress.releasePointerCapture(e.pointerId); } catch (err) { /* already released */ }
+  }
   el.progress.addEventListener('pointerup', endScrub);
-  el.progress.addEventListener('pointercancel', endScrub);
+  el.progress.addEventListener('pointercancel', cancelScrub);
 
   el.progress.addEventListener('keydown', function (e) {
     var duration = audio.duration;
@@ -857,7 +876,9 @@
       }
       el.mute.setAttribute('aria-label', audio.muted || level === 0 ? 'Unmute' : 'Mute');
       el.mute.setAttribute('aria-pressed', String(audio.muted || level === 0));
-      if (!scrubbing) el.volume.value = String(audio.muted ? 0 : audio.volume);
+      // Keep the slider at the stored volume while muted so the visual
+      // position accurately reflects the volume setting rather than implying 0.
+      if (!scrubbing) el.volume.value = String(audio.volume);
     }
 
   el.volume.addEventListener('input', function () {
@@ -891,7 +912,11 @@
       var icon = el.repeat.querySelector('svg');
       if (icon) {
         var path = icon.querySelector('path');
-        var d = repeatMode === REPEAT_ONE ? 'M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15' : 'M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15';
+        // Distinct SVG paths so the visual state matches the aria-label.
+        var d = repeatMode === REPEAT_ONE ? 'M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15M17 13h.01'
+          : repeatMode === REPEAT_ALL ? 'M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15'
+          : 'M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15';
+        // Dim the icon when off; active states use color via CSS .is-active.
         if (path) path.setAttribute('d', d);
       }
       var label = repeatMode === REPEAT_OFF ? 'Repeat off'
@@ -1312,6 +1337,10 @@
     importFiles(e.target.files);
     e.target.value = '';              // allow re-importing the same file later
   });
+  // Import button clicks the hidden file input.
+  if (el.importBtn) {
+    el.importBtn.addEventListener('click', function () { el.fileInput.click(); });
+  }
 
   el.search.addEventListener('input', function (e) {
     renderPlaylist(e.target.value);
@@ -1369,20 +1398,17 @@
 
   audio.addEventListener('volumechange', updateVolumeUI);
 
-  /* --- Keyboard: global shortcuts must never fire while typing --- */
+  /* --- Keyboard: global shortcuts must never fire while an interactive
+       control already owns the key. Button/anchor/slider/role elements
+       handle their own Enter/Space/arrow handling; we must not double-fire. */
   document.addEventListener('keydown', function (e) {
-    // A key pressed inside a text field belongs to that field.
     var target = e.target;
-    var tag = target && target.tagName;
-    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' ||
-        (target && target.isContentEditable)) {
-      if (e.key === 'Escape' && target === el.search) {
-        el.search.value = '';
-        renderPlaylist('');
-        target.blur();
-      }
-      return;
-    }
+    // Walk up from the pressed element to see whether it sits inside any
+    // interactive control that is responsible for its own keyboard behaviour.
+    var interactive = target && target.closest &&
+      target.closest('button, a, input, textarea, select, ' +
+                     '[role="button"], [role="slider"], [contenteditable="true"]');
+    if (interactive) return;
 
     if (e.ctrlKey || e.metaKey || e.altKey) return;
 
@@ -1586,7 +1612,7 @@
     window.SpideyDB.open()
       .then(function (db) {
         // open() attaches the legacy-migration outcome (if any ran) to its promise.
-        var migration = window.SpideyDB.open().migration;
+        var migration = db.migration;
         if (migration && migration.skipped && migration.skipped.length > 0) {
           toast(
             'Library migration: ' + migration.migrated + ' song' + (migration.migrated !== 1 ? 's' : '') +

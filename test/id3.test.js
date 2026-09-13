@@ -188,9 +188,9 @@ test('does not treat arbitrary bytes as a frame id', async () => {
   assert.equal(meta.title, 'Padded');
 });
 
-test('parses every real file in the songs/ directory', { skip: !fs.existsSync(path.join(__dirname, '..', 'songs')) }, async () => {
-  const dir = path.join(__dirname, '..', 'songs');
-  const files = fs.readdirSync(dir).filter(f => /\.(mp3|flac)$/i.test(f));
+test('parses every real file in the test/fixtures/audio/ directory', { skip: !fs.existsSync(path.join(__dirname, 'fixtures', 'audio')) }, async () => {
+  const dir = path.join(__dirname, 'fixtures', 'audio');
+  const files = fs.readdirSync(dir).filter(f => /\.(mp3|flac|m4a|wav|ogg)$/i.test(f));
   if (!files.length) return;
 
   let withTitle = 0;
