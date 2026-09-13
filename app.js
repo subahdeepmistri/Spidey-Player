@@ -299,13 +299,21 @@
 
   function applyCover(blob, key) {
     if (!blob) {
+      // Revoke any pending cover URL before switching to the default
+      if (currentCoverKey && coverCache.has(currentCoverKey)) {
+        URL.revokeObjectURL(coverCache.get(currentCoverKey));
+        coverCache.delete(currentCoverKey);
+      }
+      currentCoverKey = null;
       el.art.src = DEFAULT_ART;
       return null;
     }
-    var url = coverUrlFor(key || 'inline', blob);
+    currentCoverKey = key;
+    var url = coverUrlFor(key, blob);
     el.art.src = url;
     return url;
   }
+  var currentCoverKey = null;
 
   var DEFAULT_ART = 'image/862eb376cc18fd124f045f6b31b0dc4b.jpg';
 
@@ -1285,10 +1293,8 @@
         togglePanel();
         break;
       case 'Slash':
-        if (el.panel.classList.contains('is-open')) {
-          e.preventDefault();
-          el.search.focus();
-        }
+        e.preventDefault();
+        el.search.focus();
         break;
       case 'Escape':
         if (el.panel.classList.contains('is-open')) {
@@ -1362,37 +1368,83 @@
   });
 
   /* ================================================================== *
-   * Boot
+   * Boot — explicit loading state, DB recovery path
    * ================================================================== */
 
-  function init() {
-      loadPrefs();
-      updateVolumeUI();
-      updateShuffleUI();
-      updateRepeatUI();
-      updatePlayButton();
-      resizeCanvas();
+  function showLoading() {
+    el.playlist.textContent = '';
+    var wrap = document.createElement('li');
+    wrap.className = 'text-center text-gray-500 mt-10 text-sm list-none py-8';
+    var spinner = document.createElement('div');
+    spinner.className = 'inline-block w-5 h-5 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin';
+    spinner.setAttribute('aria-hidden', 'true');
+    var p = document.createElement('p');
+    p.textContent = 'Loading library…';
+    p.className = 'mt-2';
+    wrap.appendChild(spinner);
+    wrap.appendChild(p);
+    el.playlist.appendChild(wrap);
+    el.importStatus.textContent = 'Connecting to local storage…';
+  }
 
-      // Replace icon placeholders with inline SVGs
-      document.querySelectorAll('.icon-placeholder').forEach(function (el) {
-        var name = el.getAttribute('data-icon');
-        if (name && typeof createIcon === 'function') {
-          var size = el.style.width || el.getAttribute('width');
-          var svg = createIcon(name, size);
-          el.replaceWith(svg);
-        }
-      });
-
+  function showRecoverableError(message) {
+    el.playlist.textContent = '';
+    var wrap = document.createElement('li');
+    wrap.className = 'text-center text-gray-500 mt-10 text-sm list-none py-6';
+    var icon = createIcon('triangle-exclamation', '2rem');
+    icon.style.opacity = '0.6';
+    var p1 = document.createElement('p');
+    p1.textContent = 'Could not load your library';
+    p1.className = 'text-base font-medium text-gray-300 mt-2';
+    var p2 = document.createElement('p');
+    p2.textContent = message;
+    p2.className = 'text-xs mt-1';
+    var btn = document.createElement('button');
+    btn.className = 'btn-chip mt-4';
+    btn.textContent = 'Retry';
+    btn.addEventListener('click', function () {
+      el.importStatus.textContent = '';
+      showLoading();
       window.SpideyDB.open()
-      .then(function () {
-        return reloadLibrary();
-      })
-      .then(function () {
-        return window.SpideyDB.requestPersistence();
-      })
+        .then(reloadLibrary)
+        .then(window.SpideyDB.requestPersistence)
+        .then(refreshStorage)
+        .catch(function (err) {
+          showRecoverableError(err.message || 'Unknown error');
+        });
+    });
+    wrap.appendChild(icon);
+    wrap.appendChild(p1);
+    wrap.appendChild(p2);
+    wrap.appendChild(btn);
+    el.playlist.appendChild(wrap);
+  }
+
+  function init() {
+    loadPrefs();
+    updateVolumeUI();
+    updateShuffleUI();
+    updateRepeatUI();
+    updatePlayButton();
+    resizeCanvas();
+
+    // Replace icon placeholders with inline SVGs
+    document.querySelectorAll('.icon-placeholder').forEach(function (node) {
+      var name = node.getAttribute('data-icon');
+      if (name && typeof createIcon === 'function') {
+        var svg = createIcon(name);
+        node.replaceWith(svg);
+      }
+    });
+
+    showLoading();
+
+    window.SpideyDB.open()
+      .then(function () { return reloadLibrary(); })
+      .then(function () { return window.SpideyDB.requestPersistence(); })
       .then(refreshStorage)
       .catch(function (err) {
-        toast('Could not open the local library: ' + err.message, 'error', 0);
+        showRecoverableError(err.message || 'The local library could not be opened.');
       });
   }
 

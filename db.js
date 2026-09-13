@@ -172,11 +172,18 @@
 
     var result = { total: legacyRows.length, migrated: 0, skipped: [] };
 
-    // Legacy rows were stored as [file, ...] in v1, or may include already-migrated
-    // records with a uid+file shape. Build a map from legacy identity to v2 uid.
-    var legacyToUid = {};
+    // Read all current v2 records to find the ones created by upgrade
+    var v2Records = await withStores([TRACK_STORE], 'readonly', function (s) {
+      return readAll(s[TRACK_STORE]);
+    });
 
-    // First pass: identify each legacy row and find/create its v2 uid.
+    // Build a fingerprint -> uid map for v2 records that were migrated
+    v2Records.forEach(function (record) {
+      if (record._migrated && record.fingerprint) {
+        migratedRecordMap[record.fingerprint] = record.uid;
+      }
+    });
+
     for (var i = 0; i < legacyRows.length; i++) {
       var row = legacyRows[i];
       var file = row instanceof File || row instanceof Blob ? row : (row && row.file);
@@ -184,45 +191,43 @@
         result.skipped.push({ name: row && row.name ? row.name : 'unknown', reason: 'missing-file' });
         continue;
       }
-      // Derive the v2 uid that was created during upgrade (using fingerprint as bridge)
-      var fp = fingerprint(file);
-      legacyToUid[fp] = { row: row, file: file, fp: fp };
-    }
 
-    // Second pass: enrich each track in place
-    for (var key in legacyToUid) {
-      if (!legacyToUid.hasOwnProperty(key)) continue;
-      var entry = legacyToUid[key];
-      var file = entry.file;
+      var fp = fingerprint(file);
+
+      // Find the corresponding v2 record created during upgrade
+      var existingUid = migratedRecordMap[fp];
 
       try {
-        var enriched = await buildRecord(file);
-        // Update the existing v2 record (created during upgrade) in place
-        await withStores([TRACK_STORE, COVER_STORE], 'readwrite', function (s) {
-          return promisify(s[TRACK_STORE].get(enriched.uid)).then(function (existing) {
-            if (!existing) {
-              // Fallback: put the new record (shouldn't happen if upgrade worked)
-              if (enriched.cover) {
-                s[COVER_STORE].put({ key: enriched.coverKey, mime: enriched.cover.type, blob: enriched.cover });
-              }
-              s[TRACK_STORE].put(enriched);
-              return;
-            }
-            // Update in place — preserve the existing UID
-            existing.title = enriched.title;
-            existing.artist = enriched.artist;
-            existing.album = enriched.album;
-            existing.track = enriched.track;
-            existing.year = enriched.year;
-            existing.duration = enriched.duration;
-            if (enriched.coverKey) existing.coverKey = enriched.coverKey;
-            existing.searchKey = enriched.searchKey;
-            if (enriched.cover) {
-              s[COVER_STORE].put({ key: enriched.coverKey, mime: enriched.cover.type, blob: enriched.cover });
-            }
-            s[TRACK_STORE].put(existing);
+        if (existingUid) {
+          // Update the existing v2 record in place — no new UID
+          var enriched = await buildRecord(file);
+          await updateTrack(existingUid, {
+            title: enriched.title,
+            artist: enriched.artist,
+            album: enriched.album,
+            track: enriched.track,
+            year: enriched.year,
+            duration: enriched.duration,
+            coverKey: enriched.coverKey,
+            searchKey: enriched.searchKey
           });
-        });
+
+          // Store cover if present
+          if (enriched.coverKey && enriched.cover) {
+            await withStores([COVER_STORE], 'readwrite', function (s) {
+              s[COVER_STORE].put({ key: enriched.coverKey, mime: enriched.cover.type, blob: enriched.cover });
+            }).catch(function () { /* cover store may not exist in all cases */ });
+          }
+        } else {
+          // Fallback: create new record if upgrade didn't create one
+          var record = await buildRecord(file);
+          await withStores([TRACK_STORE, COVER_STORE], 'readwrite', function (s) {
+            if (record.cover) {
+              s[COVER_STORE].put({ key: record.coverKey, mime: record.cover.type, blob: record.cover });
+            }
+            s[TRACK_STORE].put(record);
+          });
+        }
         result.migrated++;
       } catch (e) {
         result.skipped.push({ name: file.name, reason: 'enrichment-failed' });

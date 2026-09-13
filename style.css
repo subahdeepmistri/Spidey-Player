@@ -1,9 +1,9 @@
 /* ==================================================================
-   Spidey Player 2.0 — custom layer
-   Tailwind (dist/tailwind.css) handles layout utilities; this file owns
-   the glassmorphism, the animated background, the visualizer canvas and
-   the components that need states Tailwind does not express cleanly.
-   ================================================================== */
+  Spidey Player 2.0 — custom layer
+  Tailwind (dist/tailwind.css) handles layout utilities; this file owns
+  the glassmorphism, the animated background, the visualizer canvas and
+  the components that need states Tailwind does not express cleanly.
+  ================================================================== */
 
 :root {
   --primary-color: #00f2ea;
@@ -29,8 +29,8 @@ body {
 }
 
 /* ---------------------------------------------------------------- *
-   Accessibility helpers
-   ---------------------------------------------------------------- */
+  Accessibility helpers
+  ---------------------------------------------------------------- */
 
 .sr-only {
   position: absolute;
@@ -70,8 +70,8 @@ body {
 }
 
 /* ---------------------------------------------------------------- *
-   Background animation
-   ---------------------------------------------------------------- */
+  Background animation
+  ---------------------------------------------------------------- */
 
 .bg-animate {
   position: fixed;
@@ -113,8 +113,8 @@ body {
 }
 
 /* ---------------------------------------------------------------- *
-   Glass surfaces
-   ---------------------------------------------------------------- */
+  Glass surfaces
+  ---------------------------------------------------------------- */
 
 .glass {
   background: var(--glass-bg);
@@ -132,8 +132,8 @@ body {
 }
 
 /* ---------------------------------------------------------------- *
-   Visualizer canvas — full-bleed, behind the card, never interactive
-   ---------------------------------------------------------------- */
+  Visualizer canvas — full-bleed, behind the card, never interactive
+  ---------------------------------------------------------------- */
 
 #visualizer {
   position: fixed;
@@ -146,8 +146,8 @@ body {
 }
 
 /* ---------------------------------------------------------------- *
-   Controls
-   ---------------------------------------------------------------- */
+  Controls
+  ---------------------------------------------------------------- */
 
 .icon-btn {
   display: inline-flex;
@@ -170,7 +170,7 @@ body {
 }
 
 /* Toggled state for shuffle / repeat / mute. Uses colour AND a background
-   so it is not conveyed by colour alone. */
+  so it is not conveyed by colour alone. */
 .icon-btn.is-active,
 .icon-btn[aria-pressed="true"] {
   color: var(--primary-color);
@@ -242,8 +242,8 @@ body {
 }
 
 /* ---------------------------------------------------------------- *
-   Progress bar — a real slider: click, drag and arrow keys
-   ---------------------------------------------------------------- */
+  Progress bar — a real slider: click, drag and arrow keys
+  ---------------------------------------------------------------- */
 
 .progress-track {
   position: relative;
@@ -289,8 +289,8 @@ body {
 }
 
 /* ---------------------------------------------------------------- *
-   Volume
-   ---------------------------------------------------------------- */
+  Volume
+  ---------------------------------------------------------------- */
 
 .volume-slider {
   -webkit-appearance: none;
@@ -327,8 +327,8 @@ body {
 }
 
 /* ---------------------------------------------------------------- *
-   Album art
-   ---------------------------------------------------------------- */
+  Album art
+  ---------------------------------------------------------------- */
 
 .art-pulse {
   /* The idle pulse animates the WRAPPER. The beat-reactive scale is applied
@@ -354,8 +354,8 @@ body {
 }
 
 /* ---------------------------------------------------------------- *
-   Playlist
-   ---------------------------------------------------------------- */
+  Playlist
+  ---------------------------------------------------------------- */
 
 .panel {
   display: flex;
@@ -418,7 +418,7 @@ body {
     }
   }
 
-.track-row {
+  .track-row {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -580,8 +580,8 @@ body {
 }
 
 /* ---------------------------------------------------------------- *
-   Toasts
-   ---------------------------------------------------------------- */
+  Toasts
+  ---------------------------------------------------------------- */
 
 .toast-host {
   position: fixed;
@@ -650,8 +650,8 @@ body {
 }
 
 /* ---------------------------------------------------------------- *
-   Drop overlay
-   ---------------------------------------------------------------- */
+  Drop overlay
+  ---------------------------------------------------------------- */
 
 .drop-overlay {
   position: fixed;
@@ -691,8 +691,8 @@ body.is-dragging .drop-overlay {
 }
 
 /* ---------------------------------------------------------------- *
-   Scrollbars
-   ---------------------------------------------------------------- */
+  Scrollbars
+  ---------------------------------------------------------------- */
 
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
@@ -717,8 +717,8 @@ body.is-dragging .drop-overlay {
 }
 
 /* ---------------------------------------------------------------- *
-   Motion preferences
-   ---------------------------------------------------------------- */
+  Motion preferences
+  ---------------------------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -732,4 +732,20 @@ body.is-dragging .drop-overlay {
   .orb {
     animation: none;
   }
+
+  .animate-spin {
+    animation: none !important;
+  }
+}
+
+/* ---------------------------------------------------------------- *
+  Loading state
+  ---------------------------------------------------------------- */
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 0.6s linear infinite;
 }

@@ -138,6 +138,19 @@ function check(name, pass, detail) {
   await page.setInputFiles('#file-input', songs);
   await page.waitForTimeout(6000);
 
+  // Wait for cover art to load (async getCover() call)
+  await page.evaluate(async () => {
+    const img = document.getElementById('album-art');
+    if (img.src.startsWith('blob:')) {
+      await new Promise((resolve) => {
+        img.onload = resolve;
+        img.onerror = resolve;
+        if (img.complete) resolve();
+      });
+    }
+  });
+  await page.waitForTimeout(500);
+
   const library = await page.evaluate(() => ({
     rows: document.querySelectorAll('#playlist .track-row').length,
     title: document.getElementById('song-title').textContent.trim(),

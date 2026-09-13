@@ -110,9 +110,8 @@ AUDIT.md              full audit: every defect found, its evidence and its fix
 ## Notes on stored data
 
 Your library lives in this browser's IndexedDB for this origin. It is not synced
-anywhere. Clearing site data removes it. The `songs/` and `TAYLOR-SWIFT/`
-directories in this repo are gitignored sample data and are not required to run
-the player.
+anywhere. Clearing site data removes it. Test fixture audio is in
+`test/fixtures/audio/` and is used by the browser verification suite.
 
 ## Credits
 
