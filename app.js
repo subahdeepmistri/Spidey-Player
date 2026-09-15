@@ -308,6 +308,11 @@
       return trackUrl;
     }
     if (source.kind === 'url') {
+      // Cross-origin (Vercel Blob) needs CORS so the visualiser can tap the
+      // element. Same-origin relative URLs must NOT set this — our local
+      // static server does not send ACAO and the load would fail.
+      if (/^https?:\/\//i.test(source.data)) audio.crossOrigin = 'anonymous';
+      else audio.removeAttribute('crossOrigin');
       audio.src = source.data;
       audio.load();
       return source.data;
@@ -1421,6 +1426,7 @@
 
       buildOrder(true);
       renderPlaylist(el.search.value);
+      el.importStatus.textContent = '';
 
       if (currentTrack < 0 && tracks.length) {
         // Nothing selected and no remembered session: queue the opening track.

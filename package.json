@@ -9,7 +9,7 @@
     "watch:css": "tailwindcss -i ./src/tailwind.css -o ./dist/tailwind.css --watch",
     "test": "node --test \"test/**/*.test.js\"",
     "verify": "node test/browser-verify.js",
-    "build": "npm run build:css"
+    "build": "npm run build:css && node scripts/prepare-cloud-catalog.js"
   },
   "keywords": [
     "music-player",

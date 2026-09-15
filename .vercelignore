@@ -11,3 +11,6 @@ test-results
 .DS_Store
 taylor swift album cover picture
 scripts/probe-server.js
+assets/music
+.cloud
+.cloud-audio

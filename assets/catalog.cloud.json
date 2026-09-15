@@ -1,0 +1,1600 @@
+{
+  "name": "Taylor Swift — bundled library",
+  "count": 177,
+  "generatedAt": "2026-09-15T14:09:18.151Z",
+  "tracks": [
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/1%20%20...Ready%20For%20It_.mp3",
+      "title": "Ready For It",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 1,
+      "duration": 208.2,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/01%20-%20I%20Forgot%20That%20You%20Existed.mp3",
+      "title": "I Forgot That You Existed",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 1,
+      "duration": 170.6,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/01%20-%20The%20Fate%20Of%20Ophelia%20-%20Taylor%20Swift.mp3",
+      "title": "The Fate Of Ophelia",
+      "artist": "Taylor Swift",
+      "album": "The Life Of A Showgirl",
+      "num": 1,
+      "duration": 226.1,
+      "art": "assets/art/tloas.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/01%20the%201.mp3",
+      "title": "the 1",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 1,
+      "duration": 210.3,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/01%20Welcome%20To%20New%20York.mp3",
+      "title": "Welcome To New York",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 1,
+      "duration": 212.6,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/01.%20Fortnight.mp3",
+      "title": "Fortnight",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 1",
+      "num": 1,
+      "duration": 229,
+      "art": "assets/art/1989.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/01.%20Lavender%20Haze.mp3",
+      "title": "Lavender Haze",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 1",
+      "num": 1,
+      "duration": 202.4,
+      "art": "assets/art/1989.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/01.%20State%20Of%20Grace%20%28Taylor%27s%20Version%29.mp3",
+      "title": "State Of Grace (Taylor's Version)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 1,
+      "duration": 295.4,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/01.%20willow.mp3",
+      "title": "willow",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 2",
+      "num": 1,
+      "duration": 214.7,
+      "art": "assets/art/evermore.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/02%20-%20Cruel%20Summer.mp3",
+      "title": "Cruel Summer",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 1",
+      "num": 2,
+      "duration": 178.4,
+      "art": "assets/art/1989.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/02%20-%20Elizabeth%20Taylor%20-%20Taylor%20Swift.mp3",
+      "title": "Elizabeth Taylor",
+      "artist": "Taylor Swift",
+      "album": "The Life Of A Showgirl",
+      "num": 2,
+      "duration": 208.3,
+      "art": "assets/art/tloas.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/02%20Blank%20Space.mp3",
+      "title": "Blank Space",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 1",
+      "num": 2,
+      "duration": 231.8,
+      "art": "assets/art/1989.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/02%20cardigan.mp3",
+      "title": "cardigan",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 2",
+      "num": 2,
+      "duration": 239.6,
+      "art": "assets/art/evermore.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/2%20End%20Game.mp3",
+      "title": "End Game",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 2,
+      "duration": 244.6,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/02.%20champagne%20problems.mp3",
+      "title": "champagne problems",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 2",
+      "num": 2,
+      "duration": 244,
+      "art": "assets/art/evermore.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/02.%20Maroon.mp3",
+      "title": "Maroon",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 2,
+      "duration": 218.3,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/02.%20Red%20%28Taylor%27s%20Version%29.mp3",
+      "title": "Red (Taylor's Version)",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 1",
+      "num": 2,
+      "duration": 223.1,
+      "art": "assets/art/1989.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/02.%20The%20Tortured%20Poets%20Department.mp3",
+      "title": "The Tortured Poets Department",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 2,
+      "duration": 293.1,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/03%20-%20Lover.mp3",
+      "title": "Lover",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 2",
+      "num": 3,
+      "duration": 221.3,
+      "art": "assets/art/evermore.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/03%20-%20Opalite%20-%20Taylor%20Swift.mp3",
+      "title": "Opalite",
+      "artist": "Taylor Swift",
+      "album": "The Life Of A Showgirl",
+      "num": 3,
+      "duration": 235.4,
+      "art": "assets/art/tloas.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/3%20I%20Did%20Something%20Bad.mp3",
+      "title": "I Did Something Bad",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 3,
+      "duration": 238,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/03%20Style.mp3",
+      "title": "Style",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 3,
+      "duration": 231,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/03%20the%20last%20great%20american%20dynasty.mp3",
+      "title": "the last great american dynasty",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 3,
+      "duration": 231,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/03.%20Anti-Hero.mp3",
+      "title": "Anti-Hero",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 1",
+      "num": 3,
+      "duration": 200.7,
+      "art": "assets/art/1989.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/03.%20gold%20rush.mp3",
+      "title": "gold rush",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 3,
+      "duration": 185.3,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/03.%20My%20Boy%20Only%20Breaks%20His%20Favorite%20Toys.mp3",
+      "title": "My Boy Only Breaks His Favorite Toys",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 3,
+      "duration": 203.8,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/03.%20Treacherous%20%28Taylor%27s%20Version%29.mp3",
+      "title": "Treacherous (Taylor's Version)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 3,
+      "duration": 242.7,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/04%20-%20Father%20Figure%20-%20Taylor%20Swift.mp3",
+      "title": "Father Figure",
+      "artist": "Taylor Swift",
+      "album": "The Life Of A Showgirl",
+      "num": 4,
+      "duration": 212.8,
+      "art": "assets/art/tloas.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/04%20-%20The%20Man.mp3",
+      "title": "The Man",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 4,
+      "duration": 190.4,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/4%20Don%27t%20Blame%20Me.mp3",
+      "title": "Don't Blame Me",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 4,
+      "duration": 236.2,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/04%20exile.mp3",
+      "title": "exile",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 4,
+      "duration": 285.6,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/04%20Out%20Of%20The%20Woods.mp3",
+      "title": "Out Of The Woods",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 4,
+      "duration": 235.8,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/04.%20%E2%80%98tis%20the%20damn%20season.mp3",
+      "title": "‘tis the damn season",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 4,
+      "duration": 229.8,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/04.%20Down%20Bad.mp3",
+      "title": "Down Bad",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 1",
+      "num": 4,
+      "duration": 261.3,
+      "art": "assets/art/1989.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/04.%20I%20Knew%20You%20Were%20Trouble%20%28Taylor%27s%20Version%29.mp3",
+      "title": "I Knew You Were Trouble (Taylor's Version)",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 2",
+      "num": 4,
+      "duration": 219.8,
+      "art": "assets/art/evermore.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/04.%20Snow%20On%20The%20Beach.mp3",
+      "title": "Snow On The Beach",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 4,
+      "duration": 256.1,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/05%20-%20Eldest%20Daughter%20-%20Taylor%20Swift.mp3",
+      "title": "Eldest Daughter",
+      "artist": "Taylor Swift",
+      "album": "The Life Of A Showgirl",
+      "num": 5,
+      "duration": 246.4,
+      "art": "assets/art/tloas.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/05%20-%20The%20Archer.mp3",
+      "title": "The Archer",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 5,
+      "duration": 211.2,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/05%20All%20You%20Had%20To%20Do%20Was%20Stay.mp3",
+      "title": "All You Had To Do Was Stay",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 5,
+      "duration": 193.3,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/5%20Delicate.mp3",
+      "title": "Delicate",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 5,
+      "duration": 232,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/05%20my%20tears%20ricochet.mp3",
+      "title": "my tears ricochet",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 5,
+      "duration": 255.9,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/05.%20All%20Too%20Well%20%28Taylor%27s%20Version%29.mp3",
+      "title": "All Too Well (Taylor's Version)",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 2",
+      "num": 5,
+      "duration": 329.2,
+      "art": "assets/art/evermore.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/05.%20Back%20To%20December%20%28Taylor%27s%20Version%29.mp3",
+      "title": "Back To December (Taylor's Version)",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 2",
+      "num": 5,
+      "duration": 294.2,
+      "art": "assets/art/evermore.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/05.%20Florida%21%21%21.mp3",
+      "title": "Florida!!!",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 1",
+      "num": 5,
+      "duration": 215.5,
+      "art": "assets/art/1989.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/05.%20So%20Long%2C%20London.mp3",
+      "title": "So Long, London",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 5,
+      "duration": 263,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/05.%20tolerate%20it.mp3",
+      "title": "tolerate it",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 5,
+      "duration": 245.4,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/05.%20You%27re%20On%20Your%20Own%2C%20Kid.mp3",
+      "title": "You're On Your Own, Kid",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 5,
+      "duration": 194.2,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/06%20-%20I%20Think%20He%20Knows.mp3",
+      "title": "I Think He Knows",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 6,
+      "duration": 173.4,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/06%20-%20Ruin%20The%20Friendship%20-%20Taylor%20Swift.mp3",
+      "title": "Ruin The Friendship",
+      "artist": "Taylor Swift",
+      "album": "The Life Of A Showgirl",
+      "num": 6,
+      "duration": 220.6,
+      "art": "assets/art/tloas.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/6%20Look%20What%20You%20Made%20Me%20Do.mp3",
+      "title": "Look What You Made Me Do",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 2",
+      "num": 6,
+      "duration": 211.9,
+      "art": "assets/art/evermore.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/06%20mirrorball.mp3",
+      "title": "mirrorball",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 6,
+      "duration": 209,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/06%20Shake%20It%20Off.mp3",
+      "title": "Shake It Off",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 1",
+      "num": 6,
+      "duration": 219.2,
+      "art": "assets/art/1989.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/06.%2022%20%28Taylor%27s%20Version%29.mp3",
+      "title": "22 (Taylor's Version)",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 1",
+      "num": 6,
+      "duration": 231,
+      "art": "assets/art/1989.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/06.%20But%20Daddy%20I%20Love%20Him.mp3",
+      "title": "But Daddy I Love Him",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 1",
+      "num": 6,
+      "duration": 340.5,
+      "art": "assets/art/1989.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/06.%20Midnight%20Rain.mp3",
+      "title": "Midnight Rain",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 6,
+      "duration": 174.8,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/06.%20no%20body%2C%20no%20crime%20%28feat.%20HAIM%29.mp3",
+      "title": "no body, no crime (feat. HAIM)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 6,
+      "duration": 215.6,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/06.%20You%20Belong%20With%20Me%20%28Taylor%27s%20Version%29.mp3",
+      "title": "You Belong With Me (Taylor's Version)",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 1",
+      "num": 6,
+      "duration": 231.1,
+      "art": "assets/art/1989.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/07%20-%20Actually%20Romantic%20-%20Taylor%20Swift.mp3",
+      "title": "Actually Romantic",
+      "artist": "Taylor Swift",
+      "album": "The Life Of A Showgirl",
+      "num": 7,
+      "duration": 163.7,
+      "art": "assets/art/tloas.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/07%20-%20Miss%20Americana%20%26%20The%20Heartbreak%20Prince.mp3",
+      "title": "Miss Americana & The Heartbreak Prince",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 7,
+      "duration": 234.1,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/07%20I%20Wish%20You%20Would.mp3",
+      "title": "I Wish You Would",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 7,
+      "duration": 207.4,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/07%20seven.mp3",
+      "title": "seven",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 7,
+      "duration": 208.9,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/7%20So%20It%20Goes.mp3",
+      "title": "So It Goes",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 7,
+      "duration": 227.7,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/07.%20Fresh%20Out%20The%20Slammer.mp3",
+      "title": "Fresh Out The Slammer",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 7,
+      "duration": 210.8,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/07.%20happiness.mp3",
+      "title": "happiness",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 7,
+      "duration": 315.1,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/07.%20I%20Almost%20Do%20%28Taylor%27s%20Version%29.mp3",
+      "title": "I Almost Do (Taylor's Version)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 7,
+      "duration": 244.6,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/07.%20Question..._.mp3",
+      "title": "Question...",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 7,
+      "duration": 210.6,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/08%20-%20Paper%20Rings.mp3",
+      "title": "Paper Rings",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 8,
+      "duration": 222.4,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/08%20-%20Wi%24h%20Li%24t%20-%20Taylor%20Swift.mp3",
+      "title": "Wi$h Li$t",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 8,
+      "duration": 207.3,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/08%20august.mp3",
+      "title": "august",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 8,
+      "duration": 261.9,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/08%20Bad%20Blood.mp3",
+      "title": "Bad Blood",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 2",
+      "num": 8,
+      "duration": 211.9,
+      "art": "assets/art/evermore.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/8%20Gorgeous.mp3",
+      "title": "Gorgeous",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 8,
+      "duration": 209.7,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/08.%20dorothea.mp3",
+      "title": "dorothea",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 8,
+      "duration": 225.9,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/08.%20Shake%20It%20Off%20%28Taylor%27s%20Version%29.mp3",
+      "title": "Shake It Off (Taylor's Version)",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 1",
+      "num": 8,
+      "duration": 219.2,
+      "art": "assets/art/1989.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/08.%20Vigilante%20Shit.mp3",
+      "title": "Vigilante Shit",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 8,
+      "duration": 164.8,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/08.%20We%20Are%20Never%20Ever%20Getting%20Back%20Together%20%28Taylor%27s%20Version%29.mp3",
+      "title": "We Are Never Ever Getting Back Together (Taylor's Version)",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 2",
+      "num": 8,
+      "duration": 193.1,
+      "art": "assets/art/evermore.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/09%20-%20Cornelia%20Street.mp3",
+      "title": "Cornelia Street",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 9,
+      "duration": 287.3,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/09%20-%20Wood%20-%20Taylor%20Swift.mp3",
+      "title": "Wood",
+      "artist": "Taylor Swift",
+      "album": "The Life Of A Showgirl",
+      "num": 9,
+      "duration": 150.5,
+      "art": "assets/art/tloas.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/9%20Getaway%20Car.mp3",
+      "title": "Getaway Car",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 9,
+      "duration": 233.4,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/09%20this%20is%20me%20trying.mp3",
+      "title": "this is me trying",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 9,
+      "duration": 195.1,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/09%20Wildest%20Dreams.mp3",
+      "title": "Wildest Dreams",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 2",
+      "num": 9,
+      "duration": 220.4,
+      "art": "assets/art/evermore.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/09.%20Bejeweled.mp3",
+      "title": "Bejeweled",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 9,
+      "duration": 194.2,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/09.%20coney%20island%20%28feat.%20The%20National%29.mp3",
+      "title": "coney island (feat. The National)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 9,
+      "duration": 275.3,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/09.%20Guilty%20as%20Sin_.mp3",
+      "title": "Guilty as Sin",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 9,
+      "duration": 254.4,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/09.%20Stay%20Stay%20Stay%20%28Taylor%27s%20Version%29.mp3",
+      "title": "Stay Stay Stay (Taylor's Version)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 9,
+      "duration": 205.8,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/10%20-%20CANCELLED%21%20-%20Taylor%20Swift.mp3",
+      "title": "CANCELLED!",
+      "artist": "Taylor Swift",
+      "album": "The Life Of A Showgirl",
+      "num": 10,
+      "duration": 211.5,
+      "art": "assets/art/tloas.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/10%20-%20Death%20By%20A%20Thousand%20Cuts.mp3",
+      "title": "Death By A Thousand Cuts",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 10,
+      "duration": 198.5,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/10%20How%20You%20Get%20The%20Girl.mp3",
+      "title": "How You Get The Girl",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 10,
+      "duration": 247.5,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/10%20illicit%20affairs.mp3",
+      "title": "illicit affairs",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 10,
+      "duration": 190.9,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/10%20King%20Of%20My%20Heart.mp3",
+      "title": "King Of My Heart",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 10,
+      "duration": 214.1,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/10.%20ivy.mp3",
+      "title": "ivy",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 10,
+      "duration": 260.4,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/10.%20Labyrinth.mp3",
+      "title": "Labyrinth",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 10,
+      "duration": 248,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/10.%20The%20Last%20Time%20%28Taylor%27s%20Version%29.mp3",
+      "title": "The Last Time (Taylor's Version)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 10,
+      "duration": 299.1,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/10.%20Who%E2%80%99s%20Afraid%20of%20Little%20Old%20Me_.mp3",
+      "title": "Who’s Afraid of Little Old Me",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 10,
+      "duration": 334.1,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/11%20-%20Honey%20-%20Taylor%20Swift.mp3",
+      "title": "Honey",
+      "artist": "Taylor Swift",
+      "album": "The Life Of A Showgirl",
+      "num": 11,
+      "duration": 181.5,
+      "art": "assets/art/tloas.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/11%20-%20London%20Boy.mp3",
+      "title": "London Boy",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 11,
+      "duration": 190.2,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/11%20Dancing%20With%20Our%20Hands%20Tied.mp3",
+      "title": "Dancing With Our Hands Tied",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 11,
+      "duration": 211.3,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/11%20invisible%20string.mp3",
+      "title": "invisible string",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 11,
+      "duration": 252.9,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/11%20This%20Love.mp3",
+      "title": "This Love",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 11,
+      "duration": 250.1,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/11.%20Blank%20Space%20%28Taylor%27s%20Version%29.mp3",
+      "title": "Blank Space (Taylor's Version)",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 1",
+      "num": 11,
+      "duration": 231.8,
+      "art": "assets/art/1989.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/11.%20cowboy%20like%20me.mp3",
+      "title": "cowboy like me",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 11,
+      "duration": 275,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/11.%20Holy%20Ground%20%28Taylor%27s%20Version%29.mp3",
+      "title": "Holy Ground (Taylor's Version)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 11,
+      "duration": 203,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/11.%20I%20Can%20Fix%20Him%20%28No%20Really%20I%20Can%29.mp3",
+      "title": "I Can Fix Him (No Really I Can)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 11,
+      "duration": 156.3,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/11.%20Karma.mp3",
+      "title": "Karma",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 11,
+      "duration": 204.9,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/12%20-%20Soon%20You%E2%80%99ll%20Get%20Better%20%28feat.%20Dixie%20Chicks%29.mp3",
+      "title": "Soon You’ll Get Better (feat. Dixie Chicks)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 12,
+      "duration": 201.6,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/12%20-%20The%20Life%20Of%20A%20Showgirl%20ft.%20Sabrina%20Carpenter%20-%20Taylor%20Swift.mp3",
+      "title": "The Life Of A Showgirl ft. Sabrina Carpenter",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 12,
+      "duration": 241.8,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/12%20Dress.mp3",
+      "title": "Dress",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 12,
+      "duration": 230.2,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/12%20I%20Know%20Places.mp3",
+      "title": "I Know Places",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 12,
+      "duration": 195.7,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/12%20mad%20woman.mp3",
+      "title": "mad woman",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 12,
+      "duration": 237.3,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/12.%20Bad%20Blood%20%28Taylor%27s%20Version%29.mp3",
+      "title": "Bad Blood (Taylor's Version)",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 2",
+      "num": 12,
+      "duration": 211.1,
+      "art": "assets/art/evermore.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/12.%20loml.mp3",
+      "title": "loml",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 12,
+      "duration": 277.2,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/12.%20long%20story%20short.mp3",
+      "title": "long story short",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 12,
+      "duration": 215.9,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/12.%20Sad%20Beautiful%20Tragic%20%28Taylor%27s%20Version%29.mp3",
+      "title": "Sad Beautiful Tragic (Taylor's Version)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 12,
+      "duration": 284.8,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/12.%20Sweet%20Nothing.mp3",
+      "title": "Sweet Nothing",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 12,
+      "duration": 188.5,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/13%20-%20False%20God.mp3",
+      "title": "False God",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 13,
+      "duration": 200.3,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/13%20Clean.mp3",
+      "title": "Clean",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 13,
+      "duration": 271,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/13%20epiphany.mp3",
+      "title": "epiphany",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 13,
+      "duration": 289.7,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/13%20This%20Is%20Why%20We%20Can%27t%20Have%20Nice%20Things.mp3",
+      "title": "This Is Why We Can't Have Nice Things",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 13,
+      "duration": 211.3,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/13.%20I%20Can%20Do%20It%20With%20a%20Broken%20Heart.mp3",
+      "title": "I Can Do It With a Broken Heart",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 13,
+      "duration": 218,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/13.%20marjorie.mp3",
+      "title": "marjorie",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 13,
+      "duration": 257.8,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/13.%20Mastermind.mp3",
+      "title": "Mastermind",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 13,
+      "duration": 191,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/13.%20Me%21.mp3",
+      "title": "Me!",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 2",
+      "num": 13,
+      "duration": 193,
+      "art": "assets/art/evermore.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/13.%20The%20Lucky%20One%20%28Taylor%27s%20Version%29.mp3",
+      "title": "The Lucky One (Taylor's Version)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 13,
+      "duration": 240.5,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/14%20-%20You%20Need%20To%20Calm%20Down.mp3",
+      "title": "You Need To Calm Down",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 2",
+      "num": 14,
+      "duration": 171.4,
+      "art": "assets/art/evermore.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/14%20betty.mp3",
+      "title": "betty",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 14,
+      "duration": 294.5,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/14%20Call%20It%20What%20You%20Want.mp3",
+      "title": "Call It What You Want",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 14,
+      "duration": 203.5,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/14%20Wonderland.mp3",
+      "title": "Wonderland",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 14,
+      "duration": 245.6,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/14.%20closure.mp3",
+      "title": "closure",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 14,
+      "duration": 180.7,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/14.%20Everything%20Has%20Changed%20%28Taylor%27s%20Version%29.mp3",
+      "title": "Everything Has Changed (Taylor's Version)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 14,
+      "duration": 245.4,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/14.%20Meet%20me%20at%20midnight.mp3",
+      "title": "Meet me at midnight",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 14,
+      "duration": 9.4,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/14.%20The%20Smallest%20Man%20Who%20Ever%20Lived.mp3",
+      "title": "The Smallest Man Who Ever Lived",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 14,
+      "duration": 245.6,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/15%20-%20Afterglow.mp3",
+      "title": "Afterglow",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 15,
+      "duration": 223.3,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/15%20New%20Year%27s%20Day.mp3",
+      "title": "New Year's Day",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 15,
+      "duration": 235.2,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/15%20peace.mp3",
+      "title": "peace",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 15,
+      "duration": 234,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/15%20You%20Are%20In%20Love.mp3",
+      "title": "You Are In Love",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 15,
+      "duration": 267.1,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/15.%20evermore%20%28feat.%20Bon%20Iver%29.mp3",
+      "title": "evermore (feat. Bon Iver)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 15,
+      "duration": 304.1,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/15.%20Starlight%20%28Taylor%27s%20Version%29.mp3",
+      "title": "Starlight (Taylor's Version)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 15,
+      "duration": 220.4,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/15.%20The%20Alchemy.mp3",
+      "title": "The Alchemy",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 1",
+      "num": 15,
+      "duration": 196.9,
+      "art": "assets/art/1989.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/15.%20Wildest%20Dreams%20%28Taylor%27s%20Version%29.mp3",
+      "title": "Wildest Dreams (Taylor's Version)",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 2",
+      "num": 15,
+      "duration": 220.4,
+      "art": "assets/art/evermore.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/16%20-%20ME%21%20%28feat.%20Brendon%20Urie%20of%20Panic%21%20At%20The%20Disco%29.mp3",
+      "title": "ME! (feat. Brendon Urie of Panic! At The Disco)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 16,
+      "duration": 193,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/16%20hoax.mp3",
+      "title": "hoax",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 16,
+      "duration": 220,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/16%20New%20Romantics.mp3",
+      "title": "New Romantics",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 16,
+      "duration": 230.5,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/16.%20Begin%20Again%20%28Taylor%27s%20Version%29.mp3",
+      "title": "Begin Again (Taylor's Version)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 16,
+      "duration": 238.8,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/16.%20Clara%20Bow.mp3",
+      "title": "Clara Bow",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 16,
+      "duration": 216.7,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/17%20-%20It%E2%80%99s%20Nice%20To%20Have%20A%20Friend.mp3",
+      "title": "It’s Nice To Have A Friend",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 17,
+      "duration": 150.4,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/17%20I%20Know%20Places%20-%20Voice%20Memos.mp3",
+      "title": "I Know Places - Voice Memos",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 17,
+      "duration": 216.3,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/17.%20The%20Black%20Dog.mp3",
+      "title": "The Black Dog",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 17,
+      "duration": 238.9,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/17.%20The%20Moment%20I%20Knew%20%28Taylor%27s%20Version%29.mp3",
+      "title": "The Moment I Knew (Taylor's Version)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 17,
+      "duration": 285.3,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/18%20-%20Daylight.mp3",
+      "title": "Daylight",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 18,
+      "duration": 293.5,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/18%20I%20Wish%20You%20Would%20-%20Voice%20Memos.mp3",
+      "title": "I Wish You Would - Voice Memos",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 18,
+      "duration": 107.1,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/18.%20Come%20Back...Be%20Here%20%28Taylor%27s%20Version%29.mp3",
+      "title": "Come Back...Be Here (Taylor's Version)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 18,
+      "duration": 223.3,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/18.%20imgonnagetyouback.mp3",
+      "title": "imgonnagetyouback",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 18,
+      "duration": 222.1,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/19%20Blank%20Space%20-%20Voice%20Memos.mp3",
+      "title": "Blank Space - Voice Memos",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 19,
+      "duration": 131.2,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/19.%20Girl%20At%20Home%20%28Taylor%27s%20Version%29.mp3",
+      "title": "Girl At Home (Taylor's Version)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 19,
+      "duration": 220.5,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/19.%20The%20Albatross.mp3",
+      "title": "The Albatross",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 19,
+      "duration": 183.9,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/20.%20Chloe%20or%20Sam%20or%20Sophia%20or%20Marcus.mp3",
+      "title": "Chloe or Sam or Sophia or Marcus",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 20,
+      "duration": 213.3,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/20.%20State%20Of%20Grace%20%28Acoustic%20Version%29%20%28Taylor%27s%20Version%29.mp3",
+      "title": "State Of Grace (Acoustic Version) (Taylor's Version)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 20,
+      "duration": 321.6,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/21.%20How%20Did%20It%20End_.mp3",
+      "title": "How Did It End",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 21,
+      "duration": 238.7,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/21.%20Ronan%20%28Taylor%27s%20Version%29.mp3",
+      "title": "Ronan (Taylor's Version)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 21,
+      "duration": 264.3,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/22.%20Better%20Man%20%28Taylor%27s%20Version%29%20%28From%20The%20Vault%29.mp3",
+      "title": "Better Man (Taylor's Version) (From The Vault)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 22,
+      "duration": 297,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/22.%20So%20High%20School.mp3",
+      "title": "So High School",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 22,
+      "duration": 228.8,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/23.%20I%20Hate%20It%20Here.mp3",
+      "title": "I Hate It Here",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 23,
+      "duration": 243.9,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/23.%20Nothing%20New%20%28Taylor%27s%20Version%29%20%28From%20The%20Vault%29.mp3",
+      "title": "Nothing New (Taylor's Version) (From The Vault)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 23,
+      "duration": 258.8,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/24.%20Babe%20%28Taylor%27s%20Version%29%20%28From%20The%20Vault%29.mp3",
+      "title": "Babe (Taylor's Version) (From The Vault)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 24,
+      "duration": 224.2,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/24.%20thanK%20you%20aIMee.mp3",
+      "title": "thanK you aIMee",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 24,
+      "duration": 263.9,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/25.%20I%20Look%20in%20People%27s%20Windows.mp3",
+      "title": "I Look in People's Windows",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 25,
+      "duration": 131.9,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/25.%20Message%20In%20A%20Bottle%20%28Taylor%27s%20Version%29%20%28From%20The%20Vault%29.mp3",
+      "title": "Message In A Bottle (Taylor's Version) (From The Vault)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 25,
+      "duration": 226,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/26.%20I%20Bet%20You%20Think%20About%20Me%20%28Taylor%27s%20Version%29%20%28From%20The%20Vault%29.mp3",
+      "title": "I Bet You Think About Me (Taylor's Version) (From The Vault)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 26,
+      "duration": 285.1,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/26.%20The%20Prophecy.mp3",
+      "title": "The Prophecy",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 26,
+      "duration": 249.8,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/27.%20Cassandra.mp3",
+      "title": "Cassandra",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 27,
+      "duration": 240.2,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/27.%20Forever%20Winter%20%28Taylor%27s%20Version%29%20%28From%20The%20Vault%29.mp3",
+      "title": "Forever Winter (Taylor's Version) (From The Vault)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 27,
+      "duration": 263.5,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/28.%20Peter.mp3",
+      "title": "Peter",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 28,
+      "duration": 284,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/28.%20Run%20%28Taylor%27s%20Version%29%20%28From%20The%20Vault%29.mp3",
+      "title": "Run (Taylor's Version) (From The Vault)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 28,
+      "duration": 240.2,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/29.%20The%20Bolter.mp3",
+      "title": "The Bolter",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 29,
+      "duration": 238.3,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/29.%20The%20Very%20First%20Night%20%28Taylor%27s%20Version%29%20%28From%20The%20Vault%29.mp3",
+      "title": "The Very First Night (Taylor's Version) (From The Vault)",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 29,
+      "duration": 200.3,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/30.%20All%20Too%20Well%20%2810%20Minute%20Version%29%20%28Taylor%27s%20Version%29%20%28From%20The%20Vault%29.mp3",
+      "title": "All Too Well (10 Minute Version) (Taylor's Version) (From The Vault)",
+      "artist": "Taylor Swift",
+      "album": "Essentials, Vol. 2",
+      "num": 30,
+      "duration": 613,
+      "art": "assets/art/evermore.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/30.%20Robin.mp3",
+      "title": "Robin",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 30,
+      "duration": 240.9,
+      "art": "assets/art/reputation.jpg"
+    },
+    {
+      "src": "https://3waagr4fvcbcnpps.public.blob.vercel-storage.com/music/31.%20The%20Manuscript.mp3",
+      "title": "The Manuscript",
+      "artist": "Taylor Swift",
+      "album": "Taylor Swift Collection",
+      "num": 31,
+      "duration": 224.8,
+      "art": "assets/art/reputation.jpg"
+    }
+  ]
+}

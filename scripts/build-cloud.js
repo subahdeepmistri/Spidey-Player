@@ -36,7 +36,7 @@ mkdir(OUT);
 
 const SHELL = [
   'index.html', 'app.js', 'db.js', 'id3.js', 'sw.js', 'style.css',
-  'manifest.json', 'vercel.json', 'package.json'
+  'manifest.json', 'vercel.json'
 ];
 for (const f of SHELL) copyFile(path.join(ROOT, f), path.join(OUT, f));
 copyDir(path.join(ROOT, 'icons'), path.join(OUT, 'icons'));

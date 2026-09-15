@@ -26,9 +26,11 @@ npm-debug.log*
 test-output/
 .vercel
 
-# Cloud staging (96 kbps subset for Vercel size cap)
+# Cloud staging
 .cloud/
+.cloud-audio/
 
 # Temp fixture build artefacts
 test/fixtures/audio/temp/
 test-results/
+.env*

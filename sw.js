@@ -12,7 +12,7 @@
  */
 'use strict';
 
-const VERSION = 'v5';
+const VERSION = 'v6';
 const SHELL_CACHE = 'spidey-shell-' + VERSION;
 const CATALOG_CACHE = 'spidey-catalog-' + VERSION;
 const AUDIO_CACHE = 'spidey-audio-' + VERSION;
@@ -74,6 +74,13 @@ self.addEventListener('fetch', event => {
 
   if (path.startsWith('/assets/music/')) {
     event.respondWith(handleAudio(req));
+    return;
+  }
+
+  // Catalog must be network-first so a library expansion (24 → 177)
+  // is not stuck behind a cache-first hit of the old JSON.
+  if (path === '/assets/catalog.json') {
+    event.respondWith(networkFirst(req, CATALOG_CACHE));
     return;
   }
 

@@ -175,8 +175,12 @@
             </div>
         </main>
 
-        <h2 id="playlist-heading">Playlist</h2>
-        <section id="playlist-panel" class="glass glass-panel panel" aria-labelledby="playlist-heading">
+        <h2 id="playlist-heading" class="sr-only">Playlist</h2>
+        <!-- Backdrop MUST live in this z-10 wrapper with the panel. If it is a
+             sibling of the wrapper (z-40 vs wrapper z-10) it paints ON TOP of
+             the playlist and frosts the text. -->
+        <div id="panel-backdrop" class="panel-backdrop" aria-hidden="true"></div>
+        <section id="playlist-panel" class="glass-panel panel" aria-labelledby="playlist-heading">
             <div class="flex flex-col gap-3 mb-4">
                 <div class="flex justify-between items-center gap-2">
                     <div class="flex items-center gap-2">
@@ -215,9 +219,6 @@
 
     <!-- Screen-reader announcement channel -->
         <p id="sr-status" class="sr-only" aria-live="polite"></p>
-
-        <!-- Mobile playlist backdrop -->
-        <div id="panel-backdrop" class="panel-backdrop" aria-hidden="true"></div>
 
         <!-- Drop overlay -->
         <div id="drop-overlay" class="drop-overlay" aria-hidden="true">
