@@ -46,7 +46,10 @@
   var isShuffle = false;
   var repeatMode = REPEAT_OFF;
 
-  var trackUrl = null;      // object URL for the currently loaded audio
+  var trackUrl = null;      // source URL for the current audio (blob: or static asset)
+  var pendingSeek = 0;      // position to restore once audio metadata is ready
+  var bundled = [];         // static shipped library (from assets/catalog.json)
+  var lastSession = null;   // { uid, pos } saved across reloads
   var dragDepth = 0;        // dragenter/dragleave counter
   var scrubbing = false;
   var rafId = null;
@@ -279,23 +282,37 @@
    * ================================================================== */
 
   /*
-   * Swap the audio element onto a new blob URL.
+   * Swap the audio element onto a new source.
+   *
+   * A source is either an IndexedDB blob (user import) or a static asset URL
+   * (bundled library). For blobs we create a URL and remember it so we can
+   * revoke it; static URLs are never revocable.
    *
    * Order matters: the element must be detached from the previous source
    * BEFORE that source is revoked. Revoking a URL the element is still
    * fetching produces a spurious net::ERR_FILE_NOT_FOUND in the console and
    * can truncate playback.
    */
-  function setTrackUrl(blob) {
+  function setTrackSource(source) {
     if (trackUrl) {
       audio.removeAttribute('src');
       audio.load();                      // aborts any in-flight load
       URL.revokeObjectURL(trackUrl);
       trackUrl = null;
     }
-    if (!blob) return null;
-    trackUrl = URL.createObjectURL(blob);
-    return trackUrl;
+    if (!source) return null;
+    if (source.kind === 'blob' || source instanceof Blob) {
+      trackUrl = URL.createObjectURL(source.kind === 'blob' ? source.data : source);
+      audio.src = trackUrl;
+      audio.load();
+      return trackUrl;
+    }
+    if (source.kind === 'url') {
+      audio.src = source.data;
+      audio.load();
+      return source.data;
+    }
+    return null;
   }
 
   /*
@@ -1590,57 +1607,238 @@
   }
 
   function init() {
-    loadPrefs();
-    updateVolumeUI();
-    updateShuffleUI();
-    updateRepeatUI();
-    updatePlayButton();
-    resizeCanvas();
-    setupMediaSessionActions();
+      loadPrefs();
+      updateVolumeUI();
+      updateShuffleUI();
+      updateRepeatUI();
+      updatePlayButton();
+      resizeCanvas();
+      setupMediaSessionActions();
 
-    // Replace icon placeholders with inline SVGs
-    document.querySelectorAll('.icon-placeholder').forEach(function (node) {
-      var name = node.getAttribute('data-icon');
-      if (name && typeof createIcon === 'function') {
-        var svg = createIcon(name);
-        node.replaceWith(svg);
-      }
-    });
-
-    showLoading();
-
-    window.SpideyDB.open()
-      .then(function (db) {
-        // open() attaches the legacy-migration outcome (if any ran) to its promise.
-        var migration = db.migration;
-        if (migration && migration.skipped && migration.skipped.length > 0) {
-          toast(
-            'Library migration: ' + migration.migrated + ' song' + (migration.migrated !== 1 ? 's' : '') +
-              ' migrated, ' + migration.skipped.length + ' could not be recovered.',
-            'warn', 5000);
+      // Replace icon placeholders with inline SVGs
+      document.querySelectorAll('.icon-placeholder').forEach(function (node) {
+        var name = node.getAttribute('data-icon');
+        if (name && typeof createIcon === 'function') {
+          var svg = createIcon(name);
+          node.replaceWith(svg);
         }
-        return db;
-      })
-      .then(reloadLibrary)
-      .then(function () { return window.SpideyDB.requestPersistence(); })
-      .then(function (persisted) {
-        // An honest, one-time signal: the browser declined to guarantee storage.
-        if (!persisted) {
-          toast('Your library is stored locally and may be evicted by the browser under storage pressure.', 'info', 6000);
-        }
-        return persisted;
-      })
-      .then(refreshStorage)
-      .catch(function (err) {
-        showRecoverableError(err.message || 'The local library could not be opened.');
       });
-  }
+
+      // PWA: Handle install prompt
+      setupInstallPrompt();
+
+      // PWA: Detect if running as installed app
+      checkInstalledMode();
+
+      // PWA: Handle online/offline
+      setupNetworkStatus();
+
+      // PWA: Handle SW updates
+      setupSWUpdateListener();
+
+      // PWA: Handle URL shortcuts
+      handleShortcutActions();
+
+      // PWA: Screen wake lock for playback
+      setupWakeLock();
+
+      showLoading();
+
+      window.SpideyDB.open()
+        .then(function (db) {
+          // open() attaches the legacy-migration outcome (if any ran) to its promise.
+          var migration = db.migration;
+          if (migration && migration.skipped && migration.skipped.length > 0) {
+            toast(
+              'Library migration: ' + migration.migrated + ' song' + (migration.migrated !== 1 ? 's' : '') +
+                ' migrated, ' + migration.skipped.length + ' could not be recovered.',
+              'warn', 5000);
+          }
+          return db;
+        })
+        .then(reloadLibrary)
+        .then(function () { return window.SpideyDB.requestPersistence(); })
+        .then(function (persisted) {
+          // An honest, one-time signal: the browser declined to guarantee storage.
+          if (!persisted) {
+            toast('Your library is stored locally and may be evicted by the browser under storage pressure.', 'info', 6000);
+          }
+          return persisted;
+        })
+        .then(refreshStorage)
+        .catch(function (err) {
+          showRecoverableError(err.message || 'The local library could not be opened.');
+        });
+    }
 
   // Multi-tab safety: another tab upgraded the database under us.
-  window.onSpideyDBVersionChange = function () {
-    toast('Another tab updated the player database. This page will reload.', 'warn', 0);
-    setTimeout(function () { window.location.reload(); }, 2500);
-  };
+    window.onSpideyDBVersionChange = function () {
+      toast('Another tab updated the player database. This page will reload.', 'warn', 0);
+      setTimeout(function () { window.location.reload(); }, 2500);
+    };
 
-  init();
-})();
+    /* ================================================================== *
+     * PWA-specific features
+     * ================================================================== */
+
+    var deferredPrompt = null;
+    var wakeLock = null;
+
+    function setupInstallPrompt() {
+      window.addEventListener('beforeinstallprompt', function (e) {
+        e.preventDefault();
+        deferredPrompt = e;
+
+        // Show custom install button after a delay (not immediately)
+        setTimeout(function () {
+          if (deferredPrompt && !window.matchMedia('(display-mode: standalone)').matches) {
+            toast('Install Spidey Player for offline access and home screen access.', 'info', 8000, {
+              actionLabel: 'Install',
+              action: function () {
+                installApp();
+              }
+            });
+          }
+        }, 10000); // 10 seconds after load
+      });
+
+      window.addEventListener('appinstalled', function () {
+        deferredPrompt = null;
+        toast('Spidey Player installed! 🎉', 'success');
+      });
+    }
+
+    function installApp() {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function (choice) {
+        if (choice.outcome === 'accepted') {
+          toast('Installing...', 'info');
+        }
+        deferredPrompt = null;
+      });
+    }
+
+    function checkInstalledMode() {
+      var isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                         window.navigator.standalone === true;
+      if (isStandalone) {
+        document.body.classList.add('pwa-installed');
+        // Adjust safe area for iOS notch/Dynamic Island
+        document.documentElement.style.setProperty('--safe-top', 'env(safe-area-inset-top)');
+        document.documentElement.style.setProperty('--safe-bottom', 'env(safe-area-inset-bottom)');
+        document.documentElement.style.setProperty('--safe-left', 'env(safe-area-inset-left)');
+        document.documentElement.style.setProperty('--safe-right', 'env(safe-area-inset-right)');
+      }
+    }
+
+    function setupNetworkStatus() {
+      function updateOnlineStatus() {
+        var isOnline = navigator.onLine;
+        document.body.classList.toggle('offline', !isOnline);
+        if (!isOnline) {
+          toast('You are offline. Your library is still available.', 'warn', 0);
+        } else {
+          var existing = document.querySelector('.toast .toast-text');
+          if (existing && existing.textContent.includes('offline')) {
+            // Dismiss the offline toast
+            var toastEl = existing.closest('.toast');
+            if (toastEl && toastEl.dismiss) toastEl.dismiss();
+          }
+          toast('Back online!', 'success', 3000);
+        }
+      }
+      window.addEventListener('online', updateOnlineStatus);
+      window.addEventListener('offline', updateOnlineStatus);
+      // Initial check
+      updateOnlineStatus();
+    }
+
+    function setupSWUpdateListener() {
+      if (!('serviceWorker' in navigator)) return;
+
+      navigator.serviceWorker.addEventListener('controllerchange', function () {
+        if (navigator.serviceWorker.controller) {
+          toast('A new version of Spidey Player is available.', 'info', 0, {
+            actionLabel: 'Reload',
+            action: function () { window.location.reload(); }
+          });
+        }
+      });
+    }
+
+    function handleShortcutActions() {
+      var params = new URLSearchParams(window.location.search);
+      var action = params.get('action');
+
+      // Handle app shortcuts
+      if (action === 'import') {
+        setTimeout(function () {
+          if (el.importBtn) el.importBtn.click();
+        }, 500);
+      } else if (action === 'shuffle') {
+        setTimeout(function () {
+          if (!isShuffle) toggleShuffle();
+          if (tracks.length) {
+            buildOrder(true);
+            loadTrack(0, true);
+          }
+        }, 500);
+      }
+    }
+
+    function setupWakeLock() {
+      // Request wake lock when playing, release when paused
+      var originalPlay = play;
+      var originalPause = pause;
+
+      window.play = function () {
+        originalPlay();
+        requestWakeLock();
+      };
+
+      window.pause = function () {
+        originalPause();
+        releaseWakeLock();
+      };
+
+      // Also handle audio events directly
+      audio.addEventListener('play', requestWakeLock);
+      audio.addEventListener('pause', releaseWakeLock);
+      audio.addEventListener('ended', releaseWakeLock);
+    }
+
+    function requestWakeLock() {
+      if (!('wakeLock' in navigator)) return;
+      if (wakeLock) return;
+
+      navigator.wakeLock.request('screen')
+        .then(function (lock) {
+          wakeLock = lock;
+          wakeLock.addEventListener('release', function () {
+            wakeLock = null;
+          });
+        })
+        .catch(function (err) {
+          // Wake lock denied — not critical
+          console.debug('[PWA] Wake lock denied:', err.name);
+        });
+    }
+
+    function releaseWakeLock() {
+      if (wakeLock) {
+        wakeLock.release().then(function () {
+          wakeLock = null;
+        });
+      }
+    }
+
+    /* Expose PWA helpers globally for debugging */
+    window.SpideyPWA = {
+      install: installApp,
+      isInstalled: function () { return window.matchMedia('(display-mode: standalone)').matches; },
+      wakeLock: { request: requestWakeLock, release: releaseWakeLock }
+    };
+
+    init();
+  })();

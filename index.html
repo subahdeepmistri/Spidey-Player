@@ -4,22 +4,78 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#05060a" />
-        <meta name="description"
-            content="Spidey Player — a cyber-glass web music player. Import local audio, keep your library in the browser, and watch the beat." />
-        <title>Spidey Player 2.0</title>
+    <meta name="theme-color" content="#06b6d4" />
+    <meta name="description"
+        content="Spidey Player — a local-first, privacy-respecting music player. Import local audio, keep your library in the browser, and watch the beat." />
+    <title>Spidey Player 2.0</title>
 
-        <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json" />
 
-        <!-- Tailwind is compiled to a static file by `npm run build:css`.
-             The CDN runtime build is deliberately not used: it cannot be cached
-             for production and logs a warning on every page load. -->
-        <link rel="stylesheet" href="dist/tailwind.css" />
-        <link rel="stylesheet" href="style.css" />
+    <!-- Icons for various platforms -->
+    <link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png" />
+    <link rel="icon" href="icons/icon-512.png" sizes="512x512" type="image/png" />
+    <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <link rel="mask-icon" href="icons/icon-192.png" color="#06b6d4" />
+
+    <!-- Apple PWA meta tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Spidey Player" />
+    <meta name="mobile-web-app-capable" content="yes" />
+
+    <!-- Microsoft PWA -->
+    <meta name="msapplication-TileColor" content="#06b6d4" />
+    <meta name="msapplication-TileImage" content="icons/icon-144.png" />
+
+    <!-- Tailwind is compiled to a static file by `npm run build:css`.
+         The CDN runtime build is deliberately not used: it cannot be cached
+         for production and logs a warning on every page load. -->
+    <link rel="stylesheet" href="dist/tailwind.css" />
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- Service Worker Registration -->
+        <script>
+          if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+              navigator.serviceWorker.register('sw.js')
+                .then(reg => {
+                  console.log('[SW] Registered:', reg.scope);
+                  // Check for updates periodically
+                  setInterval(() => reg.update(), 1000 * 60 * 60); // hourly
+                })
+                .catch(err => console.warn('[SW] Registration failed:', err));
+            });
+          }
+        </script>
     </head>
 
-<body class="text-gray-100 min-h-screen flex items-start md:items-center justify-center p-4">
-    <a class="skip-link" href="#main-content">Skip to main content</a>
+    <body class="text-gray-100 min-h-screen flex items-start md:items-center justify-center p-4">
+        <!-- PWA Splash Screen -->
+        <div id="pwa-splash" aria-hidden="true">
+          <div class="spinner" aria-hidden="true"></div>
+          <p>Loading Spidey Player…</p>
+        </div>
+
+        <!-- iOS Install Banner -->
+        <div class="ios-install-banner" id="ios-install-banner" role="dialog" aria-label="Install Spidey Player">
+          <div class="banner-content">
+            <div class="banner-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+            </div>
+            <div class="banner-text">
+              <strong>Install Spidey Player</strong>
+              Tap <strong>Share</strong> → <strong>Add to Home Screen</strong>
+            </div>
+            <button class="banner-close" id="ios-banner-close" aria-label="Dismiss">Not now</button>
+          </div>
+        </div>
+
+        <a class="skip-link" href="#main-content">Skip to main content</a>
 
     <!-- Animated Background -->
     <div class="bg-animate" aria-hidden="true">
