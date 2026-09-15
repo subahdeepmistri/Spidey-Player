@@ -185,10 +185,22 @@ function build() {
     return track;
   });
 
-  // Album art: one SVG per distinct album.
+  // Album art: prefer a real JPEG if apply-covers.js has placed one.
+  const JPEG_BY_ALBUM = {
+    'The Life Of A Showgirl': 'tloas.jpg',
+    'Essentials, Vol. 1': '1989.jpg',
+    'Essentials, Vol. 2': 'evermore.jpg',
+    'Taylor Swift Collection': 'reputation.jpg'
+  };
   const albums = [...new Set(tracks.map(t => t.album))];
   const artFiles = new Map();
   for (const a of albums) {
+    const jpegName = JPEG_BY_ALBUM[a];
+    const jpeg = jpegName && path.join(ART_DIR, jpegName);
+    if (jpeg && fs.existsSync(jpeg)) {
+      artFiles.set(a, 'assets/art/' + jpegName);
+      continue;
+    }
     const file = path.join(ART_DIR, slugify(a) + '.svg');
     renderAlbumArt(file, a, COLLECTION);
     artFiles.set(a, 'assets/art/' + encodeURIComponent(path.basename(file)));

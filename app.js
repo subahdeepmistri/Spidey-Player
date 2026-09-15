@@ -1402,30 +1402,33 @@
       tracks = bundledTracks.concat(imported);
 
       var sess = loadSession();
+      var startPos = 0;
 
       if (playingUid) {
-        // A track was already selected in this session (e.g. a re-import):
-        // keep it, and restore its remembered position if one exists.
+        // A track was already selected this session (e.g. after a re-import):
+        // keep it, restoring its remembered position if one exists.
         var at = tracks.findIndex(function (t) { return t.uid === playingUid; });
         currentTrack = at;
-        var pos = 0;
-        if (sess && sess.uid === playingUid) pos = sess.pos || 0;
-        if (at >= 0) loadTrack(at, false, pos);
+        if (sess && sess.uid === playingUid) startPos = sess.pos || 0;
       } else if (sess) {
         // Fresh boot: resume the last-played track at its remembered position.
         var res = tracks.findIndex(function (t) { return t.uid === sess.uid; });
         if (res >= 0) {
           currentTrack = res;
-          buildOrder(true);
-          renderPlaylist(el.search.value);
-          loadTrack(res, false, sess.pos || 0);
-          return tracks;
+          startPos = sess.pos || 0;
         }
       }
 
+      buildOrder(true);
+      renderPlaylist(el.search.value);
+
       if (currentTrack < 0 && tracks.length) {
-        // No remembered session: queue the opening track without autoplay.
-        loadTrack(0, false);
+        // Nothing selected and no remembered session: queue the opening track.
+        currentTrack = 0;
+      }
+      if (currentTrack >= 0) {
+        loadTrack(currentTrack, false, startPos);
+        startPos = 0;
       }
       return tracks;
     });
@@ -1873,25 +1876,20 @@
       window.addEventListener('beforeinstallprompt', function (e) {
         e.preventDefault();
         deferredPrompt = e;
-        // Android/Chrome: surface the install affordance once, not every load.
-        if (!localStorage.getItem('spidey.install-offer.v1')) {
-          setTimeout(function () {
-            if (deferredPrompt && !window.matchMedia('(display-mode: standalone)').matches) {
-              toast('Install Spidey Player for offline access and home screen access.', 'info', 12000, {
-                actionLabel: 'Install',
-                action: function () {
-                  installApp();
-                }
-              });
-            }
-            localStorage.setItem('spidey.install-offer.v1', '1');
-          }, 6000);
-        }
+        var btn = document.getElementById('pwa-install-btn');
+        if (btn) btn.hidden = false;
       });
+
+      var installBtn = document.getElementById('pwa-install-btn');
+      if (installBtn) {
+        installBtn.addEventListener('click', function () { installApp(); });
+      }
 
       window.addEventListener('appinstalled', function () {
         deferredPrompt = null;
         hideIosBanner();
+        var btn = document.getElementById('pwa-install-btn');
+        if (btn) btn.hidden = true;
         toast('Spidey Player installed!', 'success');
       });
 
@@ -1930,9 +1928,11 @@
       deferredPrompt.prompt();
       deferredPrompt.userChoice.then(function (choice) {
         if (choice.outcome === 'accepted') {
-          toast('Installing...', 'info');
+          toast('Installing…', 'info');
         }
         deferredPrompt = null;
+        var btn = document.getElementById('pwa-install-btn');
+        if (btn) btn.hidden = true;
       });
     }
 
@@ -2049,11 +2049,14 @@
     }
 
     /* Expose PWA helpers globally for debugging */
-    window.SpideyPWA = {
-      install: installApp,
-      isInstalled: function () { return window.matchMedia('(display-mode: standalone)').matches; },
-      wakeLock: { request: requestWakeLock, release: releaseWakeLock }
-    };
+      window.SpideyPWA = {
+        install: installApp,
+        isInstalled: function () { return window.matchMedia('(display-mode: standalone)').matches; },
+        wakeLock: { request: requestWakeLock, release: releaseWakeLock }
+      };
+
+      // Expose the audio element for tests / devtools (not in the DOM).
+      window.SpideyAudio = audio;
 
     init();
   })();

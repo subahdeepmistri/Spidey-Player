@@ -10,7 +10,7 @@
       "album": "Taylor Swift Collection",
       "num": 1,
       "duration": 208.2,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/01%20-%20I%20Forgot%20That%20You%20Existed.mp3",
@@ -19,7 +19,7 @@
       "album": "Taylor Swift Collection",
       "num": 1,
       "duration": 170.6,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/01%20-%20The%20Fate%20Of%20Ophelia%20-%20Taylor%20Swift.mp3",
@@ -28,7 +28,7 @@
       "album": "The Life Of A Showgirl",
       "num": 1,
       "duration": 226.1,
-      "art": "assets/art/the-life-of-a-showgirl.svg"
+      "art": "assets/art/tloas.jpg"
     },
     {
       "src": "assets/music/01%20the%201.mp3",
@@ -37,7 +37,7 @@
       "album": "Taylor Swift Collection",
       "num": 1,
       "duration": 210.3,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/01%20Welcome%20To%20New%20York.mp3",
@@ -46,7 +46,7 @@
       "album": "Taylor Swift Collection",
       "num": 1,
       "duration": 212.6,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/01.%20Fortnight.mp3",
@@ -55,7 +55,7 @@
       "album": "Essentials, Vol. 1",
       "num": 1,
       "duration": 229,
-      "art": "assets/art/essentials-vol-1.svg"
+      "art": "assets/art/1989.jpg"
     },
     {
       "src": "assets/music/01.%20Lavender%20Haze.mp3",
@@ -64,7 +64,7 @@
       "album": "Essentials, Vol. 1",
       "num": 1,
       "duration": 202.4,
-      "art": "assets/art/essentials-vol-1.svg"
+      "art": "assets/art/1989.jpg"
     },
     {
       "src": "assets/music/01.%20State%20Of%20Grace%20(Taylor's%20Version).mp3",
@@ -73,7 +73,7 @@
       "album": "Taylor Swift Collection",
       "num": 1,
       "duration": 295.4,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/01.%20willow.mp3",
@@ -82,7 +82,7 @@
       "album": "Essentials, Vol. 2",
       "num": 1,
       "duration": 214.7,
-      "art": "assets/art/essentials-vol-2.svg"
+      "art": "assets/art/evermore.jpg"
     },
     {
       "src": "assets/music/02%20-%20Cruel%20Summer.mp3",
@@ -91,7 +91,7 @@
       "album": "Essentials, Vol. 1",
       "num": 2,
       "duration": 178.4,
-      "art": "assets/art/essentials-vol-1.svg"
+      "art": "assets/art/1989.jpg"
     },
     {
       "src": "assets/music/02%20-%20Elizabeth%20Taylor%20-%20Taylor%20Swift.mp3",
@@ -100,7 +100,7 @@
       "album": "The Life Of A Showgirl",
       "num": 2,
       "duration": 208.3,
-      "art": "assets/art/the-life-of-a-showgirl.svg"
+      "art": "assets/art/tloas.jpg"
     },
     {
       "src": "assets/music/02%20Blank%20Space.mp3",
@@ -109,7 +109,7 @@
       "album": "Essentials, Vol. 1",
       "num": 2,
       "duration": 231.8,
-      "art": "assets/art/essentials-vol-1.svg"
+      "art": "assets/art/1989.jpg"
     },
     {
       "src": "assets/music/02%20cardigan.mp3",
@@ -118,7 +118,7 @@
       "album": "Essentials, Vol. 2",
       "num": 2,
       "duration": 239.6,
-      "art": "assets/art/essentials-vol-2.svg"
+      "art": "assets/art/evermore.jpg"
     },
     {
       "src": "assets/music/2%20End%20Game.mp3",
@@ -127,7 +127,7 @@
       "album": "Taylor Swift Collection",
       "num": 2,
       "duration": 244.6,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/02.%20champagne%20problems.mp3",
@@ -136,7 +136,7 @@
       "album": "Essentials, Vol. 2",
       "num": 2,
       "duration": 244,
-      "art": "assets/art/essentials-vol-2.svg"
+      "art": "assets/art/evermore.jpg"
     },
     {
       "src": "assets/music/02.%20Maroon.mp3",
@@ -145,7 +145,7 @@
       "album": "Taylor Swift Collection",
       "num": 2,
       "duration": 218.3,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/02.%20Red%20(Taylor's%20Version).mp3",
@@ -154,7 +154,7 @@
       "album": "Essentials, Vol. 1",
       "num": 2,
       "duration": 223.1,
-      "art": "assets/art/essentials-vol-1.svg"
+      "art": "assets/art/1989.jpg"
     },
     {
       "src": "assets/music/02.%20The%20Tortured%20Poets%20Department.mp3",
@@ -163,7 +163,7 @@
       "album": "Taylor Swift Collection",
       "num": 2,
       "duration": 293.1,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/03%20-%20Lover.mp3",
@@ -172,7 +172,7 @@
       "album": "Essentials, Vol. 2",
       "num": 3,
       "duration": 221.3,
-      "art": "assets/art/essentials-vol-2.svg"
+      "art": "assets/art/evermore.jpg"
     },
     {
       "src": "assets/music/03%20-%20Opalite%20-%20Taylor%20Swift.mp3",
@@ -181,7 +181,7 @@
       "album": "The Life Of A Showgirl",
       "num": 3,
       "duration": 235.4,
-      "art": "assets/art/the-life-of-a-showgirl.svg"
+      "art": "assets/art/tloas.jpg"
     },
     {
       "src": "assets/music/3%20I%20Did%20Something%20Bad.mp3",
@@ -190,7 +190,7 @@
       "album": "Taylor Swift Collection",
       "num": 3,
       "duration": 238,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/03%20Style.mp3",
@@ -199,7 +199,7 @@
       "album": "Taylor Swift Collection",
       "num": 3,
       "duration": 231,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/03%20the%20last%20great%20american%20dynasty.mp3",
@@ -208,7 +208,7 @@
       "album": "Taylor Swift Collection",
       "num": 3,
       "duration": 231,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/03.%20Anti-Hero.mp3",
@@ -217,7 +217,7 @@
       "album": "Essentials, Vol. 1",
       "num": 3,
       "duration": 200.7,
-      "art": "assets/art/essentials-vol-1.svg"
+      "art": "assets/art/1989.jpg"
     },
     {
       "src": "assets/music/03.%20gold%20rush.mp3",
@@ -226,7 +226,7 @@
       "album": "Taylor Swift Collection",
       "num": 3,
       "duration": 185.3,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/03.%20My%20Boy%20Only%20Breaks%20His%20Favorite%20Toys.mp3",
@@ -235,7 +235,7 @@
       "album": "Taylor Swift Collection",
       "num": 3,
       "duration": 203.8,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/03.%20Treacherous%20(Taylor's%20Version).mp3",
@@ -244,7 +244,7 @@
       "album": "Taylor Swift Collection",
       "num": 3,
       "duration": 242.7,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/04%20-%20Father%20Figure%20-%20Taylor%20Swift.mp3",
@@ -253,7 +253,7 @@
       "album": "The Life Of A Showgirl",
       "num": 4,
       "duration": 212.8,
-      "art": "assets/art/the-life-of-a-showgirl.svg"
+      "art": "assets/art/tloas.jpg"
     },
     {
       "src": "assets/music/04%20-%20The%20Man.mp3",
@@ -262,7 +262,7 @@
       "album": "Taylor Swift Collection",
       "num": 4,
       "duration": 190.4,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/4%20Don't%20Blame%20Me.mp3",
@@ -271,7 +271,7 @@
       "album": "Taylor Swift Collection",
       "num": 4,
       "duration": 236.2,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/04%20exile.mp3",
@@ -280,7 +280,7 @@
       "album": "Taylor Swift Collection",
       "num": 4,
       "duration": 285.6,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/04%20Out%20Of%20The%20Woods.mp3",
@@ -289,7 +289,7 @@
       "album": "Taylor Swift Collection",
       "num": 4,
       "duration": 235.8,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/04.%20%E2%80%98tis%20the%20damn%20season.mp3",
@@ -298,7 +298,7 @@
       "album": "Taylor Swift Collection",
       "num": 4,
       "duration": 229.8,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/04.%20Down%20Bad.mp3",
@@ -307,7 +307,7 @@
       "album": "Essentials, Vol. 1",
       "num": 4,
       "duration": 261.3,
-      "art": "assets/art/essentials-vol-1.svg"
+      "art": "assets/art/1989.jpg"
     },
     {
       "src": "assets/music/04.%20I%20Knew%20You%20Were%20Trouble%20(Taylor's%20Version).mp3",
@@ -316,7 +316,7 @@
       "album": "Essentials, Vol. 2",
       "num": 4,
       "duration": 219.8,
-      "art": "assets/art/essentials-vol-2.svg"
+      "art": "assets/art/evermore.jpg"
     },
     {
       "src": "assets/music/04.%20Snow%20On%20The%20Beach.mp3",
@@ -325,7 +325,7 @@
       "album": "Taylor Swift Collection",
       "num": 4,
       "duration": 256.1,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/05%20-%20Eldest%20Daughter%20-%20Taylor%20Swift.mp3",
@@ -334,7 +334,7 @@
       "album": "The Life Of A Showgirl",
       "num": 5,
       "duration": 246.4,
-      "art": "assets/art/the-life-of-a-showgirl.svg"
+      "art": "assets/art/tloas.jpg"
     },
     {
       "src": "assets/music/05%20-%20The%20Archer.mp3",
@@ -343,7 +343,7 @@
       "album": "Taylor Swift Collection",
       "num": 5,
       "duration": 211.2,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/05%20All%20You%20Had%20To%20Do%20Was%20Stay.mp3",
@@ -352,7 +352,7 @@
       "album": "Taylor Swift Collection",
       "num": 5,
       "duration": 193.3,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/5%20Delicate.mp3",
@@ -361,7 +361,7 @@
       "album": "Taylor Swift Collection",
       "num": 5,
       "duration": 232,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/05%20my%20tears%20ricochet.mp3",
@@ -370,7 +370,7 @@
       "album": "Taylor Swift Collection",
       "num": 5,
       "duration": 255.9,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/05.%20All%20Too%20Well%20(Taylor's%20Version).mp3",
@@ -379,7 +379,7 @@
       "album": "Essentials, Vol. 2",
       "num": 5,
       "duration": 329.2,
-      "art": "assets/art/essentials-vol-2.svg"
+      "art": "assets/art/evermore.jpg"
     },
     {
       "src": "assets/music/05.%20Back%20To%20December%20(Taylor's%20Version).mp3",
@@ -388,7 +388,7 @@
       "album": "Essentials, Vol. 2",
       "num": 5,
       "duration": 294.2,
-      "art": "assets/art/essentials-vol-2.svg"
+      "art": "assets/art/evermore.jpg"
     },
     {
       "src": "assets/music/05.%20Florida!!!.mp3",
@@ -397,7 +397,7 @@
       "album": "Essentials, Vol. 1",
       "num": 5,
       "duration": 215.5,
-      "art": "assets/art/essentials-vol-1.svg"
+      "art": "assets/art/1989.jpg"
     },
     {
       "src": "assets/music/05.%20So%20Long%2C%20London.mp3",
@@ -406,7 +406,7 @@
       "album": "Taylor Swift Collection",
       "num": 5,
       "duration": 263,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/05.%20tolerate%20it.mp3",
@@ -415,7 +415,7 @@
       "album": "Taylor Swift Collection",
       "num": 5,
       "duration": 245.4,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/05.%20You're%20On%20Your%20Own%2C%20Kid.mp3",
@@ -424,7 +424,7 @@
       "album": "Taylor Swift Collection",
       "num": 5,
       "duration": 194.2,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/06%20-%20I%20Think%20He%20Knows.mp3",
@@ -433,7 +433,7 @@
       "album": "Taylor Swift Collection",
       "num": 6,
       "duration": 173.4,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/06%20-%20Ruin%20The%20Friendship%20-%20Taylor%20Swift.mp3",
@@ -442,7 +442,7 @@
       "album": "The Life Of A Showgirl",
       "num": 6,
       "duration": 220.6,
-      "art": "assets/art/the-life-of-a-showgirl.svg"
+      "art": "assets/art/tloas.jpg"
     },
     {
       "src": "assets/music/6%20Look%20What%20You%20Made%20Me%20Do.mp3",
@@ -451,7 +451,7 @@
       "album": "Essentials, Vol. 2",
       "num": 6,
       "duration": 211.9,
-      "art": "assets/art/essentials-vol-2.svg"
+      "art": "assets/art/evermore.jpg"
     },
     {
       "src": "assets/music/06%20mirrorball.mp3",
@@ -460,7 +460,7 @@
       "album": "Taylor Swift Collection",
       "num": 6,
       "duration": 209,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/06%20Shake%20It%20Off.mp3",
@@ -469,7 +469,7 @@
       "album": "Essentials, Vol. 1",
       "num": 6,
       "duration": 219.2,
-      "art": "assets/art/essentials-vol-1.svg"
+      "art": "assets/art/1989.jpg"
     },
     {
       "src": "assets/music/06.%2022%20(Taylor's%20Version).mp3",
@@ -478,7 +478,7 @@
       "album": "Essentials, Vol. 1",
       "num": 6,
       "duration": 231,
-      "art": "assets/art/essentials-vol-1.svg"
+      "art": "assets/art/1989.jpg"
     },
     {
       "src": "assets/music/06.%20But%20Daddy%20I%20Love%20Him.mp3",
@@ -487,7 +487,7 @@
       "album": "Essentials, Vol. 1",
       "num": 6,
       "duration": 340.5,
-      "art": "assets/art/essentials-vol-1.svg"
+      "art": "assets/art/1989.jpg"
     },
     {
       "src": "assets/music/06.%20Midnight%20Rain.mp3",
@@ -496,7 +496,7 @@
       "album": "Taylor Swift Collection",
       "num": 6,
       "duration": 174.8,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/06.%20no%20body%2C%20no%20crime%20(feat.%20HAIM).mp3",
@@ -505,7 +505,7 @@
       "album": "Taylor Swift Collection",
       "num": 6,
       "duration": 215.6,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/06.%20You%20Belong%20With%20Me%20(Taylor's%20Version).mp3",
@@ -514,7 +514,7 @@
       "album": "Essentials, Vol. 1",
       "num": 6,
       "duration": 231.1,
-      "art": "assets/art/essentials-vol-1.svg"
+      "art": "assets/art/1989.jpg"
     },
     {
       "src": "assets/music/07%20-%20Actually%20Romantic%20-%20Taylor%20Swift.mp3",
@@ -523,7 +523,7 @@
       "album": "The Life Of A Showgirl",
       "num": 7,
       "duration": 163.7,
-      "art": "assets/art/the-life-of-a-showgirl.svg"
+      "art": "assets/art/tloas.jpg"
     },
     {
       "src": "assets/music/07%20-%20Miss%20Americana%20%26%20The%20Heartbreak%20Prince.mp3",
@@ -532,7 +532,7 @@
       "album": "Taylor Swift Collection",
       "num": 7,
       "duration": 234.1,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/07%20I%20Wish%20You%20Would.mp3",
@@ -541,7 +541,7 @@
       "album": "Taylor Swift Collection",
       "num": 7,
       "duration": 207.4,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/07%20seven.mp3",
@@ -550,7 +550,7 @@
       "album": "Taylor Swift Collection",
       "num": 7,
       "duration": 208.9,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/7%20So%20It%20Goes.mp3",
@@ -559,7 +559,7 @@
       "album": "Taylor Swift Collection",
       "num": 7,
       "duration": 227.7,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/07.%20Fresh%20Out%20The%20Slammer.mp3",
@@ -568,7 +568,7 @@
       "album": "Taylor Swift Collection",
       "num": 7,
       "duration": 210.8,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/07.%20happiness.mp3",
@@ -577,7 +577,7 @@
       "album": "Taylor Swift Collection",
       "num": 7,
       "duration": 315.1,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/07.%20I%20Almost%20Do%20(Taylor's%20Version).mp3",
@@ -586,7 +586,7 @@
       "album": "Taylor Swift Collection",
       "num": 7,
       "duration": 244.6,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/07.%20Question..._.mp3",
@@ -595,7 +595,7 @@
       "album": "Taylor Swift Collection",
       "num": 7,
       "duration": 210.6,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/08%20-%20Paper%20Rings.mp3",
@@ -604,7 +604,7 @@
       "album": "Taylor Swift Collection",
       "num": 8,
       "duration": 222.4,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/08%20-%20Wi%24h%20Li%24t%20-%20Taylor%20Swift.mp3",
@@ -613,7 +613,7 @@
       "album": "Taylor Swift Collection",
       "num": 8,
       "duration": 207.3,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/08%20august.mp3",
@@ -622,7 +622,7 @@
       "album": "Taylor Swift Collection",
       "num": 8,
       "duration": 261.9,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/08%20Bad%20Blood.mp3",
@@ -631,7 +631,7 @@
       "album": "Essentials, Vol. 2",
       "num": 8,
       "duration": 211.9,
-      "art": "assets/art/essentials-vol-2.svg"
+      "art": "assets/art/evermore.jpg"
     },
     {
       "src": "assets/music/8%20Gorgeous.mp3",
@@ -640,7 +640,7 @@
       "album": "Taylor Swift Collection",
       "num": 8,
       "duration": 209.7,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/08.%20dorothea.mp3",
@@ -649,7 +649,7 @@
       "album": "Taylor Swift Collection",
       "num": 8,
       "duration": 225.9,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/08.%20Shake%20It%20Off%20(Taylor's%20Version).mp3",
@@ -658,7 +658,7 @@
       "album": "Essentials, Vol. 1",
       "num": 8,
       "duration": 219.2,
-      "art": "assets/art/essentials-vol-1.svg"
+      "art": "assets/art/1989.jpg"
     },
     {
       "src": "assets/music/08.%20Vigilante%20Shit.mp3",
@@ -667,7 +667,7 @@
       "album": "Taylor Swift Collection",
       "num": 8,
       "duration": 164.8,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/08.%20We%20Are%20Never%20Ever%20Getting%20Back%20Together%20(Taylor's%20Version).mp3",
@@ -676,7 +676,7 @@
       "album": "Essentials, Vol. 2",
       "num": 8,
       "duration": 193.1,
-      "art": "assets/art/essentials-vol-2.svg"
+      "art": "assets/art/evermore.jpg"
     },
     {
       "src": "assets/music/09%20-%20Cornelia%20Street.mp3",
@@ -685,7 +685,7 @@
       "album": "Taylor Swift Collection",
       "num": 9,
       "duration": 287.3,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/09%20-%20Wood%20-%20Taylor%20Swift.mp3",
@@ -694,7 +694,7 @@
       "album": "The Life Of A Showgirl",
       "num": 9,
       "duration": 150.5,
-      "art": "assets/art/the-life-of-a-showgirl.svg"
+      "art": "assets/art/tloas.jpg"
     },
     {
       "src": "assets/music/9%20Getaway%20Car.mp3",
@@ -703,7 +703,7 @@
       "album": "Taylor Swift Collection",
       "num": 9,
       "duration": 233.4,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/09%20this%20is%20me%20trying.mp3",
@@ -712,7 +712,7 @@
       "album": "Taylor Swift Collection",
       "num": 9,
       "duration": 195.1,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/09%20Wildest%20Dreams.mp3",
@@ -721,7 +721,7 @@
       "album": "Essentials, Vol. 2",
       "num": 9,
       "duration": 220.4,
-      "art": "assets/art/essentials-vol-2.svg"
+      "art": "assets/art/evermore.jpg"
     },
     {
       "src": "assets/music/09.%20Bejeweled.mp3",
@@ -730,7 +730,7 @@
       "album": "Taylor Swift Collection",
       "num": 9,
       "duration": 194.2,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/09.%20coney%20island%20(feat.%20The%20National).mp3",
@@ -739,7 +739,7 @@
       "album": "Taylor Swift Collection",
       "num": 9,
       "duration": 275.3,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/09.%20Guilty%20as%20Sin_.mp3",
@@ -748,7 +748,7 @@
       "album": "Taylor Swift Collection",
       "num": 9,
       "duration": 254.4,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/09.%20Stay%20Stay%20Stay%20(Taylor's%20Version).mp3",
@@ -757,7 +757,7 @@
       "album": "Taylor Swift Collection",
       "num": 9,
       "duration": 205.8,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/10%20-%20CANCELLED!%20-%20Taylor%20Swift.mp3",
@@ -766,7 +766,7 @@
       "album": "The Life Of A Showgirl",
       "num": 10,
       "duration": 211.5,
-      "art": "assets/art/the-life-of-a-showgirl.svg"
+      "art": "assets/art/tloas.jpg"
     },
     {
       "src": "assets/music/10%20-%20Death%20By%20A%20Thousand%20Cuts.mp3",
@@ -775,7 +775,7 @@
       "album": "Taylor Swift Collection",
       "num": 10,
       "duration": 198.5,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/10%20How%20You%20Get%20The%20Girl.mp3",
@@ -784,7 +784,7 @@
       "album": "Taylor Swift Collection",
       "num": 10,
       "duration": 247.5,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/10%20illicit%20affairs.mp3",
@@ -793,7 +793,7 @@
       "album": "Taylor Swift Collection",
       "num": 10,
       "duration": 190.9,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/10%20King%20Of%20My%20Heart.mp3",
@@ -802,7 +802,7 @@
       "album": "Taylor Swift Collection",
       "num": 10,
       "duration": 214.1,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/10.%20ivy.mp3",
@@ -811,7 +811,7 @@
       "album": "Taylor Swift Collection",
       "num": 10,
       "duration": 260.4,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/10.%20Labyrinth.mp3",
@@ -820,7 +820,7 @@
       "album": "Taylor Swift Collection",
       "num": 10,
       "duration": 248,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/10.%20The%20Last%20Time%20(Taylor's%20Version).mp3",
@@ -829,7 +829,7 @@
       "album": "Taylor Swift Collection",
       "num": 10,
       "duration": 299.1,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/10.%20Who%E2%80%99s%20Afraid%20of%20Little%20Old%20Me_.mp3",
@@ -838,7 +838,7 @@
       "album": "Taylor Swift Collection",
       "num": 10,
       "duration": 334.1,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/11%20-%20Honey%20-%20Taylor%20Swift.mp3",
@@ -847,7 +847,7 @@
       "album": "The Life Of A Showgirl",
       "num": 11,
       "duration": 181.5,
-      "art": "assets/art/the-life-of-a-showgirl.svg"
+      "art": "assets/art/tloas.jpg"
     },
     {
       "src": "assets/music/11%20-%20London%20Boy.mp3",
@@ -856,7 +856,7 @@
       "album": "Taylor Swift Collection",
       "num": 11,
       "duration": 190.2,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/11%20Dancing%20With%20Our%20Hands%20Tied.mp3",
@@ -865,7 +865,7 @@
       "album": "Taylor Swift Collection",
       "num": 11,
       "duration": 211.3,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/11%20invisible%20string.mp3",
@@ -874,7 +874,7 @@
       "album": "Taylor Swift Collection",
       "num": 11,
       "duration": 252.9,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/11%20This%20Love.mp3",
@@ -883,7 +883,7 @@
       "album": "Taylor Swift Collection",
       "num": 11,
       "duration": 250.1,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/11.%20Blank%20Space%20(Taylor's%20Version).mp3",
@@ -892,7 +892,7 @@
       "album": "Essentials, Vol. 1",
       "num": 11,
       "duration": 231.8,
-      "art": "assets/art/essentials-vol-1.svg"
+      "art": "assets/art/1989.jpg"
     },
     {
       "src": "assets/music/11.%20cowboy%20like%20me.mp3",
@@ -901,7 +901,7 @@
       "album": "Taylor Swift Collection",
       "num": 11,
       "duration": 275,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/11.%20Holy%20Ground%20(Taylor's%20Version).mp3",
@@ -910,7 +910,7 @@
       "album": "Taylor Swift Collection",
       "num": 11,
       "duration": 203,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/11.%20I%20Can%20Fix%20Him%20(No%20Really%20I%20Can).mp3",
@@ -919,7 +919,7 @@
       "album": "Taylor Swift Collection",
       "num": 11,
       "duration": 156.3,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/11.%20Karma.mp3",
@@ -928,7 +928,7 @@
       "album": "Taylor Swift Collection",
       "num": 11,
       "duration": 204.9,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/12%20-%20Soon%20You%E2%80%99ll%20Get%20Better%20(feat.%20Dixie%20Chicks).mp3",
@@ -937,7 +937,7 @@
       "album": "Taylor Swift Collection",
       "num": 12,
       "duration": 201.6,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/12%20-%20The%20Life%20Of%20A%20Showgirl%20ft.%20Sabrina%20Carpenter%20-%20Taylor%20Swift.mp3",
@@ -946,7 +946,7 @@
       "album": "Taylor Swift Collection",
       "num": 12,
       "duration": 241.8,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/12%20Dress.mp3",
@@ -955,7 +955,7 @@
       "album": "Taylor Swift Collection",
       "num": 12,
       "duration": 230.2,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/12%20I%20Know%20Places.mp3",
@@ -964,7 +964,7 @@
       "album": "Taylor Swift Collection",
       "num": 12,
       "duration": 195.7,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/12%20mad%20woman.mp3",
@@ -973,7 +973,7 @@
       "album": "Taylor Swift Collection",
       "num": 12,
       "duration": 237.3,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/12.%20Bad%20Blood%20(Taylor's%20Version).mp3",
@@ -982,7 +982,7 @@
       "album": "Essentials, Vol. 2",
       "num": 12,
       "duration": 211.1,
-      "art": "assets/art/essentials-vol-2.svg"
+      "art": "assets/art/evermore.jpg"
     },
     {
       "src": "assets/music/12.%20loml.mp3",
@@ -991,7 +991,7 @@
       "album": "Taylor Swift Collection",
       "num": 12,
       "duration": 277.2,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/12.%20long%20story%20short.mp3",
@@ -1000,7 +1000,7 @@
       "album": "Taylor Swift Collection",
       "num": 12,
       "duration": 215.9,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/12.%20Sad%20Beautiful%20Tragic%20(Taylor's%20Version).mp3",
@@ -1009,7 +1009,7 @@
       "album": "Taylor Swift Collection",
       "num": 12,
       "duration": 284.8,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/12.%20Sweet%20Nothing.mp3",
@@ -1018,7 +1018,7 @@
       "album": "Taylor Swift Collection",
       "num": 12,
       "duration": 188.5,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/13%20-%20False%20God.mp3",
@@ -1027,7 +1027,7 @@
       "album": "Taylor Swift Collection",
       "num": 13,
       "duration": 200.3,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/13%20Clean.mp3",
@@ -1036,7 +1036,7 @@
       "album": "Taylor Swift Collection",
       "num": 13,
       "duration": 271,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/13%20epiphany.mp3",
@@ -1045,7 +1045,7 @@
       "album": "Taylor Swift Collection",
       "num": 13,
       "duration": 289.7,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/13%20This%20Is%20Why%20We%20Can't%20Have%20Nice%20Things.mp3",
@@ -1054,7 +1054,7 @@
       "album": "Taylor Swift Collection",
       "num": 13,
       "duration": 211.3,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/13.%20I%20Can%20Do%20It%20With%20a%20Broken%20Heart.mp3",
@@ -1063,7 +1063,7 @@
       "album": "Taylor Swift Collection",
       "num": 13,
       "duration": 218,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/13.%20marjorie.mp3",
@@ -1072,7 +1072,7 @@
       "album": "Taylor Swift Collection",
       "num": 13,
       "duration": 257.8,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/13.%20Mastermind.mp3",
@@ -1081,7 +1081,7 @@
       "album": "Taylor Swift Collection",
       "num": 13,
       "duration": 191,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/13.%20Me!.mp3",
@@ -1090,7 +1090,7 @@
       "album": "Essentials, Vol. 2",
       "num": 13,
       "duration": 193,
-      "art": "assets/art/essentials-vol-2.svg"
+      "art": "assets/art/evermore.jpg"
     },
     {
       "src": "assets/music/13.%20The%20Lucky%20One%20(Taylor's%20Version).mp3",
@@ -1099,7 +1099,7 @@
       "album": "Taylor Swift Collection",
       "num": 13,
       "duration": 240.5,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/14%20-%20You%20Need%20To%20Calm%20Down.mp3",
@@ -1108,7 +1108,7 @@
       "album": "Essentials, Vol. 2",
       "num": 14,
       "duration": 171.4,
-      "art": "assets/art/essentials-vol-2.svg"
+      "art": "assets/art/evermore.jpg"
     },
     {
       "src": "assets/music/14%20betty.mp3",
@@ -1117,7 +1117,7 @@
       "album": "Taylor Swift Collection",
       "num": 14,
       "duration": 294.5,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/14%20Call%20It%20What%20You%20Want.mp3",
@@ -1126,7 +1126,7 @@
       "album": "Taylor Swift Collection",
       "num": 14,
       "duration": 203.5,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/14%20Wonderland.mp3",
@@ -1135,7 +1135,7 @@
       "album": "Taylor Swift Collection",
       "num": 14,
       "duration": 245.6,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/14.%20closure.mp3",
@@ -1144,7 +1144,7 @@
       "album": "Taylor Swift Collection",
       "num": 14,
       "duration": 180.7,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/14.%20Everything%20Has%20Changed%20(Taylor's%20Version).mp3",
@@ -1153,7 +1153,7 @@
       "album": "Taylor Swift Collection",
       "num": 14,
       "duration": 245.4,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/14.%20Meet%20me%20at%20midnight.mp3",
@@ -1162,7 +1162,7 @@
       "album": "Taylor Swift Collection",
       "num": 14,
       "duration": 9.4,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/14.%20The%20Smallest%20Man%20Who%20Ever%20Lived.mp3",
@@ -1171,7 +1171,7 @@
       "album": "Taylor Swift Collection",
       "num": 14,
       "duration": 245.6,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/15%20-%20Afterglow.mp3",
@@ -1180,7 +1180,7 @@
       "album": "Taylor Swift Collection",
       "num": 15,
       "duration": 223.3,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/15%20New%20Year's%20Day.mp3",
@@ -1189,7 +1189,7 @@
       "album": "Taylor Swift Collection",
       "num": 15,
       "duration": 235.2,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/15%20peace.mp3",
@@ -1198,7 +1198,7 @@
       "album": "Taylor Swift Collection",
       "num": 15,
       "duration": 234,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/15%20You%20Are%20In%20Love.mp3",
@@ -1207,7 +1207,7 @@
       "album": "Taylor Swift Collection",
       "num": 15,
       "duration": 267.1,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/15.%20evermore%20(feat.%20Bon%20Iver).mp3",
@@ -1216,7 +1216,7 @@
       "album": "Taylor Swift Collection",
       "num": 15,
       "duration": 304.1,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/15.%20Starlight%20(Taylor's%20Version).mp3",
@@ -1225,7 +1225,7 @@
       "album": "Taylor Swift Collection",
       "num": 15,
       "duration": 220.4,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/15.%20The%20Alchemy.mp3",
@@ -1234,7 +1234,7 @@
       "album": "Essentials, Vol. 1",
       "num": 15,
       "duration": 196.9,
-      "art": "assets/art/essentials-vol-1.svg"
+      "art": "assets/art/1989.jpg"
     },
     {
       "src": "assets/music/15.%20Wildest%20Dreams%20(Taylor's%20Version).mp3",
@@ -1243,7 +1243,7 @@
       "album": "Essentials, Vol. 2",
       "num": 15,
       "duration": 220.4,
-      "art": "assets/art/essentials-vol-2.svg"
+      "art": "assets/art/evermore.jpg"
     },
     {
       "src": "assets/music/16%20-%20ME!%20(feat.%20Brendon%20Urie%20of%20Panic!%20At%20The%20Disco).mp3",
@@ -1252,7 +1252,7 @@
       "album": "Taylor Swift Collection",
       "num": 16,
       "duration": 193,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/16%20hoax.mp3",
@@ -1261,7 +1261,7 @@
       "album": "Taylor Swift Collection",
       "num": 16,
       "duration": 220,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/16%20New%20Romantics.mp3",
@@ -1270,7 +1270,7 @@
       "album": "Taylor Swift Collection",
       "num": 16,
       "duration": 230.5,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/16.%20Begin%20Again%20(Taylor's%20Version).mp3",
@@ -1279,7 +1279,7 @@
       "album": "Taylor Swift Collection",
       "num": 16,
       "duration": 238.8,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/16.%20Clara%20Bow.mp3",
@@ -1288,7 +1288,7 @@
       "album": "Taylor Swift Collection",
       "num": 16,
       "duration": 216.7,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/17%20-%20It%E2%80%99s%20Nice%20To%20Have%20A%20Friend.mp3",
@@ -1297,7 +1297,7 @@
       "album": "Taylor Swift Collection",
       "num": 17,
       "duration": 150.4,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/17%20I%20Know%20Places%20-%20Voice%20Memos.mp3",
@@ -1306,7 +1306,7 @@
       "album": "Taylor Swift Collection",
       "num": 17,
       "duration": 216.3,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/17.%20The%20Black%20Dog.mp3",
@@ -1315,7 +1315,7 @@
       "album": "Taylor Swift Collection",
       "num": 17,
       "duration": 238.9,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/17.%20The%20Moment%20I%20Knew%20(Taylor's%20Version).mp3",
@@ -1324,7 +1324,7 @@
       "album": "Taylor Swift Collection",
       "num": 17,
       "duration": 285.3,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/18%20-%20Daylight.mp3",
@@ -1333,7 +1333,7 @@
       "album": "Taylor Swift Collection",
       "num": 18,
       "duration": 293.5,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/18%20I%20Wish%20You%20Would%20-%20Voice%20Memos.mp3",
@@ -1342,7 +1342,7 @@
       "album": "Taylor Swift Collection",
       "num": 18,
       "duration": 107.1,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/18.%20Come%20Back...Be%20Here%20(Taylor's%20Version).mp3",
@@ -1351,7 +1351,7 @@
       "album": "Taylor Swift Collection",
       "num": 18,
       "duration": 223.3,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/18.%20imgonnagetyouback.mp3",
@@ -1360,7 +1360,7 @@
       "album": "Taylor Swift Collection",
       "num": 18,
       "duration": 222.1,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/19%20Blank%20Space%20-%20Voice%20Memos.mp3",
@@ -1369,7 +1369,7 @@
       "album": "Taylor Swift Collection",
       "num": 19,
       "duration": 131.2,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/19.%20Girl%20At%20Home%20(Taylor's%20Version).mp3",
@@ -1378,7 +1378,7 @@
       "album": "Taylor Swift Collection",
       "num": 19,
       "duration": 220.5,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/19.%20The%20Albatross.mp3",
@@ -1387,7 +1387,7 @@
       "album": "Taylor Swift Collection",
       "num": 19,
       "duration": 183.9,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/20.%20Chloe%20or%20Sam%20or%20Sophia%20or%20Marcus.mp3",
@@ -1396,7 +1396,7 @@
       "album": "Taylor Swift Collection",
       "num": 20,
       "duration": 213.3,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/20.%20State%20Of%20Grace%20(Acoustic%20Version)%20(Taylor's%20Version).mp3",
@@ -1405,7 +1405,7 @@
       "album": "Taylor Swift Collection",
       "num": 20,
       "duration": 321.6,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/21.%20How%20Did%20It%20End_.mp3",
@@ -1414,7 +1414,7 @@
       "album": "Taylor Swift Collection",
       "num": 21,
       "duration": 238.7,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/21.%20Ronan%20(Taylor's%20Version).mp3",
@@ -1423,7 +1423,7 @@
       "album": "Taylor Swift Collection",
       "num": 21,
       "duration": 264.3,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/22.%20Better%20Man%20(Taylor's%20Version)%20(From%20The%20Vault).mp3",
@@ -1432,7 +1432,7 @@
       "album": "Taylor Swift Collection",
       "num": 22,
       "duration": 297,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/22.%20So%20High%20School.mp3",
@@ -1441,7 +1441,7 @@
       "album": "Taylor Swift Collection",
       "num": 22,
       "duration": 228.8,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/23.%20I%20Hate%20It%20Here.mp3",
@@ -1450,7 +1450,7 @@
       "album": "Taylor Swift Collection",
       "num": 23,
       "duration": 243.9,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/23.%20Nothing%20New%20(Taylor's%20Version)%20(From%20The%20Vault).mp3",
@@ -1459,7 +1459,7 @@
       "album": "Taylor Swift Collection",
       "num": 23,
       "duration": 258.8,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/24.%20Babe%20(Taylor's%20Version)%20(From%20The%20Vault).mp3",
@@ -1468,7 +1468,7 @@
       "album": "Taylor Swift Collection",
       "num": 24,
       "duration": 224.2,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/24.%20thanK%20you%20aIMee.mp3",
@@ -1477,7 +1477,7 @@
       "album": "Taylor Swift Collection",
       "num": 24,
       "duration": 263.9,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/25.%20I%20Look%20in%20People's%20Windows.mp3",
@@ -1486,7 +1486,7 @@
       "album": "Taylor Swift Collection",
       "num": 25,
       "duration": 131.9,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/25.%20Message%20In%20A%20Bottle%20(Taylor's%20Version)%20(From%20The%20Vault).mp3",
@@ -1495,7 +1495,7 @@
       "album": "Taylor Swift Collection",
       "num": 25,
       "duration": 226,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/26.%20I%20Bet%20You%20Think%20About%20Me%20(Taylor's%20Version)%20(From%20The%20Vault).mp3",
@@ -1504,7 +1504,7 @@
       "album": "Taylor Swift Collection",
       "num": 26,
       "duration": 285.1,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/26.%20The%20Prophecy.mp3",
@@ -1513,7 +1513,7 @@
       "album": "Taylor Swift Collection",
       "num": 26,
       "duration": 249.8,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/27.%20Cassandra.mp3",
@@ -1522,7 +1522,7 @@
       "album": "Taylor Swift Collection",
       "num": 27,
       "duration": 240.2,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/27.%20Forever%20Winter%20(Taylor's%20Version)%20(From%20The%20Vault).mp3",
@@ -1531,7 +1531,7 @@
       "album": "Taylor Swift Collection",
       "num": 27,
       "duration": 263.5,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/28.%20Peter.mp3",
@@ -1540,7 +1540,7 @@
       "album": "Taylor Swift Collection",
       "num": 28,
       "duration": 284,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/28.%20Run%20(Taylor's%20Version)%20(From%20The%20Vault).mp3",
@@ -1549,7 +1549,7 @@
       "album": "Taylor Swift Collection",
       "num": 28,
       "duration": 240.2,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/29.%20The%20Bolter.mp3",
@@ -1558,7 +1558,7 @@
       "album": "Taylor Swift Collection",
       "num": 29,
       "duration": 238.3,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/29.%20The%20Very%20First%20Night%20(Taylor's%20Version)%20(From%20The%20Vault).mp3",
@@ -1567,7 +1567,7 @@
       "album": "Taylor Swift Collection",
       "num": 29,
       "duration": 200.3,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/30.%20All%20Too%20Well%20(10%20Minute%20Version)%20(Taylor's%20Version)%20(From%20The%20Vault).mp3",
@@ -1576,7 +1576,7 @@
       "album": "Essentials, Vol. 2",
       "num": 30,
       "duration": 613,
-      "art": "assets/art/essentials-vol-2.svg"
+      "art": "assets/art/evermore.jpg"
     },
     {
       "src": "assets/music/30.%20Robin.mp3",
@@ -1585,7 +1585,7 @@
       "album": "Taylor Swift Collection",
       "num": 30,
       "duration": 240.9,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     },
     {
       "src": "assets/music/31.%20The%20Manuscript.mp3",
@@ -1594,7 +1594,7 @@
       "album": "Taylor Swift Collection",
       "num": 31,
       "duration": 224.8,
-      "art": "assets/art/taylor-swift-collection.svg"
+      "art": "assets/art/reputation.jpg"
     }
   ]
 }

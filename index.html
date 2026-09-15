@@ -16,6 +16,7 @@
     <link rel="icon" href="icons/icon-192.png" sizes="192x192" type="image/png" />
     <link rel="icon" href="icons/icon-512.png" sizes="512x512" type="image/png" />
     <link rel="apple-touch-icon" href="icons/icon-192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192.png" />
     <link rel="mask-icon" href="icons/icon-192.png" color="#06b6d4" />
 
     <!-- Apple PWA meta tags -->
@@ -94,7 +95,7 @@
                             <h1 class="sr-only">Spidey Player</h1>
                             <!-- Header -->
                             <div class="w-full flex justify-between items-center mb-6 text-gray-300">
-                    <div class="w-9" aria-hidden="true"></div>
+                    <button type="button" id="pwa-install-btn" class="pwa-install-btn" hidden>Install</button>
                                         <div class="text-xs uppercase tracking-widest font-semibold text-blue-300">Now Playing</div>
                                         <button id="playlist-toggle-btn" class="icon-btn" aria-label="Show playlist"
                                             aria-expanded="false" aria-controls="playlist-panel">

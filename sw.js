@@ -2,27 +2,21 @@
  * sw.js — Service Worker for Spidey Player 2.0
  *
  * Caching strategy:
- *   - APP SHELL: cache-first on activation, network to keep it fresh. Tolerant
- *     pre-cache (a missing file does not block install).
- *   - BUNDLED CATALOG + ALBUM ART: cache-first so the default library is fully
- *     offline (small: one JSON + a handful of SVGs).
- *   - BUNDLED AUDIO: cache-on-request with a size cap, so tracks the user has
- *     actually played become available offline without trying to cache the
- *     whole 1.5 GB up front. Network-first so a re-deploy with new files wins.
- *   - USER IMPORTS: live in IndexedDB, not the service worker.
- *
- * IndexedDB remains the source of truth for the user's own library.
+ *   - APP SHELL: network-first, cache fallback. Tolerant pre-cache.
+ *   - CATALOG + ALBUM ART: cache-first, then network.
+ *   - BUNDLED AUDIO: network-first, cache-on-success, size-capped.
+ *     Range requests are NOT intercepted (the browser talks to the host
+ *     directly so seeking keeps working). Partial 206 responses are never
+ *     written to cache.
+ *   - USER IMPORTS: IndexedDB, not the service worker.
  */
-
 'use strict';
 
-const VERSION = 'v4';
+const VERSION = 'v5';
 const SHELL_CACHE = 'spidey-shell-' + VERSION;
 const CATALOG_CACHE = 'spidey-catalog-' + VERSION;
 const AUDIO_CACHE = 'spidey-audio-' + VERSION;
 
-/* Core app shell. Tolerant: each is cached independently so one 404
-   (e.g. a fresh clone without generated icons) never fails install. */
 const SHELL_URLS = [
   '/',
   '/index.html',
@@ -34,32 +28,27 @@ const SHELL_URLS = [
   '/manifest.json'
 ];
 
-/* Small, always-safe-to-offline bundle assets. */
 const CATALOG_URLS = [
   '/assets/catalog.json',
   '/image/862eb376cc18fd124f045f6b31b0dc4b.jpg'
 ];
 
-/* Cap for the audio cache — keep the most-recently-played tracks offline.
-   400 MB is generous for a phone's storage while bounded. */
 const AUDIO_CACHE_LIMIT = 400 * 1024 * 1024;
 
-/* ------------------------------- install ------------------------------- */
 self.addEventListener('install', event => {
   event.waitUntil((async () => {
     const shell = await caches.open(SHELL_CACHE);
     await Promise.all(SHELL_URLS.map(url =>
-      shell.add(url).catch(() => { /* tolerate a missing shell asset */ })
+      shell.add(url).catch(() => {})
     ));
     const catalog = await caches.open(CATALOG_CACHE);
     await Promise.all(CATALOG_URLS.map(url =>
-      catalog.add(url).catch(() => { /* tolerate a missing catalog asset */ })
+      catalog.add(url).catch(() => {})
     ));
     await self.skipWaiting();
   })());
 });
 
-/* ------------------------------- activate ------------------------------ */
 self.addEventListener('activate', event => {
   event.waitUntil((async () => {
     const keep = new Set([SHELL_CACHE, CATALOG_CACHE, AUDIO_CACHE]);
@@ -69,7 +58,6 @@ self.addEventListener('activate', event => {
   })());
 });
 
-/* ------------------------------- fetch --------------------------------- */
 self.addEventListener('fetch', event => {
   const req = event.request;
   if (req.method !== 'GET') return;
@@ -78,64 +66,70 @@ self.addEventListener('fetch', event => {
   if (url.origin !== self.location.origin) return;
   if (!url.protocol.startsWith('http')) return;
 
+  // Let the browser handle byte-range requests itself. Intercepting them
+  // would cache 206 Partial Content and break seeking / next-track loads.
+  if (req.headers.has('Range')) return;
+
   const path = url.pathname;
 
-  /* Bundled audio: network-first, cache-fallback + store-on-success. */
   if (path.startsWith('/assets/music/')) {
     event.respondWith(handleAudio(req));
     return;
   }
 
-  /* Catalog + album art: cache-first, then network. */
-  if (path.startsWith('/assets/') || CATALOG_URLS.includes(path)) {
-    event.respondWith(caches.match(req, { cacheNames: [CATALOG_CACHE, SHELL_CACHE] })
-      .then(function (cached) {
-        if (cached) return cached;
-        return fetch(req).then(function (res) {
-          if (res.ok) {
-            res.clone().then(function (clone) {
-              caches.open(CATALOG_CACHE).then(function (c) { c.put(req, clone); }).catch(function () {});
-            });
-          }
-          return res;
-        });
-      }));
+  if (path.startsWith('/assets/') || CATALOG_URLS.indexOf(path) !== -1) {
+    event.respondWith(cacheFirst(req, CATALOG_CACHE));
     return;
   }
 
-  /* App shell: network-first with cache fallback (offline-capable shell). */
-  if (SHELL_URLS.includes(path) || /\.(js|css|html|svg|json|png|jpe?g|ico)$/i.test(path)) {
-    event.respondWith(fetch(req).then(res => {
-      if (res.ok) {
-        const clone = res.clone();
-        caches.open(SHELL_CACHE).then(c => c.put(req, clone)).catch(() => {});
-      }
-      return res;
-    }).catch(() => caches.match(req, { cacheNames: [SHELL_CACHE, CATALOG_CACHE] })));
-    return;
+  if (SHELL_URLS.indexOf(path) !== -1 || /\.(js|css|html|svg|json|png|jpe?g|ico)$/i.test(path)) {
+    event.respondWith(networkFirst(req, SHELL_CACHE));
   }
 });
 
-/* Network-first for a track, but always store it so it's playable offline
-   next time. Enforce the audio cache cap on each store. */
+async function cacheFirst(req, cacheName) {
+  const cached = await caches.match(req);
+  if (cached) return cached;
+  const res = await fetch(req);
+  if (res.ok) {
+    const cache = await caches.open(cacheName);
+    cache.put(req, res.clone()).catch(() => {});
+  }
+  return res;
+}
+
+async function networkFirst(req, cacheName) {
+  try {
+    const res = await fetch(req);
+    if (res.ok) {
+      const cache = await caches.open(cacheName);
+      cache.put(req, res.clone()).catch(() => {});
+    }
+    return res;
+  } catch (e) {
+    const cached = await caches.match(req);
+    if (cached) return cached;
+    throw e;
+  }
+}
+
 async function handleAudio(req) {
   const cache = await caches.open(AUDIO_CACHE);
   try {
     const res = await fetch(req);
-    if (res.ok) {
-      cache.put(req, res.clone());
+    // Only cache complete 200s — never 206 partials.
+    if (res.status === 200) {
+      cache.put(req, res.clone()).catch(() => {});
       enforceAudioLimit();
     }
     return res;
   } catch (e) {
     const cached = await cache.match(req);
     if (cached) return cached;
-    // Offline and never played: a clear error instead of a broken load.
     return new Response('Offline and not yet cached', { status: 503, statusText: 'Offline' });
   }
 }
 
-/* Drop the oldest audio responses until under the cap. */
 async function enforceAudioLimit() {
   try {
     const cache = await caches.open(AUDIO_CACHE);
@@ -144,24 +138,19 @@ async function enforceAudioLimit() {
     const sizes = [];
     for (const k of keys) {
       const m = await cache.match(k);
-      const size = m ? m.size : 0;
+      const size = m ? (m.headers.get('Content-Length')|0) : 0;
       sizes.push({ key: k, size: size });
       total += size;
     }
-    sizes.sort((a, b) => a.size - b.size);
-    // Evict smallest (oldest-requested, since we appended) first to stay near
-    // the cap while keeping recent content. (Heuristic, good enough here.)
-    let evict = 0;
-    while (total > AUDIO_CACHE_LIMIT && evict < sizes.length) {
-      const item = sizes[evict];
-      await cache.delete(item.key);
-      total -= item.size;
-      evict++;
+    let i = 0;
+    while (total > AUDIO_CACHE_LIMIT && i < sizes.length) {
+      await cache.delete(sizes[i].key);
+      total -= sizes[i].size;
+      i++;
     }
-  } catch (e) { /* cap enforcement is best-effort */ }
+  } catch (e) { /* best-effort */ }
 }
 
-/* Handle client messages (future: warm specific tracks, etc.) */
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
