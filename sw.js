@@ -12,7 +12,7 @@
  */
 'use strict';
 
-const VERSION = 'v6';
+const VERSION = 'v14';
 const SHELL_CACHE = 'spidey-shell-' + VERSION;
 const CATALOG_CACHE = 'spidey-catalog-' + VERSION;
 const AUDIO_CACHE = 'spidey-audio-' + VERSION;
@@ -23,6 +23,7 @@ const SHELL_URLS = [
   '/dist/tailwind.css',
   '/style.css',
   '/app.js',
+  '/store.js',
   '/db.js',
   '/id3.js',
   '/manifest.json'

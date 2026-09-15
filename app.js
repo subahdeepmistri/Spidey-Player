@@ -26,7 +26,7 @@
   var REPEAT_ALL = 'all';
   var REPEAT_ONE = 'one';
 
-  var PREF_KEY = 'spidey.prefs.v1';
+  var PREF_KEY = (window.SpideyStore && window.SpideyStore.KEYS.PREFS) || 'spidey.prefs.v1';
   var SEEK_STEP = 5;              // seconds per arrow-key press
   var AUDIO_EXT = /\.(mp3|flac|m4a|aac|wav|ogg|oga|opus|webm)$/i;
 
@@ -36,6 +36,14 @@
 
   var audio = new Audio();
   audio.preload = 'metadata';
+  audio.setAttribute('playsinline', '');
+  audio.setAttribute('webkit-playsinline', '');
+  audio.controls = false;
+  // Android Chrome only publishes the notification / lock-screen session
+  // for a media element that is in the document.
+  audio.className = 'sr-only';
+  audio.setAttribute('aria-hidden', 'true');
+  document.body.appendChild(audio);
 
   var tracks = [];          // library records from IndexedDB
   var currentTrack = -1;    // index into tracks, -1 when nothing is loaded
@@ -101,7 +109,7 @@
    * ================================================================== */
 
   function formatTime(seconds) {
-    if (!Number.isFinite(seconds) || seconds < 0) return '0:00';
+    if (!Number.isFinite(seconds) || seconds < 0) return '–:––';
     var total = Math.floor(seconds);
     var h = Math.floor(total / 3600);
     var m = Math.floor((total % 3600) / 60);
@@ -164,8 +172,8 @@
         'volume-xmark': 'M11 5L6 9H2v6h4l5 4V5zM23 9l-6 6M17 9l6 6',
         'volume-low': 'M11 5L6 9H2v6h4l5 4V5zM15.54 8.46a5 5 0 0 1 0 7.07',
         'random': 'M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5',
-        'step-backward': 'M19 20H9V4h10v16zM9 12l-7 7V5l7 7z',
-        'step-forward': 'M5 4h10v16H5V4zm10 8l7-7v14l-7-7z',
+        'step-backward': 'M6 5v14M19 5v14L8 12l11-7z',
+        'step-forward': 'M18 5v14M5 5v14l11-7L5 5z',
         'redo': 'M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15',
         'plus': 'M12 5v14M5 12h14',
         'search': 'M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z',
@@ -246,29 +254,33 @@
      we can warn once rather than spamming every session. */
   var prefsPersistFailed = false;
   function savePrefs() {
-    try {
-      localStorage.setItem(PREF_KEY, JSON.stringify({
-        volume: audio.volume,
-        muted: audio.muted,
-        shuffle: isShuffle,
-        repeat: repeatMode
-      }));
+    var payload = {
+      volume: audio.volume,
+      muted: audio.muted,
+      shuffle: isShuffle,
+      repeat: repeatMode
+    };
+    var result = window.SpideyStore
+      ? window.SpideyStore.save(PREF_KEY, payload)
+      : (function () {
+          try { localStorage.setItem(PREF_KEY, JSON.stringify(payload)); return { ok: true }; }
+          catch (e) { return { ok: false }; }
+        })();
+    if (result && result.ok) {
       prefsPersistFailed = false;
-    } catch (e) {
-      // First failure surfaces a polite notice; subsequent failures are silent.
-      if (!prefsPersistFailed) {
-        prefsPersistFailed = true;
-        toast('Preferences could not be saved locally.', 'warn', 5000);
-      }
+    } else if (!prefsPersistFailed) {
+      prefsPersistFailed = true;
+      toast('Preferences could not be saved locally.', 'warn', 5000);
     }
   }
   function loadPrefs() {
-    var prefs;
-    try {
-      prefs = JSON.parse(localStorage.getItem(PREF_KEY) || '{}') || {};
-    } catch (e) {
-      prefs = {};
-    }
+    var prefs = window.SpideyStore
+      ? window.SpideyStore.load(PREF_KEY, {})
+      : (function () {
+          try { return JSON.parse(localStorage.getItem(PREF_KEY) || '{}') || {}; }
+          catch (e) { return {}; }
+        })();
+    if (!prefs || typeof prefs !== 'object') prefs = {};
     if (typeof prefs.volume === 'number' && prefs.volume >= 0 && prefs.volume <= 1) {
       audio.volume = prefs.volume;
     }
@@ -435,8 +447,13 @@
   var freqData = null;
 
   /* Creating the AudioContext re-routes the element's output through the
-     graph, so it must happen exactly once per element. */
+     graph, so it must happen exactly once per element. Android Chrome will
+     not show a media notification / lock-screen controls if the element is
+     captured with createMediaElementSource — keep element output there. */
+  var skipWebAudio = /Android/i.test(navigator.userAgent);
+
   function ensureAudioGraph() {
+    if (skipWebAudio) return false;
     if (audioContext) {
       if (audioContext.state === 'suspended') audioContext.resume().catch(function () {});
       return true;
@@ -582,40 +599,84 @@
       el.play.setAttribute('aria-label', isPlaying ? 'Pause' : 'Play');
     }
 
+  function artworkList(track) {
+    var src = (track && track.art) || (el.art && el.art.getAttribute('src')) || DEFAULT_ART;
+    if (!src || src.indexOf('blob:') === 0 || /\.svg(\?|$)/i.test(src)) src = DEFAULT_ART;
+    try { src = new URL(src, location.href).href; } catch (e) { /* keep src */ }
+    var type = /\.png(\?|$)/i.test(src) ? 'image/png' : 'image/jpeg';
+    return [
+      { src: src, sizes: '96x96', type: type },
+      { src: src, sizes: '256x256', type: type },
+      { src: src, sizes: '512x512', type: type }
+    ];
+  }
+
   function updateMediaSession() {
     if (!('mediaSession' in navigator)) return;
     var track = tracks[currentTrack];
 
     if (!track || !('MediaMetadata' in window)) {
-      // No track loaded: clear any OS-level media controls.
       try { navigator.mediaSession.metadata = null; } catch (e) { /* non-fatal */ }
+      try { navigator.mediaSession.playbackState = 'none'; } catch (e2) { /* non-fatal */ }
       return;
     }
 
-    var art = el.art.getAttribute('src') || DEFAULT_ART;
     try {
       navigator.mediaSession.metadata = new window.MediaMetadata({
-        title: track.title || track.name,
+        title: track.title || track.name || 'Unknown',
         artist: track.artist || 'Spidey Player',
         album: track.album || '',
-        artwork: [{ src: art, sizes: '512x512' }]
+        artwork: artworkList(track)
+      });
+    } catch (e) { /* non-fatal */ }
+
+    try {
+      navigator.mediaSession.playbackState = audio.paused ? 'paused' : 'playing';
+    } catch (e3) { /* non-fatal */ }
+
+    updateMediaPosition();
+  }
+
+  function updateMediaPosition() {
+    if (!('mediaSession' in navigator) || typeof navigator.mediaSession.setPositionState !== 'function') return;
+    var dur = audio.duration;
+    var pos = audio.currentTime;
+    if (!Number.isFinite(dur) || dur <= 0 || !Number.isFinite(pos)) return;
+    try {
+      navigator.mediaSession.setPositionState({
+        duration: dur,
+        playbackRate: audio.playbackRate || 1,
+        position: Math.max(0, Math.min(pos, dur))
       });
     } catch (e) { /* non-fatal */ }
   }
 
-  /* Wire OS media keys (lock screen / keyboard) to the player, once. */
+  /* Wire OS media keys (lock screen / notification / headset) to the player, once. */
   function setupMediaSessionActions() {
     if (!('mediaSession' in navigator) || !navigator.mediaSession.setActionHandler) return;
     var actions = {
       play: play,
       pause: pause,
+      stop: pause,
       previoustrack: prevTrack,
       nexttrack: function () { nextTrack(true); },
-      seekbackward: function () { audio.currentTime = Math.max(0, audio.currentTime - SEEK_STEP); updateProgressUI(); },
+      seekbackward: function () {
+        audio.currentTime = Math.max(0, audio.currentTime - SEEK_STEP);
+        updateProgressUI();
+        updateMediaPosition();
+      },
       seekforward: function () {
         if (Number.isFinite(audio.duration)) {
           audio.currentTime = Math.min(audio.duration, audio.currentTime + SEEK_STEP);
           updateProgressUI();
+          updateMediaPosition();
+        }
+      },
+      seekto: function (details) {
+        if (details && Number.isFinite(details.seekTime)) {
+          audio.currentTime = details.seekTime;
+          updateProgressUI();
+          updateMediaPosition();
         }
       }
     };
@@ -735,10 +796,10 @@
       return;
     }
     // Bundled records carry a static album-art SVG — no IndexedDB cover.
-    if (track.bundled && track.art) {
+    if (track.art) {
       el.art.src = track.art;
       el.art.alt = 'Album art for ' + (track.album || track.title || track.name);
-      currentCoverKey = null;   // static URL is not an object URL we manage
+      currentCoverKey = null;
       updateMediaSession();
       return;
     }
@@ -1001,7 +1062,7 @@
     if (!tracks.length) {
       el.playlist.appendChild(emptyState(
               'music', 'Drag & Drop songs here',
-              loadCatalog() ? 'or click Import' : 'The bundled library is unavailable — import songs to start.'));
+              catalogOk ? 'or click Import' : 'The bundled library is unavailable — import songs to start.'));
       updateCounts(0, 0);
       return;
     }
@@ -1104,12 +1165,21 @@
             var trackName = track.title || track.name;
             var action = (index === currentTrack && isPlaying) ? 'Pause' : 'Play';
             mainBtn.setAttribute('aria-label', action + ' ' + trackName);
+            if (track.art) {
+              var thumb = document.createElement('img');
+              thumb.className = 'track-art';
+              thumb.src = track.art;
+              thumb.alt = '';
+              thumb.decoding = 'async';
+              mainBtn.appendChild(thumb);
+            }
             mainBtn.appendChild(num);
             mainBtn.appendChild(body);
             mainBtn.appendChild(time);
             mainBtn.addEventListener('click', function () {
-              if (index === currentTrack) { togglePlay(); return; }
-              loadTrack(index, true);
+              if (index === currentTrack) togglePlay();
+              else loadTrack(index, true);
+              setPanelOpen(false);
             });
 
       var remove = document.createElement('button');
@@ -1161,7 +1231,7 @@
       if (!track) return;
 
       // Bundled tracks are part of the shipped library — they live in static
-      // files, not IndexedDB, so "removing" one just hides it for the session.
+      // files, not IndexedDB, so remove hides them until Undo (persisted).
       if (track.bundled) {
         var wasCurrent = index === currentTrack;
         hideBundled(track);
@@ -1179,7 +1249,7 @@
         buildOrder(true);
         renderPlaylist(el.search.value);
         announce('Hid ' + (track.title || track.name));
-        toast('Hid "' + truncateMiddle(track.title || track.name, 32) + '" — it returns next session.',
+        toast('Hid "' + truncateMiddle(track.title || track.name, 32) + '" — it stays hidden until you undo.',
           'info', 6000, {
             actionLabel: 'Undo',
             action: function () {
@@ -1326,10 +1396,11 @@
    * restored on boot (pendingSeek, applied on 'loadedmetadata').
    * ================================================================== */
 
-  var HIDDEN_KEY = 'spidey.hidden.v1';
-  var SESSION_KEY = 'spidey.session.v1';
-  var catalogReady = null;   // Promise<catalog|null>
-  var hidden = new Set();    // bundled track titles hidden this session
+  var HIDDEN_KEY = (window.SpideyStore && window.SpideyStore.KEYS.HIDDEN) || 'spidey.hidden.v1';
+  var SESSION_KEY = (window.SpideyStore && window.SpideyStore.KEYS.SESSION) || 'spidey.session.v1';
+  var catalogReady = null;
+  var hidden = new Set();
+  var catalogOk = false;
 
   function loadCatalog() {
     if (catalogReady) return catalogReady;
@@ -1347,12 +1418,18 @@
   }
 
   function readHidden() {
-    try { hidden = new Set(JSON.parse(localStorage.getItem(HIDDEN_KEY) || '[]')); }
-    catch (e) { hidden = new Set(); }
+    var list = window.SpideyStore
+      ? window.SpideyStore.load(HIDDEN_KEY, [])
+      : (function () {
+          try { return JSON.parse(localStorage.getItem(HIDDEN_KEY) || '[]'); }
+          catch (e) { return []; }
+        })();
+    hidden = new Set(Array.isArray(list) ? list : []);
   }
   function writeHidden() {
-    try { localStorage.setItem(HIDDEN_KEY, JSON.stringify([...hidden])); }
-    catch (e) { /* storage full/blocked — hiding still works in-memory */ }
+    var payload = [...hidden];
+    if (window.SpideyStore) window.SpideyStore.save(HIDDEN_KEY, payload);
+    else try { localStorage.setItem(HIDDEN_KEY, JSON.stringify(payload)); } catch (e) { /* in-memory still works */ }
   }
 
   function hideBundled(track) { if (track && track.bundled) { hidden.add(track.title || track.name); writeHidden(); } }
@@ -1363,15 +1440,22 @@
     var t = tracks[currentTrack];
     var pos = Number.isFinite(audio.currentTime) ? audio.currentTime : 0;
     try {
-      localStorage.setItem(SESSION_KEY, JSON.stringify({
-        uid: t.uid, pos: pos
-      }));
+      var result = window.SpideyStore
+        ? window.SpideyStore.save(SESSION_KEY, { uid: t.uid, pos: pos })
+        : (function () {
+            localStorage.setItem(SESSION_KEY, JSON.stringify({ uid: t.uid, pos: pos }));
+            return { ok: true };
+          })();
+      void result;
     } catch (e) { /* non-fatal */ }
   }
 
   function loadSession() {
-    try { lastSession = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); }
-    catch (e) { lastSession = null; }
+    try {
+      lastSession = window.SpideyStore
+        ? window.SpideyStore.load(SESSION_KEY, null)
+        : JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+    } catch (e) { lastSession = null; }
     return lastSession;
   }
 
@@ -1383,6 +1467,7 @@
     return Promise.all([loadCatalog(), window.SpideyDB.getAllTracks()]).then(function (results) {
       var catalog = results[0];
       var rows = results[1] || [];
+      catalogOk = !!(catalog && catalog.tracks && catalog.tracks.length);
 
       var bundledTracks = (catalog && catalog.tracks ? catalog.tracks : []).map(function (t) {
         return {
@@ -1445,9 +1530,11 @@
       if (!info.supported) { el.storageUsage.textContent = ''; return; }
       var parts = [];
       if (info.usage && info.quota) {
-        parts.push(formatBytes(info.usage) + ' of ' + formatBytes(info.quota));
+        parts.push('Site · ' + formatBytes(info.usage) + ' of ' + formatBytes(info.quota));
       } else if (info.usage) {
-        parts.push(formatBytes(info.usage) + ' used');
+        parts.push('Site · ' + formatBytes(info.usage) + ' used');
+      } else {
+        parts.push('Site storage size unknown');
       }
       if (info.persisted) parts.push('persistent');
       el.storageUsage.textContent = parts.join(' · ');
@@ -1531,13 +1618,14 @@
     ensureAudioGraph();
     startLoop();
     highlightCurrent();
+    updateMediaSession();
   });
 
   audio.addEventListener('pause', function () {
     isPlaying = false;
     updatePlayButton();
     highlightCurrent();
-    // The loop keeps running until the bars decay, then stops itself.
+    updateMediaSession();
   });
 
   audio.addEventListener('ended', function () {
@@ -1572,6 +1660,7 @@
     });
 
   audio.addEventListener('timeupdate', updateProgressUI);
+  audio.addEventListener('timeupdate', updateMediaPosition);
 
   /* Remember playback position periodically + on teardown so a refresh
      resumes where the user left off. */
@@ -1909,7 +1998,7 @@
       var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
       if (!isIOS) return;
-      if (localStorage.getItem('spidey.ios-banner-dismissed.v1')) return;
+      if (localStorage.getItem((window.SpideyStore && window.SpideyStore.KEYS.IOS_BANNER) || 'spidey.ios-banner-dismissed.v1')) return;
       if (window.matchMedia('(display-mode: standalone)').matches ||
           navigator.standalone === true) return;
       var banner = document.getElementById('ios-install-banner');
@@ -1926,7 +2015,8 @@
     function hideIosBanner() {
       var banner = document.getElementById('ios-install-banner');
       if (banner) banner.classList.remove('show');
-      try { localStorage.setItem('spidey.ios-banner-dismissed.v1', '1'); } catch (e) { /* non-fatal */ }
+      if (window.SpideyStore) window.SpideyStore.save(window.SpideyStore.KEYS.IOS_BANNER, '1');
+      else try { localStorage.setItem('spidey.ios-banner-dismissed.v1', '1'); } catch (e) { /* non-fatal */ }
     }
 
     function installApp() {

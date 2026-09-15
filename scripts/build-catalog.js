@@ -1,21 +1,10 @@
 #!/usr/bin/env node
 /**
- * build-catalog.js — generate assets/catalog.json + album art from assets/music/.
- *
- * The catalog is built by SCANNING assets/music/ (whatever is there — the full
- * 177-track set locally, or a smaller subset in the cloud pack), so it can never
- * point at a missing file. Titles/artists are parsed from filenames, albums are
- * assigned from the two "Essentials" playlists and "The Life Of A Showgirl"
- * (matched by normalized title, since the m3u track numbers don't match the
- * file numbering), and durations come from ffprobe.
- *
- * Also renders one inline-SVG album art per album into assets/art/ (small,
- * on-theme, no binary artwork to maintain).
- *
- * Run: node scripts/build-catalog.js
+ * build-catalog.js — generate assets/catalog.json from assets/music/.
+ * Album membership is by official track title (not the old 4-bucket
+ * "Essentials" grouping). Art comes from assets/art/*.jpg when present.
  */
 'use strict';
-
 const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
@@ -26,84 +15,199 @@ const ART_DIR = path.join(ROOT, 'assets', 'art');
 const OUT = path.join(ROOT, 'assets', 'catalog.json');
 
 const COLLECTION = 'Taylor Swift';
-const ALBUM_DEFAULT = 'Taylor Swift Collection';
 
-/* Album membership by normalized title (case-insensitive, punctuation-free).
-   Sources: songs/"Taylor Swift - Essentials (1).m3u", "(2).m3u", and
-   TAYLOR-SWIFT/Playlist 320.m3u. Numbers are stripped because the m3u track
-   numbering does not match the file numbering in songs/. */
-const ALBUMS = {
-  'essentials vol 1': {
-    name: 'Essentials, Vol. 1',
-    titles: [
-      'fortnight', 'down bad', 'the alchemy', 'but daddy i love him', 'florida',
-      'you belong with me', 'cruel summer', 'shake it off', 'anti hero', '22',
-      'blank space', 'red', 'fearless', 'is it over now', 'lavender haze'
-    ]
-  },
-  'essentials vol 2': {
-    name: 'Essentials, Vol. 2',
-    titles: [
-      'cardigan', 'love story', 'willow', 'i knew you were trouble',
-      'back to december', 'lover', 'we are never ever getting back together',
-      'look what you made me do', 'all too well', 'tim mcgraw',
-      'you need to calm down', 'bad blood', 'me', 'champagne problems',
-      'wildest dreams'
-    ]
-  },
-  'the life of a showgirl': {
+const ALBUMS = [
+  {
     name: 'The Life Of A Showgirl',
     titles: [
       'the fate of ophelia', 'elizabeth taylor', 'opalite', 'father figure',
       'eldest daughter', 'ruin the friendship', 'actually romantic',
-      'wish light', 'wood', 'cancelled', 'honey', 'the life of a showgirl'
+      'wish list', 'wood', 'cancelled', 'honey', 'the life of a showgirl'
+    ]
+  },
+  {
+    name: 'The Tortured Poets Department',
+    titles: [
+      'fortnight', 'the tortured poets department',
+      'my boy only breaks his favorite toys', 'down bad', 'so long london',
+      'but daddy i love him', 'fresh out the slammer', 'florida',
+      'guilty as sin', 'whos afraid of little old me',
+      'i can fix him no really i can', 'loml',
+      'i can do it with a broken heart', 'the smallest man who ever lived',
+      'the alchemy', 'clara bow', 'the black dog', 'imgonnagetyouback',
+      'the albatross', 'chloe or sam or sophia or marcus', 'how did it end',
+      'so high school', 'i hate it here', 'thank you aimee',
+      'i look in peoples windows', 'the prophecy', 'cassandra', 'peter',
+      'the bolter', 'robin', 'the manuscript'
+    ]
+  },
+  {
+    name: 'Midnights',
+    titles: [
+      'lavender haze', 'maroon', 'anti hero', 'snow on the beach',
+      'youre on your own kid', 'midnight rain', 'question',
+      'vigilante shit', 'bejeweled', 'labyrinth', 'karma', 'sweet nothing',
+      'mastermind', 'meet me at midnight', 'hits different',
+      'high infidelity', 'glitch', 'wouldve couldve shouldve', 'dear reader',
+      'youre losing me'
+    ]
+  },
+  {
+    name: 'evermore',
+    titles: [
+      'willow', 'champagne problems', 'gold rush', 'tis the damn season',
+      'tolerate it', 'no body no crime', 'happiness', 'dorothea',
+      'coney island', 'ivy', 'cowboy like me', 'long story short',
+      'marjorie', 'closure', 'evermore', 'right where you left me',
+      'its time to go'
+    ]
+  },
+  {
+    name: 'folklore',
+    titles: [
+      'the 1', 'cardigan', 'the last great american dynasty', 'exile',
+      'my tears ricochet', 'mirrorball', 'seven', 'august',
+      'this is me trying', 'illicit affairs', 'invisible string',
+      'mad woman', 'epiphany', 'betty', 'peace', 'hoax', 'the lakes'
+    ]
+  },
+  {
+    name: 'Lover',
+    titles: [
+      'i forgot that you existed', 'cruel summer', 'lover', 'the man',
+      'the archer', 'i think he knows',
+      'miss americana the heartbreak prince', 'paper rings',
+      'cornelia street', 'death by a thousand cuts', 'london boy',
+      'soon youll get better', 'false god', 'you need to calm down',
+      'afterglow', 'me', 'its nice to have a friend', 'daylight'
+    ]
+  },
+  {
+    name: 'reputation',
+    titles: [
+      'ready for it', 'end game', 'i did something bad', 'dont blame me',
+      'delicate', 'look what you made me do', 'so it goes', 'gorgeous',
+      'getaway car', 'king of my heart', 'dancing with our hands tied',
+      'dress', 'this is why we cant have nice things',
+      'call it what you want', 'new years day'
+    ]
+  },
+  {
+    name: '1989',
+    titles: [
+      'welcome to new york', 'blank space', 'style', 'out of the woods',
+      'all you had to do was stay', 'shake it off', 'i wish you would',
+      'bad blood', 'wildest dreams', 'how you get the girl', 'this love',
+      'i know places', 'clean', 'wonderland', 'you are in love',
+      'new romantics', 'is it over now', 'now that we dont talk',
+      'say dont go', 'suburban legends', 'slut'
+    ]
+  },
+  {
+    name: "Red (Taylor's Version)",
+    titles: [
+      'state of grace', 'red', 'treacherous', 'i knew you were trouble',
+      'all too well', '22', 'i almost do',
+      'we are never ever getting back together', 'stay stay stay',
+      'the last time', 'holy ground', 'sad beautiful tragic',
+      'the lucky one', 'everything has changed', 'starlight', 'begin again',
+      'the moment i knew', 'come back be here', 'girl at home', 'ronan',
+      'better man', 'nothing new', 'babe', 'message in a bottle',
+      'i bet you think about me', 'forever winter', 'run',
+      'the very first night'
+    ]
+  },
+  {
+    name: 'Speak Now',
+    titles: [
+      'mine', 'sparks fly', 'back to december', 'speak now', 'dear john',
+      'mean', 'the story of us', 'never grow up', 'enchanted',
+      'better than revenge', 'innocent', 'haunted', 'last kiss',
+      'long live', 'ours', 'if this was a movie', 'superman',
+      'electric touch', 'when emma falls in love', 'i can see you',
+      'castles crumbling', 'foolish one', 'timeless'
+    ]
+  },
+  {
+    name: 'Fearless',
+    titles: [
+      'fearless', 'fifteen', 'love story', 'hey stephen', 'white horse',
+      'you belong with me', 'breathe', 'tell me why', 'youre not sorry',
+      'the way i loved you', 'forever always', 'the best day', 'change',
+      'jump then fall', 'untouchable', 'come in with the rain', 'superstar',
+      'the other side of the door', 'today was a fairytale',
+      'you all over me', 'mr perfectly fine', 'we were happy', 'thats when',
+      'dont you', 'bye bye baby'
+    ]
+  },
+  {
+    name: 'Taylor Swift',
+    titles: [
+      'tim mcgraw', 'picture to burn', 'teardrops on my guitar',
+      'a place in this world', 'cold as you', 'the outside',
+      'tied together with a smile', 'stay beautiful', 'shouldve said no',
+      'marys song', 'our song', 'im only me when im with you', 'invisible',
+      'a perfectly good heart'
     ]
   }
+];
+
+const JPEG_BY_ALBUM = {
+  'The Life Of A Showgirl': 'tloas.jpg',
+  'The Tortured Poets Department': 'ttpd.jpg',
+  'Midnights': 'midnights.jpg',
+  'evermore': 'evermore.jpg',
+  'folklore': 'folklore.jpg',
+  'Lover': 'lover.jpg',
+  'reputation': 'reputation.jpg',
+  '1989': '1989.jpg',
+  "Red (Taylor's Version)": 'red.jpg',
+  'Speak Now': 'speak-now.jpg',
+  'Fearless': 'fearless.jpg',
+  'Taylor Swift': 'debut.jpg'
 };
 
 function normTitle(s) {
   return String(s)
     .toLowerCase()
-    .replace(/^(feat\.|ft\.)\s+.*$/, 'feat')   // drop featured tail for matching
-    .replace(/\s*\((taylor'?s version)\)/g, '')
-    .replace(/\s*\((10 minute version)\)/g, '')
-    .replace(/\s*\((from the vault)\)/g, '')
+    .replace(/\$/g, 's')
+    .replace(/_/g, ' ')
+    .replace(/\(taylor'?s version\)/g, '')
+    .replace(/\(from the vault\)/g, '')
+    .replace(/\(10 minute version\)/g, '')
+    .replace(/\(acoustic version\)/g, '')
+    .replace(/\(feat\.[^)]*\)/g, '')
+    .replace(/\(ft\.[^)]*\)/g, '')
+    .replace(/\s+(feat\.|ft\.)\s+.*$/g, '')
+    .replace(/-?\s*voice memos?/g, '')
     .replace(/[^a-z0-9]/g, '');
 }
 
 function albumForTitle(title) {
   const n = normTitle(title);
-  for (const key of Object.keys(ALBUMS)) {
-    const a = ALBUMS[key];
-    const wanted = a.titles.map(normTitle);
-    // "22" must not match "no 22" etc. — exact normalized-title match only,
-    // but "all too well" vs "all too well (10 minute...)" normalizes equal.
-    if (wanted.includes(n)) return a.name;
+  for (const a of ALBUMS) {
+    if (a.titles.map(normTitle).includes(n)) return a.name;
   }
-  return ALBUM_DEFAULT;
+  return 'Taylor Swift Collection';
 }
 
-/** "01 - Cruel Summer" / "01. Fortnight" / "02 exile" / "1  ...Ready For It_"
-    -> { num, title }. A leading 1-2 digit token followed by any whitespace is a
-    track number in this library; a genuine title never starts with a bare
-    number token (the "...Ready For It" case keeps its dots). */
 function parseStem(stem) {
-  const m = stem.match(/^(\d{1,2})\s*[-–.]\s*(.+)$/);      // "01 - X" / "01. X"
+  const m = stem.match(/^(\d{1,2})\s*[-–.]\s*(.+)$/);
   if (m) return { num: parseInt(m[1], 10), title: m[2].trim() };
-  const m2 = stem.match(/^(\d{1,2})\s{2,}(.+)$/);           // "1  ...Ready For It"
+  const m2 = stem.match(/^(\d{1,2})\s{2,}(.+)$/);
   if (m2) return { num: parseInt(m2[1], 10), title: m2[2].trim() };
-  const m3 = stem.match(/^(\d{1,2})\s+(\S.*)$/);            // "02 exile"
+  const m3 = stem.match(/^(\d{1,2})\s+(\S.*)$/);
   if (m3) return { num: parseInt(m3[1], 10), title: m3[2].trim() };
   return { num: 0, title: stem };
 }
 
 function cleanTitle(raw) {
   return raw
-    .replace(/_+$/g, '')          // trailing underscore artifacts
-    .replace(/\s*[-–]\s*taylor swift\s*$/i, '')  // strip trailing artist suffix
+    .replace(/_+$/g, '')
+    .replace(/\s*[-–]\s*taylor swift\s*$/i, '')
     .replace(/\s{2,}/g, ' ')
     .trim()
-    .replace(/^[\.\s\-_]+/, '');  // leading dot/dash/underscore artifacts
+    .replace(/^[\.\s\-_]+/, '');
 }
 
 function durationOf(file) {
@@ -123,7 +227,6 @@ function slugify(s) {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 }
 
-/** On-theme SVG album art: dark radial field, cyan glow, album + artist text. */
 function renderAlbumArt(file, album, artist) {
   const lines = album.length > 22 ? [album.slice(0, 19) + '…'] : [album];
   const text = lines.map((l, i) =>
@@ -141,7 +244,6 @@ function renderAlbumArt(file, album, artist) {
     '<stop offset="100%" stop-color="#6366f1"/>',
     '</linearGradient></defs>',
     '<rect width="512" height="512" fill="url(#g)"/>',
-    // Equalizer bars motif
     '<g fill="url(#s)" opacity="0.9">',
     [0, 1, 2, 3, 4].map(i => {
       const h = 56 + i * 34;
@@ -174,7 +276,7 @@ function build() {
     const { num, title } = parseStem(stem);
     const clean = cleanTitle(title);
     const album = albumForTitle(clean);
-    const track = {
+    return {
       src: 'assets/music/' + encodeURIComponent(file),
       title: clean,
       artist: COLLECTION,
@@ -182,16 +284,8 @@ function build() {
       num: num,
       duration: durationOf(path.join(MUSIC_DIR, file))
     };
-    return track;
   });
 
-  // Album art: prefer a real JPEG if apply-covers.js has placed one.
-  const JPEG_BY_ALBUM = {
-    'The Life Of A Showgirl': 'tloas.jpg',
-    'Essentials, Vol. 1': '1989.jpg',
-    'Essentials, Vol. 2': 'evermore.jpg',
-    'Taylor Swift Collection': 'reputation.jpg'
-  };
   const albums = [...new Set(tracks.map(t => t.album))];
   const artFiles = new Map();
   for (const a of albums) {
@@ -214,10 +308,16 @@ function build() {
     tracks: tracks
   };
   fs.writeFileSync(OUT, JSON.stringify(out, null, 2));
-  const total = tracks.reduce((s, t) => s + t.duration, 0);
-  console.log('Wrote ' + path.relative(ROOT, OUT) + ': ' + tracks.length +
-    ' tracks, ' + albums.length + ' albums, ~' + Math.round(total / 60) + ' min total audio.');
+  const counts = {};
+  for (const t of tracks) counts[t.album] = (counts[t.album] || 0) + 1;
+  console.log('Wrote ' + path.relative(ROOT, OUT) + ': ' + tracks.length + ' tracks');
+  console.log(counts);
+  const unmatched = tracks.filter(t => t.album === 'Taylor Swift Collection');
+  if (unmatched.length) {
+    console.warn('UNMATCHED', unmatched.length);
+    unmatched.forEach(t => console.warn(' -', t.title));
+  }
 }
 
 if (require.main === module) build();
-module.exports = { build };
+module.exports = { build, albumForTitle, normTitle, cleanTitle, parseStem };
