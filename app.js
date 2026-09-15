@@ -678,15 +678,28 @@
     el.progress.title = known ? '' : 'No track loaded';
   }
 
-  /* Load a track by its index in `tracks`. */
-  function loadTrack(index, autoPlay) {
+  /* Resolve the playable source for a library record.
+     - Bundled records ship a static asset URL (assets/music/...).
+     - Imported records carry the IndexedDB Blob. */
+  function sourceFor(track) {
+    if (track && track.bundled && track.src) return { kind: 'url', data: track.src };
+    if (track && track.blob instanceof Blob) return { kind: 'blob', data: track.blob };
+    return null;
+  }
+
+  /* Load a track by its index in `tracks`.
+     Optional startPos restores a remembered playback position (session resume);
+     it is applied in the 'loadedmetadata' handler once duration is known. */
+  function loadTrack(index, autoPlay, startPos) {
     if (index < 0 || index >= tracks.length) return;
     var track = tracks[index];
 
     currentTrack = index;
     orderPos = order.indexOf(index);
+    pendingSeek = (typeof startPos === 'number' && startPos > 0) ? startPos : 0;
 
-    var url = setTrackUrl(track.blob);
+    var source = sourceFor(track);
+    var url = setTrackSource(source);
     if (!url) {
       toast('Could not read "' + (track.title || track.name) + '".', 'error');
       return;
@@ -697,9 +710,6 @@
     setProgressUI(0);
     el.currentTime.textContent = '0:00';
     el.duration.textContent = formatTime(track.duration);
-
-    audio.src = url;
-    audio.load();
 
     updateNowPlayingUI();
     highlightCurrent();
@@ -714,7 +724,20 @@
   }
 
   function loadCover(track) {
-    if (!track || !track.coverKey) {
+    if (!track) {
+      applyCover(null);
+      el.art.alt = '';
+      return;
+    }
+    // Bundled records carry a static album-art SVG — no IndexedDB cover.
+    if (track.bundled && track.art) {
+      el.art.src = track.art;
+      el.art.alt = 'Album art for ' + (track.album || track.title || track.name);
+      currentCoverKey = null;   // static URL is not an object URL we manage
+      updateMediaSession();
+      return;
+    }
+    if (!track.coverKey) {
       applyCover(null);
       el.art.alt = '';
       return;
@@ -972,7 +995,8 @@
 
     if (!tracks.length) {
       el.playlist.appendChild(emptyState(
-              'music', 'Drag & Drop songs here', 'or click Import'));
+              'music', 'Drag & Drop songs here',
+              loadCatalog() ? 'or click Import' : 'The bundled library is unavailable — import songs to start.'));
       updateCounts(0, 0);
       return;
     }
@@ -1131,13 +1155,44 @@
       var track = tracks[index];
       if (!track) return;
 
+      // Bundled tracks are part of the shipped library — they live in static
+      // files, not IndexedDB, so "removing" one just hides it for the session.
+      if (track.bundled) {
+        var wasCurrent = index === currentTrack;
+        hideBundled(track);
+        tracks.splice(index, 1);
+        if (wasCurrent) {
+          pause();
+          setTrackSource(null);
+          audio.removeAttribute('src');
+          currentTrack = tracks.length ? Math.min(index, tracks.length - 1) : -1;
+          if (currentTrack >= 0) loadTrack(currentTrack, false);
+          else updateNowPlayingUI();
+        } else if (index < currentTrack) {
+          currentTrack--;
+        }
+        buildOrder(true);
+        renderPlaylist(el.search.value);
+        announce('Hid ' + (track.title || track.name));
+        toast('Hid "' + truncateMiddle(track.title || track.name, 32) + '" — it returns next session.',
+          'info', 6000, {
+            actionLabel: 'Undo',
+            action: function () {
+              unhideBundled(track);
+              reloadLibrary();
+              toast('Track restored.', 'success');
+            }
+          });
+        return;
+      }
+
       window.SpideyDB.deleteTrack(track.uid).then(function () {
         var wasCurrent = index === currentTrack;
         tracks.splice(index, 1);
 
         if (wasCurrent) {
           pause();
-          setTrackUrl(null);
+          setTrackSource(null);
           audio.removeAttribute('src');
           currentTrack = tracks.length ? Math.min(index, tracks.length - 1) : -1;
           if (currentTrack >= 0) loadTrack(currentTrack, false);
@@ -1252,27 +1307,124 @@
     });
   }
 
-  function reloadLibrary() {
-    return window.SpideyDB.getAllTracks().then(function (rows) {
-      var playingUid = currentTrack >= 0 && tracks[currentTrack] ? tracks[currentTrack].uid : null;
+  /* ================================================================== *
+   * Bundled catalog + playback session
+   *
+   * The shipped library (assets/catalog.json + assets/music/*.mp3) is the
+   * DEFAULT playlist: it plays straight from static asset URLs, so it works on
+   * every device with zero import step and survives refresh without any
+   * browser storage. User imports add on top of it via IndexedDB as before.
+   *
+   * Hiding a bundled track (the row's remove button) removes it only for the
+   * session — the files still ship with the app, so it returns next load.
+   * The last-played track + position is remembered in localStorage and
+   * restored on boot (pendingSeek, applied on 'loadedmetadata').
+   * ================================================================== */
 
-      tracks = (rows || []).sort(function (a, b) {
-        // Preserve import order; fall back to title for legacy rows.
-        return (a.addedAt || 0) - (b.addedAt || 0);
+  var HIDDEN_KEY = 'spidey.hidden.v1';
+  var SESSION_KEY = 'spidey.session.v1';
+  var catalogReady = null;   // Promise<catalog|null>
+  var hidden = new Set();    // bundled track titles hidden this session
+
+  function loadCatalog() {
+    if (catalogReady) return catalogReady;
+    catalogReady = fetch('assets/catalog.json', { cache: 'no-cache' })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .catch(function () {
+        // No catalog (e.g. dev checkout without assets/): fall back to
+        // imports-only mode, but keep the Promise from rejecting the boot.
+        return null;
       });
+    return catalogReady;
+  }
+
+  function readHidden() {
+    try { hidden = new Set(JSON.parse(localStorage.getItem(HIDDEN_KEY) || '[]')); }
+    catch (e) { hidden = new Set(); }
+  }
+  function writeHidden() {
+    try { localStorage.setItem(HIDDEN_KEY, JSON.stringify([...hidden])); }
+    catch (e) { /* storage full/blocked — hiding still works in-memory */ }
+  }
+
+  function hideBundled(track) { if (track && track.bundled) { hidden.add(track.title || track.name); writeHidden(); } }
+  function unhideBundled(track) { if (track && track.bundled) { hidden.delete(track.title || track.name); writeHidden(); } }
+
+  function saveSession() {
+    if (currentTrack < 0 || !tracks[currentTrack]) return;
+    var t = tracks[currentTrack];
+    var pos = Number.isFinite(audio.currentTime) ? audio.currentTime : 0;
+    try {
+      localStorage.setItem(SESSION_KEY, JSON.stringify({
+        uid: t.uid, pos: pos
+      }));
+    } catch (e) { /* non-fatal */ }
+  }
+
+  function loadSession() {
+    try { lastSession = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null'); }
+    catch (e) { lastSession = null; }
+    return lastSession;
+  }
+
+  /* Merge the bundled catalog + IndexedDB imports into `tracks`.
+     Preserves the currently-playing uid so a reload keeps the user's place. */
+  function reloadLibrary() {
+    var playingUid = currentTrack >= 0 && tracks[currentTrack] ? tracks[currentTrack].uid : null;
+
+    return Promise.all([loadCatalog(), window.SpideyDB.getAllTracks()]).then(function (results) {
+      var catalog = results[0];
+      var rows = results[1] || [];
+
+      var bundledTracks = (catalog && catalog.tracks ? catalog.tracks : []).map(function (t) {
+        return {
+          uid: 'bundled:' + t.src,
+          name: t.title,
+          title: t.title,
+          artist: t.artist || '',
+          album: t.album || '',
+          duration: t.duration || NaN,
+          bundled: true,
+          src: t.src,
+          art: t.art || null,
+          coverKey: null,
+          addedAt: 0
+        };
+      }).filter(function (t) { return !hidden.has(t.title); });
+
+      var imported = rows.slice();
+      // Keep import order.
+      imported.sort(function (a, b) { return (a.addedAt || 0) - (b.addedAt || 0); });
+
+      tracks = bundledTracks.concat(imported);
+
+      var sess = loadSession();
 
       if (playingUid) {
+        // A track was already selected in this session (e.g. a re-import):
+        // keep it, and restore its remembered position if one exists.
         var at = tracks.findIndex(function (t) { return t.uid === playingUid; });
         currentTrack = at;
-      } else if (currentTrack >= tracks.length) {
-        currentTrack = tracks.length - 1;
+        var pos = 0;
+        if (sess && sess.uid === playingUid) pos = sess.pos || 0;
+        if (at >= 0) loadTrack(at, false, pos);
+      } else if (sess) {
+        // Fresh boot: resume the last-played track at its remembered position.
+        var res = tracks.findIndex(function (t) { return t.uid === sess.uid; });
+        if (res >= 0) {
+          currentTrack = res;
+          buildOrder(true);
+          renderPlaylist(el.search.value);
+          loadTrack(res, false, sess.pos || 0);
+          return tracks;
+        }
       }
 
-      buildOrder(true);
-      renderPlaylist(el.search.value);
-
       if (currentTrack < 0 && tracks.length) {
-        // First import: queue up the opening track without forcing playback.
+        // No remembered session: queue the opening track without autoplay.
         loadTrack(0, false);
       }
       return tracks;
@@ -1393,16 +1545,42 @@
       var track = tracks[currentTrack];
       if (track && Number.isFinite(audio.duration) && audio.duration > 0) {
         track.duration = audio.duration;
-        // Persist the discovered duration to IndexedDB so it survives reloads
-        window.SpideyDB.updateTrack(track.uid, { duration: audio.duration }).catch(function (err) {
-          console.warn('Failed to persist duration:', err);
-        });
+        // Persist the discovered duration to IndexedDB — imported tracks only;
+        // bundled ones already carry their duration from the catalog.
+        if (!track.bundled) {
+          window.SpideyDB.updateTrack(track.uid, { duration: audio.duration }).catch(function (err) {
+            console.warn('Failed to persist duration:', err);
+          });
+        }
+        // Restore the remembered playback position for this session.
+        if (pendingSeek > 0 && pendingSeek < audio.duration - 1) {
+          audio.currentTime = pendingSeek;
+          updateProgressUI();
+        }
+        pendingSeek = 0;
       }
       updateNowPlayingUI();
     });
 
   audio.addEventListener('timeupdate', updateProgressUI);
 
+  /* Remember playback position periodically + on teardown so a refresh
+     resumes where the user left off. */
+  var lastSessionSave = 0;
+  audio.addEventListener('timeupdate', function () {
+    var now = Date.now();
+    if (now - lastSessionSave > 3000) {
+      lastSessionSave = now;
+      saveSession();
+    }
+  });
+
+  window.addEventListener('beforeunload', function () {
+    saveSession();
+    setTrackSource(null);
+    coverCache.forEach(function (url) { URL.revokeObjectURL(url); });
+    coverCache.clear();
+  });
   audio.addEventListener('error', function () {
     var track = tracks[currentTrack];
     var name = track ? (track.title || track.name) : 'the track';
@@ -1545,12 +1723,6 @@
     });
   });
 
-  window.addEventListener('beforeunload', function () {
-    setTrackUrl(null);
-    coverCache.forEach(function (url) { URL.revokeObjectURL(url); });
-    coverCache.clear();
-  });
-
   /* ================================================================== *
    * Boot — explicit loading state, DB recovery path
    * ================================================================== */
@@ -1608,6 +1780,7 @@
 
   function init() {
       loadPrefs();
+      readHidden();
       updateVolumeUI();
       updateShuffleUI();
       updateRepeatUI();
@@ -1643,6 +1816,9 @@
       setupWakeLock();
 
       showLoading();
+      // The PWA splash is an inline, render-blocking overlay. Hide it as soon as
+      // the DOM is interactive so it never covers the real UI past first paint.
+      hideSplash();
 
       window.SpideyDB.open()
         .then(function (db) {
@@ -1684,28 +1860,69 @@
     var deferredPrompt = null;
     var wakeLock = null;
 
+    function hideSplash() {
+      var splash = document.getElementById('pwa-splash');
+      if (splash) {
+        splash.classList.add('hidden');
+        // Remove from layout after the fade-out transition.
+        setTimeout(function () { if (splash) splash.remove(); }, 500);
+      }
+    }
+
     function setupInstallPrompt() {
       window.addEventListener('beforeinstallprompt', function (e) {
         e.preventDefault();
         deferredPrompt = e;
-
-        // Show custom install button after a delay (not immediately)
-        setTimeout(function () {
-          if (deferredPrompt && !window.matchMedia('(display-mode: standalone)').matches) {
-            toast('Install Spidey Player for offline access and home screen access.', 'info', 8000, {
-              actionLabel: 'Install',
-              action: function () {
-                installApp();
-              }
-            });
-          }
-        }, 10000); // 10 seconds after load
+        // Android/Chrome: surface the install affordance once, not every load.
+        if (!localStorage.getItem('spidey.install-offer.v1')) {
+          setTimeout(function () {
+            if (deferredPrompt && !window.matchMedia('(display-mode: standalone)').matches) {
+              toast('Install Spidey Player for offline access and home screen access.', 'info', 12000, {
+                actionLabel: 'Install',
+                action: function () {
+                  installApp();
+                }
+              });
+            }
+            localStorage.setItem('spidey.install-offer.v1', '1');
+          }, 6000);
+        }
       });
 
       window.addEventListener('appinstalled', function () {
         deferredPrompt = null;
-        toast('Spidey Player installed! 🎉', 'success');
+        hideIosBanner();
+        toast('Spidey Player installed!', 'success');
       });
+
+      setupIosInstallBanner();
+    }
+
+    /* iOS Safari has no beforeinstallprompt — guide the user through
+       Share → Add to Home Screen. The banner auto-hides once the app is
+       recognized as standalone. */
+    function setupIosInstallBanner() {
+      var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      if (!isIOS) return;
+      if (localStorage.getItem('spidey.ios-banner-dismissed.v1')) return;
+      if (window.matchMedia('(display-mode: standalone)').matches ||
+          navigator.standalone === true) return;
+      var banner = document.getElementById('ios-install-banner');
+      if (banner) {
+        banner.style.display = '';
+        banner.classList.add('show');
+      }
+      var close = document.getElementById('ios-banner-close');
+      if (close) {
+        close.addEventListener('click', function () { hideIosBanner(); });
+      }
+    }
+
+    function hideIosBanner() {
+      var banner = document.getElementById('ios-install-banner');
+      if (banner) banner.classList.remove('show');
+      try { localStorage.setItem('spidey.ios-banner-dismissed.v1', '1'); } catch (e) { /* non-fatal */ }
     }
 
     function installApp() {
@@ -1724,47 +1941,45 @@
                          window.navigator.standalone === true;
       if (isStandalone) {
         document.body.classList.add('pwa-installed');
-        // Adjust safe area for iOS notch/Dynamic Island
-        document.documentElement.style.setProperty('--safe-top', 'env(safe-area-inset-top)');
-        document.documentElement.style.setProperty('--safe-bottom', 'env(safe-area-inset-bottom)');
-        document.documentElement.style.setProperty('--safe-left', 'env(safe-area-inset-left)');
-        document.documentElement.style.setProperty('--safe-right', 'env(safe-area-inset-right)');
+        hideIosBanner();
       }
     }
 
     function setupNetworkStatus() {
-      function updateOnlineStatus() {
-        var isOnline = navigator.onLine;
-        document.body.classList.toggle('offline', !isOnline);
-        if (!isOnline) {
-          toast('You are offline. Your library is still available.', 'warn', 0);
-        } else {
-          var existing = document.querySelector('.toast .toast-text');
-          if (existing && existing.textContent.includes('offline')) {
-            // Dismiss the offline toast
-            var toastEl = existing.closest('.toast');
-            if (toastEl && toastEl.dismiss) toastEl.dismiss();
-          }
-          toast('Back online!', 'success', 3000);
-        }
+      var wasOnline = navigator.onLine;
+      function onOnline() {
+        document.body.classList.remove('offline');
+        // Only toast on an actual transition back to online, not on first load.
+        if (!wasOnline) toast('Back online!', 'success', 3000);
+        wasOnline = true;
       }
-      window.addEventListener('online', updateOnlineStatus);
-      window.addEventListener('offline', updateOnlineStatus);
-      // Initial check
-      updateOnlineStatus();
+      function onOffline() {
+        document.body.classList.add('offline');
+        toast('You are offline. Your bundled library is still playable.', 'warn', 0);
+        wasOnline = false;
+      }
+      window.addEventListener('online', onOnline);
+      window.addEventListener('offline', onOffline);
     }
 
     function setupSWUpdateListener() {
       if (!('serviceWorker' in navigator)) return;
 
       navigator.serviceWorker.addEventListener('controllerchange', function () {
-        if (navigator.serviceWorker.controller) {
+        // A fresh SW took control of this client: the app shell may have
+        // changed, so offer a reload instead of a silent stale UI.
+        if (navigator.serviceWorker.controller && !sessionStorage.getItem('spidey.sw-reloaded')) {
           toast('A new version of Spidey Player is available.', 'info', 0, {
             actionLabel: 'Reload',
-            action: function () { window.location.reload(); }
+            action: function () {
+              sessionStorage.setItem('spidey.sw-reloaded', '1');
+              window.location.reload();
+            }
           });
         }
       });
+      // Clear the one-shot flag on a fresh load.
+      sessionStorage.removeItem('spidey.sw-reloaded');
     }
 
     function handleShortcutActions() {
@@ -1781,7 +1996,7 @@
           if (!isShuffle) toggleShuffle();
           if (tracks.length) {
             buildOrder(true);
-            loadTrack(0, true);
+            loadTrack(order[0], true);
           }
         }, 500);
       }

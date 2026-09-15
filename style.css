@@ -831,6 +831,46 @@ body.offline .offline-indicator {
   font-weight: 600;
 }
 
+/* ---------------------------------------------------------------- *
+  Mobile safe-area + PWA polish
+  - With viewport-fit=cover, iOS draws under the notch/Dynamic Island and
+    home indicator. Pad the body with env(safe-area-inset-*) so the
+    player card and playlist are never covered by the hardware.
+  - Touch targets get a guaranteed 44px hit area on coarse pointers.
+  ---------------------------------------------------------------- */
+
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+@media (display-mode: standalone) {
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+@media (pointer: coarse) {
+  /* Enlarge tap targets on phones/tablets */
+  .icon-btn,
+  .btn-chip,
+  .track-remove,
+  .banner-close {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  /* Tighten the progress thumb for finger-sized dragging */
+  .progress-thumb {
+    width: 18px;
+    height: 18px;
+  }
+  /* Prevent the page from scrolling when the playlist scrolls */
+  #playlist {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 /* Install button in header for PWA */
 .pwa-install-btn {
   display: none;
@@ -910,12 +950,8 @@ body.pwa-installed .pwa-install-btn {
   z-index: 1000;
 }
 
-@supports (-webkit-touch-callout: none) {
-  @media (display-mode: browser) {
-    .ios-install-banner {
-      display: block;
-    }
-  }
+.ios-install-banner.show {
+  display: block;
 }
 
 .ios-install-banner .banner-content {
